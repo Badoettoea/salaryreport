@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Potong Gaji</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+    h1 { text-align: center; }
+    .container { max-width: 800px; margin: auto; }
+    .form, .table { background: white; padding: 20px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #007bff; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Laporan Potong Gaji</h1>
+    <div class="form">
+      <h2>Tambah Karyawan</h2>
+      <input type="text" id="nama" placeholder="Nama Karyawan" required>
+      <input type="number" id="gajiPokok" placeholder="Gaji Pokok (Rp)" required>
+      <input type="number" id="pajak" placeholder="Potongan Pajak (Rp)">
+      <input type="number" id="bpjs" placeholder="Potongan BPJS (Rp)">
+      <button onclick="tambahData()">Tambah</button>
+    </div>
+    <div class="table">
+      <h2>Daftar Laporan</h2>
+      <table id="tabelLaporan">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Gaji Pokok</th>
+            <th>Pajak</th>
+            <th>BPJS</th>
+            <th>Gaji Bersih</th>
+          </tr>
+        </thead>
+        <tbody id="tabelBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    function tambahData() {
+      const nama = document.getElementById('nama').value;
+      const gajiPokok = parseFloat(document.getElementById('gajiPokok').value) || 0;
+      const pajak = parseFloat(document.getElementById('pajak').value) || 0;
+      const bpjs = parseFloat(document.getElementById('bpjs').value) || 0;
+      const gajiBersih = gajiPokok - pajak - bpjs;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${nama}</td>
+        <td>Rp ${gajiPokok.toLocaleString()}</td>
+        <td>Rp ${pajak.toLocaleString()}</td>
+        <td>Rp ${bpjs.toLocaleString()}</td>
+        <td>Rp ${gajiBersih.toLocaleString()}</td>
+      `;
+      document.getElementById('tabelBody').appendChild(row);
+
+      // Reset form
+      document.getElementById('nama').value = '';
+      document.getElementById('gajiPokok').value = '';
+      document.getElementById('pajak').value = '';
+      document.getElementById('bpjs').value = '';
+    }
+  </script>
+</body>
+</html>
