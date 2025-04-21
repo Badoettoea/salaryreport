@@ -1,3 +1,4 @@
-PIN	Role	Nama	NIP	Unit Kerja
-12345	User	Budi Santoso	1987654321	Keuangan
-67890	Admin	Ani Rahayu	1234567890	HRD
+PIN,Role,Nama
+12345,User,John Doe
+67890,User,Jane Smith
+99999,Admin,Admin Satu
