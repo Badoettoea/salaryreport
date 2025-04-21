@@ -71,4 +71,81 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const user = JSON.parse(local
+      const user = JSON.parse(localStorage.getItem('currentUser'));
+      if (!user) {
+        alert('Silakan login terlebih dahulu');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Tampilkan data profil
+      document.getElementById('userName').textContent = user.Nama || '-';
+      document.getElementById('userNIP').textContent = `NIP: ${user.NIP || '-'}`;
+      document.getElementById('userUnit').textContent = `Unit Kerja: ${user['Unit Kerja'] || '-'}`;
+
+      // Load pengumuman
+      fetch('announcement.txt')
+        .then(response => {
+          if (!response.ok) throw new Error('Gagal memuat pengumuman');
+          return response.text();
+        })
+        .then(data => {
+          document.getElementById('userAnnouncement').textContent = data || 'Tidak ada pengumuman terbaru.';
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('userAnnouncement').textContent = 'Gagal memuat pengumuman';
+        });
+
+      // Format angka untuk display
+      function formatCurrency(amount) {
+        if (!amount) return '0';
+        return parseInt(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
+      // Tampilkan data gaji
+      const salaryFields = [
+        { key: 'Gaji Kotor', label: 'Gaji Pokok' },
+        { key: 'Potongan BPD', label: 'Potongan BPD' },
+        { key: 'DPLK', label: 'DPLK' },
+        { key: 'KPRI', label: 'KPRI' },
+        { key: 'PGRI', label: 'PGRI' },
+        { key: 'HPPT', label: 'HPPT' },
+        { key: 'Dansos', label: 'Dansos' },
+        { key: 'Bazda', label: 'Bazda' },
+        { key: 'Darma Wanita', label: 'Darma Wanita' },
+        { key: 'Korpri', label: 'Korpri' },
+        { key: 'Halbi', label: 'Halbi' },
+        { key: 'Gaji Bersih', label: 'Take Home Pay', isTotal: true }
+      ];
+
+      const salaryTable = document.getElementById('salaryDetails');
+      salaryFields.forEach(item => {
+        const row = document.createElement('tr');
+        const labelCell = document.createElement('td');
+        const valueCell = document.createElement('td');
+        
+        labelCell.className = 'px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900';
+        labelCell.textContent = item.label;
+        
+        valueCell.className = 'px-4 py-3 whitespace-nowrap text-sm number-format';
+        valueCell.textContent = formatCurrency(user[item.key]);
+        
+        if (item.isTotal) {
+          labelCell.classList.add('font-bold');
+          valueCell.classList.add('font-bold', 'text-green-600');
+        }
+        
+        row.appendChild(labelCell);
+        row.appendChild(valueCell);
+        salaryTable.appendChild(row);
+      });
+    });
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
