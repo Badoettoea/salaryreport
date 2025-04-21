@@ -14,31 +14,41 @@
     .profile-card {
       background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
     }
+    .empty-data {
+      color: #9ca3af;
+      font-style: italic;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div class="container mx-auto p-4">
-    <!-- Cek Login -->
+    <!-- Authentication Check -->
     <script>
       const user = JSON.parse(localStorage.getItem('currentUser'));
       if (!user) window.location.href = 'index.html';
     </script>
 
-    <!-- Profil Header -->
+    <!-- Profile Header -->
     <div class="profile-card text-white p-6 rounded-lg shadow-lg mb-6">
       <div class="flex flex-col md:flex-row items-center gap-6">
         <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center border-4 border-white/50 shadow">
           <i class="fas fa-user text-4xl text-blue-500"></i>
         </div>
         <div>
-          <h1 class="text-2xl font-bold" id="namaKaryawan">-</h1>
-          <p class="text-white/90" id="nipKaryawan">NIP: -</p>
-          <p class="text-white/90" id="unitKerja">Unit Kerja: -</p>
+          <h1 class="text-2xl font-bold">
+            <span id="namaKaryawan" class="empty-data">Belum diisi</span>
+          </h1>
+          <p class="text-white/90">
+            NIP: <span id="nipKaryawan" class="empty-data">Belum diisi</span>
+          </p>
+          <p class="text-white/90">
+            Unit Kerja: <span id="unitKerja" class="empty-data">Belum diisi</span>
+          </p>
         </div>
       </div>
     </div>
 
-    <!-- Pengumuman -->
+    <!-- Announcement -->
     <div class="bg-white p-6 rounded-lg shadow mb-6">
       <h2 class="text-xl font-semibold mb-4 text-blue-600 flex items-center gap-2">
         <i class="fas fa-bullhorn"></i> Pengumuman Terbaru
@@ -48,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Detail Gaji -->
+    <!-- Salary Details -->
     <div class="bg-white p-6 rounded-lg shadow">
       <h2 class="text-xl font-semibold mb-4 text-green-600 flex items-center gap-2">
         <i class="fas fa-file-invoice-dollar"></i> Rincian Gaji
@@ -63,7 +73,7 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200" id="tabelGaji">
-            <!-- Data akan diisi oleh JavaScript -->
+            <!-- Will be populated by JavaScript -->
           </tbody>
           <tfoot class="bg-gray-50 font-semibold">
             <tr>
@@ -75,7 +85,7 @@
       </div>
     </div>
 
-    <!-- Tombol Logout -->
+    <!-- Logout Button -->
     <div class="mt-6 text-center">
       <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2">
         <i class="fas fa-sign-out-alt"></i> Logout
@@ -88,23 +98,31 @@
       const user = JSON.parse(localStorage.getItem('currentUser'));
       if (!user) return;
 
-      // Tampilkan data profil
-      document.getElementById('namaKaryawan').textContent = user.Nama || '-';
-      document.getElementById('nipKaryawan').textContent = `NIP: ${user.NIP || '-'}`;
-      document.getElementById('unitKerja').textContent = `Unit Kerja: ${user['Unit Kerja'] || '-'}`;
+      // Display profile data with fallback for empty values
+      document.getElementById('namaKaryawan').textContent = user.Nama || 'Data tidak tersedia';
+      document.getElementById('namaKaryawan').className = user.Nama ? '' : 'empty-data';
+      
+      document.getElementById('nipKaryawan').textContent = user.NIP || 'Data tidak tersedia';
+      document.getElementById('nipKaryawan').className = user.NIP ? '' : 'empty-data';
+      
+      document.getElementById('unitKerja').textContent = user['Unit Kerja'] || 'Data tidak tersedia';
+      document.getElementById('unitKerja').className = user['Unit Kerja'] ? '' : 'empty-data';
 
-      // Load pengumuman
+      // Load announcement
       fetch('announcement.txt')
         .then(response => response.text())
         .then(text => {
-          document.getElementById('pengumuman').textContent = text || 'Tidak ada pengumuman';
+          const content = text.trim() || 'Tidak ada pengumuman saat ini';
+          document.getElementById('pengumuman').textContent = content;
+          if (!text.trim()) document.getElementById('pengumuman').classList.add('empty-data');
         })
         .catch(() => {
           document.getElementById('pengumuman').textContent = 'Gagal memuat pengumuman';
+          document.getElementById('pengumuman').classList.add('text-red-500');
         });
 
-      // Tampilkan rincian gaji
-      const komponenGaji = [
+      // Display salary components
+      const salaryComponents = [
         { label: 'Gaji Pokok', key: 'Gaji Kotor' },
         { label: 'Potongan BPD', key: 'Potongan BPD' },
         { label: 'DPLK', key: 'DPLK' },
@@ -118,34 +136,34 @@
         { label: 'Halbi', key: 'Halbi' }
       ];
 
-      const tabel = document.getElementById('tabelGaji');
-      let totalPotongan = 0;
-      let gajiPokok = 0;
+      const tableBody = document.getElementById('tabelGaji');
+      let totalDeductions = 0;
+      let baseSalary = 0;
 
-      komponenGaji.forEach(item => {
-        const nilai = parseFloat(user[item.key]) || 0;
+      salaryComponents.forEach(component => {
+        const value = parseFloat(user[component.key]) || 0;
         
-        if (item.key === 'Gaji Kotor') {
-          gajiPokok = nilai;
+        if (component.key === 'Gaji Kotor') {
+          baseSalary = value;
         } else {
-          totalPotongan += nilai;
+          totalDeductions += value;
         }
 
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="px-4 py-3 whitespace-nowrap">${item.label}</td>
-          <td class="px-4 py-3 whitespace-nowrap currency">${formatRupiah(nilai)}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${component.label}</td>
+          <td class="px-4 py-3 whitespace-nowrap currency">${formatCurrency(value)}</td>
         `;
-        tabel.appendChild(row);
+        tableBody.appendChild(row);
       });
 
-      // Hitung Take Home Pay
-      const takeHomePay = gajiPokok - totalPotongan;
-      document.getElementById('thp').textContent = formatRupiah(takeHomePay);
+      // Calculate and display Take Home Pay
+      const takeHomePay = baseSalary - totalDeductions;
+      document.getElementById('thp').textContent = formatCurrency(takeHomePay);
     });
 
-    function formatRupiah(amount) {
-      return new Intl.NumberFormat('id-ID').format(amount);
+    function formatCurrency(amount) {
+      return amount === 0 ? '-' : new Intl.NumberFormat('id-ID').format(amount);
     }
 
     function logout() {
