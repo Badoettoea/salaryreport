@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Sistem Manajemen Keuangan</title>
+  <title>Salary Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
@@ -16,116 +16,137 @@
       backdrop-filter: blur(10px);
       background: rgba(255, 255, 255, 0.8);
     }
+    .number-cell {
+      text-align: right;
+      font-family: monospace;
+    }
   </style>
 </head>
 <body>
-  <!-- Login Container -->
   <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="card rounded-xl shadow-xl p-8 w-full max-w-md border border-white/30">
-      <!-- Logo Section -->
-      <div class="flex flex-col items-center mb-6">
-        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-3 border-2 border-white shadow">
+    <div class="card rounded-xl shadow-xl p-6 w-full max-w-4xl border border-white/30">
+      <!-- User Profile Header -->
+      <div class="flex flex-col md:flex-row items-center mb-6 gap-4">
+        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center border-2 border-white shadow">
           <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4z" clip-rule="evenodd"/>
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
           </svg>
         </div>
-        <h1 class="text-2xl font-bold text-blue-600">Manajemen Keuangan</h1>
-        <p class="text-gray-600 text-sm mt-1">Silakan masuk dengan PIN Anda</p>
-      </div>
-
-      <!-- PIN Input -->
-      <div class="mb-4">
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
+        <div class="text-center md:text-left">
+          <h1 class="text-xl font-bold text-blue-600" id="userName">Profil Karyawan</h1>
+          <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
+            <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded" id="userNIP"></span>
+            <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded" id="userUnit"></span>
           </div>
-          <input 
-            id="pinInput"
-            type="password" 
-            placeholder="Masukkan PIN" 
-            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/90"
-          >
         </div>
       </div>
 
-      <!-- Login Buttons -->
-      <div class="space-y-3">
-        <button id="loginUser" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium">
-          Masuk sebagai Karyawan
-        </button>
-        <button id="loginAdmin" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg font-medium">
-          Masuk sebagai Admin
-        </button>
+      <!-- Salary Summary -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h3 class="text-sm font-medium text-gray-500">Gaji Pokok</h3>
+          <p class="text-2xl font-bold number-cell" id="gajiPokok">Rp0</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h3 class="text-sm font-medium text-gray-500">Total Potongan</h3>
+          <p class="text-2xl font-bold number-cell text-red-600" id="totalPotongan">Rp0</p>
+        </div>
+        <div class="bg-blue-50 p-4 rounded-lg shadow border border-blue-200">
+          <h3 class="text-sm font-medium text-blue-600">Take Home Pay</h3>
+          <p class="text-2xl font-bold number-cell text-blue-600" id="takeHomePay">Rp0</p>
+        </div>
       </div>
 
-      <!-- Status Message -->
-      <div id="statusMessage" class="mt-4 text-sm text-center text-red-500 hidden"></div>
+      <!-- Deductions Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2 text-left">Jenis Potongan</th>
+              <th class="px-4 py-2 text-right">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody id="deductionsTable" class="divide-y divide-gray-200">
+            <!-- Dynamic deduction rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-6 flex justify-end">
+        <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+          Cetak Slip Gaji
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      let userDatabase = [];
+      // Load user data from localStorage
+      const userData = JSON.parse(localStorage.getItem('currentUser'));
       
-      // Load data from data.csv
-      function loadDatabase() {
-        Papa.parse('data.csv', {
-          download: true,
-          header: true,
-          complete: function(results) {
-            userDatabase = results.data;
-          },
-          error: function(error) {
-            showStatus("Gagal memuat database. Silakan refresh halaman.");
-            console.error("Database error:", error);
-          }
-        });
+      if (!userData) {
+        alert('Data karyawan tidak ditemukan. Silakan login kembali.');
+        window.location.href = 'index.html';
+        return;
       }
 
-      // Login function
-      function login(role) {
-        const pin = document.getElementById('pinInput').value.trim();
-        
-        if (!pin) {
-          showStatus("Silakan masukkan PIN Anda");
-          return;
+      // Display user profile
+      document.getElementById('userName').textContent = userData.Nama || '-';
+      document.getElementById('userNIP').textContent = `NIP: ${userData.NIP || '-'}`;
+      document.getElementById('userUnit').textContent = `Unit: ${userData['Unit Kerja'] || '-'}`;
+
+      // Format currency
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          minimumFractionDigits: 0
+        }).format(amount || 0);
+      }
+
+      // Calculate salary components
+      const gajiPokok = parseInt(userData['Gaji Kotor']) || 0;
+      const deductionHeaders = Object.keys(userData).filter(key => 
+        key !== 'PIN' && 
+        key !== 'Role' && 
+        key !== 'Nama' && 
+        key !== 'NIP' && 
+        key !== 'Unit Kerja' && 
+        key !== 'Gaji Kotor' && 
+        key !== 'Gaji Bersih' &&
+        parseInt(userData[key]) > 0
+      );
+
+      let totalPotongan = 0;
+      const deductionsTable = document.getElementById('deductionsTable');
+      deductionsTable.innerHTML = '';
+
+      // Process each deduction
+      deductionHeaders.forEach(header => {
+        const amount = parseInt(userData[header]) || 0;
+        if (amount > 0) {
+          totalPotongan += amount;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="px-4 py-2">${header}</td>
+            <td class="px-4 py-2 number-cell">${formatCurrency(amount)}</td>
+          `;
+          deductionsTable.appendChild(row);
         }
-        
-        const user = userDatabase.find(u => u.PIN === pin && u.Role === (role === 'user' ? 'User' : 'Admin'));
-        
-        if (user) {
-          if (role === 'user') {
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            window.location.href = 'user.html';
-          } else {
-            window.location.href = 'admin.html';
-          }
-        } else {
-          showStatus("PIN tidak valid atau Anda tidak memiliki akses");
-        }
-      }
-
-      // Show status message
-      function showStatus(message) {
-        const statusEl = document.getElementById('statusMessage');
-        statusEl.textContent = message;
-        statusEl.classList.remove('hidden');
-        setTimeout(() => statusEl.classList.add('hidden'), 3000);
-      }
-
-      // Event listeners
-      document.getElementById('loginUser').addEventListener('click', () => login('user'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
-      
-      // Enter key to login as user
-      document.getElementById('pinInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') login('user');
       });
 
-      // Initialize
-      loadDatabase();
+      // Calculate take home pay
+      const takeHomePay = gajiPokok - totalPotongan;
+
+      // Update summary
+      document.getElementById('gajiPokok').textContent = formatCurrency(gajiPokok);
+      document.getElementById('totalPotongan').textContent = formatCurrency(totalPotongan);
+      document.getElementById('takeHomePay').textContent = formatCurrency(takeHomePay);
     });
   </script>
 </body>
