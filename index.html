@@ -3,15 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Sistem Manajemen Keuangan</title>
+  <title>Login Sistem Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { transition: all 0.2s ease; }
-    body {
-      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    }
     .shake {
       animation: shake 0.5s;
     }
@@ -22,42 +18,35 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-    <!-- Header -->
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-md p-6 w-full max-w-sm">
     <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold text-blue-600">Manajemen Keuangan</h1>
-      <p class="text-gray-600 mt-2">Masukkan 8 digit PIN Anda</p>
+      <h1 class="text-2xl font-bold text-blue-600">Sistem Keuangan Sekolah</h1>
+      <p class="text-gray-600 mt-1">Masukkan 8 digit PIN Anda</p>
     </div>
 
-    <!-- PIN Input -->
     <div class="mb-4">
       <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
-          <i class="fas fa-key text-gray-400"></i>
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-lock text-gray-400"></i>
         </div>
-        <input 
+        <input
           id="pinInput"
-          type="password" 
+          type="password"
           inputmode="numeric"
           maxlength="8"
-          placeholder="12345678"
-          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="Contoh: 19670304"
+          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           autocomplete="off"
         >
       </div>
       <p id="pinError" class="text-red-500 text-sm mt-1 h-5"></p>
     </div>
 
-    <!-- Login Buttons -->
-    <div class="space-y-3">
-      <button id="loginBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center">
-        <span id="btnText">Masuk</span>
-        <span id="spinner" class="ml-2 hidden">
-          <i class="fas fa-spinner fa-spin"></i>
-        </span>
-      </button>
-    </div>
+    <button id="loginBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg">
+      <span id="btnText">Masuk</span>
+      <span id="spinner" class="ml-2 hidden"><i class="fas fa-spinner fa-spin"></i></span>
+    </button>
   </div>
 
   <script>
@@ -91,8 +80,10 @@
 
       // Validate PIN input
       pinInput.addEventListener('input', () => {
+        // Only allow numbers and limit to 8 digits
         pinInput.value = pinInput.value.replace(/\D/g, '').slice(0, 8);
         pinError.textContent = '';
+        pinInput.classList.remove('border-red-500', 'shake');
       });
 
       // Login function
@@ -100,31 +91,31 @@
         const pin = pinInput.value.trim();
         
         // Validate format
-        if (pin.length !== 8) {
-          pinError.textContent = "PIN harus 8 digit angka";
+        if (pin.length !== 8 || !/^\d+$/.test(pin)) {
+          showError("PIN harus 8 digit angka");
           pinInput.classList.add('border-red-500', 'shake');
           setTimeout(() => pinInput.classList.remove('shake'), 500);
           return;
         }
 
         // Show loading state
-        btnText.textContent = "Memeriksa...";
+        btnText.textContent = "Memverifikasi...";
         spinner.classList.remove('hidden');
         loginBtn.disabled = true;
 
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Find user
-        const user = employeeData.find(emp => emp.PIN === pin);
+        // Find user - case sensitive exact match
+        const user = employeeData.find(emp => emp.PIN.trim() === pin);
         
         if (user) {
           // Successful login
           localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
+          window.location.href = user.Role.trim() === 'Admin' ? 'admin.html' : 'user.html';
         } else {
           // PIN not found
-          pinError.textContent = "PIN tidak ditemukan. Coba lagi.";
+          showError("PIN tidak ditemukan. Contoh PIN valid: 19670304");
           pinInput.classList.add('border-red-500', 'shake');
           setTimeout(() => {
             pinInput.classList.remove('shake');
