@@ -15,59 +15,66 @@
     <h1 class="text-2xl font-bold text-center mb-4 text-blue-600">Selamat Datang</h1>
     <div id="announcement" class="mb-4 p-4 bg-blue-50 rounded text-blue-800"></div>
     <div class="space-y-4">
-      <input id=" dorp-2xl pinInput" type="text" placeholder="Masukkan PIN" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50">
-      <button onclick="login('user')" class="w-full bg-blue-400 text-white p-2 rounded hover:bg-blue-500">Login User</button>
-      <button onclick="login('admin')" class="w-full bg-green-400 text-white p-2 rounded hover:bg-green-500">Login Admin</button>
+      <input id="pinInput" type="text" placeholder="Masukkan PIN" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50">
+      <button id="loginUser" class="w-full bg-blue-400 text-white p-2 rounded hover:bg-blue-500">Login User</button>
+      <button id="loginAdmin" class="w-full bg-green-400 text-white p-2 rounded hover:bg-green-500">Login Admin</button>
     </div>
   </div>
 
   <script>
-    let database = [];
-    const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
+    document.addEventListener('DOMContentLoaded', () => {
+      let database = [];
+      const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
 
-    // Load CSV
-    function loadDatabase() {
-      Papa.parse('database.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-          database = results.data;
-          loadAnnouncement();
-        }
-      });
-    }
-
-    // Load announcement
-    function loadAnnouncement() {
-      fetch('announcement.txt')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('announcement').innerText = data || 'Tidak ada pengumuman.';
+      function loadDatabase() {
+        Papa.parse('database.csv', {
+          download: true,
+          header: true,
+          complete: function(results) {
+            database = results.data;
+            loadAnnouncement();
+          }
         });
-    }
+      }
 
-    // Login function
-    function login(role) {
-      const pin = document.getElementById('pinInput').value;
-      if (role === 'user') {
-        const user = database.find(d => d.PIN === pin && d.Role === 'User');
-        if (user) {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = 'user.html';
-        } else {
-          alert('PIN tidak valid atau bukan user.');
+      function loadAnnouncement() {
+        fetch('announcement.txt')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('announcement').innerText = data || 'Tidak ada pengumuman.';
+          });
+      }
+
+      function login(role) {
+        const pinInput = document.getElementById('pinInput');
+        if (!pinInput) {
+          alert('Elemen PIN tidak ditemukan. Silakan periksa halaman.');
+          return;
         }
-      } else if (role === 'admin') {
-        const admin = database.find(d => d.PIN === pin && d.Role === 'Admin');
-        if (admin) {
-          window.location.href = 'admin.html';
-        } else {
-          alert('PIN tidak valid atau bukan admin.');
+        const pin = pinInput.value;
+        if (role === 'user') {
+          const user = database.find(d => d.PIN === pin && d.Role === 'User');
+          if (user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            window.location.href = 'user.html';
+          } else {
+            alert('PIN tidak valid atau bukan user.');
+          }
+        } else if (role === 'admin') {
+          const admin = database.find(d => d.PIN === pin && d.Role === 'Admin');
+          if (admin) {
+            window.location.href = 'admin.html';
+          } else {
+            alert('PIN tidak valid atau bukan admin.');
+          }
         }
       }
-    }
 
-    loadDatabase();
+      document.getElementById('loginUser').addEventListener('click', () => login('user'));
+      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
+
+      loadDatabase();
+    });
   </script>
 </body>
 </html>
