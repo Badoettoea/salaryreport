@@ -12,17 +12,22 @@
     body {
       background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
     }
-    .dark body {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    .shake {
+      animation: shake 0.5s;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
     }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-md">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
     <!-- Header -->
     <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400">Manajemen Keuangan</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">Silakan masuk dengan PIN 8 digit</p>
+      <h1 class="text-2xl font-bold text-blue-600">Manajemen Keuangan</h1>
+      <p class="text-gray-600 mt-2">Masukkan 8 digit PIN Anda</p>
     </div>
 
     <!-- PIN Input -->
@@ -35,107 +40,113 @@
           id="pinInput"
           type="password" 
           inputmode="numeric"
-          pattern="\d{8}"
           maxlength="8"
-          placeholder="Masukkan 8 digit PIN"
-          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="12345678"
+          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          autocomplete="off"
         >
       </div>
-      <p id="pinError" class="text-red-500 text-xs mt-1 hidden">PIN harus 8 digit angka</p>
+      <p id="pinError" class="text-red-500 text-sm mt-1 h-5"></p>
     </div>
 
     <!-- Login Buttons -->
     <div class="space-y-3">
-      <button id="loginUser" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg">
-        Login Karyawan
-      </button>
-      <button id="loginAdmin" class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-2 rounded-lg">
-        Login Admin
+      <button id="loginBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center">
+        <span id="btnText">Masuk</span>
+        <span id="spinner" class="ml-2 hidden">
+          <i class="fas fa-spinner fa-spin"></i>
+        </span>
       </button>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let employeeData = [];
+    document.addEventListener('DOMContentLoaded', async () => {
       const pinInput = document.getElementById('pinInput');
       const pinError = document.getElementById('pinError');
+      const loginBtn = document.getElementById('loginBtn');
+      const btnText = document.getElementById('btnText');
+      const spinner = document.getElementById('spinner');
+
+      let employeeData = [];
 
       // Load employee data
-      Papa.parse('data.csv', {
-        download: true,
-        header: true,
-        complete: (results) => {
-          employeeData = results.data;
-          console.log('Database loaded:', employeeData);
-        },
-        error: (err) => {
-          console.error("Error loading database:", err);
-          showError("Gagal memuat database karyawan");
-        }
-      });
+      try {
+        const data = await new Promise((resolve, reject) => {
+          Papa.parse('data.csv', {
+            download: true,
+            header: true,
+            complete: resolve,
+            error: reject
+          });
+        });
+        employeeData = data.data;
+        console.log('Database loaded with', employeeData.length, 'records');
+      } catch (err) {
+        console.error("Error loading database:", err);
+        showError("Sistem sedang maintenance. Silakan coba lagi nanti.");
+        loginBtn.disabled = true;
+        return;
+      }
 
-      // Validate PIN format
+      // Validate PIN input
       pinInput.addEventListener('input', () => {
-        const pin = pinInput.value;
-        if (pin.length === 8 && !/^\d+$/.test(pin)) {
-          pinError.textContent = "PIN harus angka saja";
-          pinError.classList.remove('hidden');
-        } else {
-          pinError.classList.add('hidden');
-        }
+        pinInput.value = pinInput.value.replace(/\D/g, '').slice(0, 8);
+        pinError.textContent = '';
       });
 
       // Login function
-      function login(role) {
+      loginBtn.addEventListener('click', async () => {
         const pin = pinInput.value.trim();
         
-        // Validate PIN format
-        if (pin.length !== 8 || !/^\d+$/.test(pin)) {
+        // Validate format
+        if (pin.length !== 8) {
           pinError.textContent = "PIN harus 8 digit angka";
-          pinError.classList.remove('hidden');
-          pinInput.focus();
+          pinInput.classList.add('border-red-500', 'shake');
+          setTimeout(() => pinInput.classList.remove('shake'), 500);
           return;
         }
 
-        // Find user in database
-        const user = employeeData.find(emp => 
-          emp.PIN === pin && 
-          emp.Role === (role === 'user' ? 'User' : 'Admin')
-        );
+        // Show loading state
+        btnText.textContent = "Memeriksa...";
+        spinner.classList.remove('hidden');
+        loginBtn.disabled = true;
 
-        if (user) {
-          if (role === 'user') {
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            window.location.href = 'user.html';
-          } else {
-            window.location.href = 'admin.html';
-          }
-        } else {
-          showError("PIN tidak ditemukan atau tidak memiliki akses");
-        }
-      }
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Show error message
-      function showError(message) {
-        const errorEl = document.createElement('div');
-        errorEl.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg';
-        errorEl.textContent = message;
-        document.body.appendChild(errorEl);
+        // Find user
+        const user = employeeData.find(emp => emp.PIN === pin);
         
-        setTimeout(() => {
-          errorEl.remove();
-        }, 3000);
-      }
+        if (user) {
+          // Successful login
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
+        } else {
+          // PIN not found
+          pinError.textContent = "PIN tidak ditemukan. Coba lagi.";
+          pinInput.classList.add('border-red-500', 'shake');
+          setTimeout(() => {
+            pinInput.classList.remove('shake');
+            pinInput.focus();
+            pinInput.select();
+          }, 500);
+        }
 
-      // Event listeners
-      document.getElementById('loginUser').addEventListener('click', () => login('user'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
-      
+        // Reset button state
+        btnText.textContent = "Masuk";
+        spinner.classList.add('hidden');
+        loginBtn.disabled = false;
+      });
+
       // Enter key to submit
       pinInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') login('user');
+        if (e.key === 'Enter') loginBtn.click();
       });
+
+      function showError(message) {
+        pinError.textContent = message;
+      }
     });
   </script>
 </body>
