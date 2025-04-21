@@ -18,7 +18,7 @@
       @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600;
     }
     .profile-img {
-      @apply w-24 h-24 rounded-full object-cover border-2 border-blue-200;
+      @apply w-24 h-24 rounded-full object-cover mb-4 border-2 border-blue-200;
     }
   </style>
 </head>
@@ -36,14 +36,8 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div class="card col-span-1">
         <h2 class="text-xl font-semibold mb-4 text-blue-600">Informasi Pribadi</h2>
-        <div class="flex flex-col items-center mb-4">
-          <img id="profilePhoto" src="/default.png" alt="Foto Profil" class="profile-img mb-2">
-          <input type="file" id="photoInput" accept="image/*" class="text-sm">
-          <button onclick="uploadPhoto()" class="btn-primary mt-2">
-            <i class="fas fa-upload mr-2"></i>Upload Foto
-          </button>
-        </div>
         <div id="personalInfo" class="space-y-2">
+          <img id="profilePhoto" class="profile-img" src="/default.png" alt="Foto Profil">
           <!-- Data akan diisi oleh JavaScript -->
         </div>
       </div>
@@ -65,26 +59,12 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
       if (!currentUser) {
         alert('Silakan login terlebih dahulu');
         window.location.href = 'index.html';
         return;
-      }
-
-      // Cek foto dari backend kalau nggak ada di localStorage
-      if (!currentUser.photo) {
-        try {
-          const response = await fetch(`http://localhost:5000/api/user/get-photo?pin=${currentUser.PIN}`);
-          const data = await response.json();
-          if (data.photoPath) {
-            currentUser.photo = data.photoPath;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-          }
-        } catch (error) {
-          console.error('Error fetching photo:', error);
-        }
       }
 
       // Load data gaji
@@ -116,6 +96,20 @@
         .catch(error => {
           console.error("Error loading announcement:", error);
         });
+
+      // Cek foto profil
+      const profilePhoto = document.getElementById('profilePhoto');
+      fetch(`/users/${currentUser.PIN}.jpg`)
+        .then(response => {
+          if (response.ok) {
+            profilePhoto.src = `/users/${currentUser.PIN}.jpg`;
+          } else {
+            profilePhoto.src = '/default.png'; // Fallback ke default.png
+          }
+        })
+        .catch(() => {
+          profilePhoto.src = '/default.png'; // Fallback kalo error
+        });
     });
 
     // Format angka ke format keuangan
@@ -128,15 +122,12 @@
       // Informasi pribadi
       const personalInfoEl = document.getElementById('personalInfo');
       personalInfoEl.innerHTML = `
+        <img id="profilePhoto" class="profile-img" src="/default.png" alt="Foto Profil">
         <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
         <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
         <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
         <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
       `;
-
-      // Set foto profil
-      const profilePhotoEl = document.getElementById('profilePhoto');
-      profilePhotoEl.src = user.photo || '/default.png';
 
       // Informasi gaji
       const salaryInfoEl = document.getElementById('salaryInfo');
@@ -180,42 +171,6 @@
           </div>
         </div>
       `;
-    }
-
-    // Upload foto profil
-    async function uploadPhoto() {
-      const photoInput = document.getElementById('photoInput');
-      if (!photoInput.files[0]) {
-        alert('Pilih foto terlebih dahulu!');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('photo', photoInput.files[0]);
-      formData.append('pin', JSON.parse(localStorage.getItem('currentUser')).PIN);
-
-      try {
-        const response = await fetch('http://localhost:5000/api/user/upload-photo', {
-          method: 'POST',
-          body: formData
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (data.photoPath) {
-          const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-          currentUser.photo = data.photoPath;
-          localStorage.setItem('currentUser', JSON.stringify(currentUser));
-          document.getElementById('profilePhoto').src = data.photoPath;
-          alert('Foto berhasil diunggah!');
-        } else {
-          throw new Error('No photoPath in response');
-        }
-      } catch (error) {
-        console.error('Error uploading photo:', error);
-        alert('Gagal mengunggah foto: ' + error.message);
-      }
     }
 
     // Fungsi logout
