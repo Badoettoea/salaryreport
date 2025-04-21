@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
+    <h2 class="text-xl font-semibold mb-2">Post Pengumuman</h2>
+    <textarea id="announcementText" class="w-full p-2 border rounded mb-2" rows="4" placeholder="Tulis pengumuman..."></textarea>
+    <button onclick="postAnnouncement()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Post</button>
+    <h2 class="text-xl font-semibold mt-6 mb-2">Kelola Database</h2>
+    <input type="file" id="csvUpload" accept=".csv" class="mb-2">
+    <button onclick="uploadDatabase()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Upload CSV</button>
+    <a id="downloadLink" href="database.csv" download class="block mt-2 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 text-center">Download Database</a>
+    <button onclick="logout()" class="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+  </div>
+
+  <script>
+    function postAnnouncement() {
+      const text = document.getElementById('announcementText').value;
+      fetch('announcement.txt', {
+        method: 'PUT',
+        body: text
+      }).then(() => alert('Pengumuman dipost!'));
+    }
+
+    function uploadDatabase() {
+      const file = document.getElementById('csvUpload').files[0];
+      if (file) {
+        Papa.parse(file, {
+          header: true,
+          complete: function(results) {
+            const csv = Papa.unparse(results.data);
+            fetch('database.csv', {
+              method: 'PUT',
+              body: csv
+            }).then(() => alert('Database diupdate!'));
+          }
+        });
+      }
+    }
+
+    function logout() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
