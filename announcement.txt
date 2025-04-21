@@ -1,0 +1,1 @@
+Selamat datang di sistem manajemen keuangan. Silakan login untuk mengakses profil dan catatan keuangan Anda.
