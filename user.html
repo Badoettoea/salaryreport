@@ -14,168 +14,123 @@
     .profile-section {
       background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
     }
+    .dark .profile-section {
+      background: linear-gradient(135deg, #1e40af 0%, #4f46e5 100%);
+    }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
   <div class="container mx-auto p-4">
-    <!-- Check if user is logged in -->
+    <!-- Cek Login -->
     <div id="authCheck"></div>
 
+    <!-- Profil Header -->
     <div class="profile-section text-white p-6 rounded-lg shadow-lg mb-6">
       <div class="flex flex-col md:flex-row items-center gap-6">
-        <!-- Foto Profil dengan Fallback -->
-        <div class="relative w-24 h-24">
-          <img 
-            src="default.png" 
-            alt="Foto Profil" 
-            class="w-full h-full rounded-full border-4 border-white/50 shadow-md object-cover"
-            id="profileImage"
-            onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%233b82f6\"><path d=\"M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z\"/></svg>'"
-          >
-        </div>
+        <img 
+          src="default.png" 
+          alt="Foto Profil" 
+          class="w-24 h-24 rounded-full border-4 border-white/50 shadow-md object-cover"
+          onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23ffffff\"><path d=\"M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z\"/></svg>'"
+        >
         <div>
-          <h1 class="text-2xl font-bold" id="userName">Nama Karyawan</h1>
+          <h1 class="text-2xl font-bold" id="userName">-</h1>
           <p class="text-white/90" id="userNIP">NIP: -</p>
           <p class="text-white/90" id="userUnit">Unit Kerja: -</p>
         </div>
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4 text-blue-600 flex items-center gap-2">
-        <i class="fas fa-bullhorn"></i>
-        Pengumuman Terbaru
+    <!-- Pengumuman -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4 text-blue-600 dark:text-blue-400 flex items-center gap-2">
+        <i class="fas fa-bullhorn"></i> Pengumuman
       </h2>
-      <div id="userAnnouncement" class="p-4 bg-blue-50 rounded-lg text-blue-800">
-        Memuat pengumuman...
+      <div id="userAnnouncement" class="p-4 bg-blue-50 dark:bg-gray-700 rounded-lg text-blue-800 dark:text-blue-100">
+        Memuat...
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow">
-      <h2 class="text-xl font-semibold mb-4 text-green-600 flex items-center gap-2">
-        <i class="fas fa-file-invoice-dollar"></i>
-        Detail Gaji
+    <!-- Detail Gaji -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+      <h2 class="text-xl font-semibold mb-4 text-green-600 dark:text-green-400 flex items-center gap-2">
+        <i class="fas fa-file-invoice-dollar"></i> Detail Gaji
       </h2>
-      
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah (Rp)</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Keterangan</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Jumlah (Rp)</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200" id="salaryDetails">
-            <!-- Data akan diisi oleh JavaScript -->
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="salaryDetails">
+            <!-- Data diisi oleh JavaScript -->
           </tbody>
         </table>
       </div>
     </div>
 
+    <!-- Tombol Logout -->
     <div class="mt-6 text-center">
       <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2">
-        <i class="fas fa-sign-out-alt"></i>
-        Logout
+        <i class="fas fa-sign-out-alt"></i> Logout
       </button>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Check authentication
+      // Cek login
       const user = JSON.parse(localStorage.getItem('currentUser'));
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
 
-      // Display profile data
+      // Tampilkan data profil
       document.getElementById('userName').textContent = user.Nama || '-';
       document.getElementById('userNIP').textContent = `NIP: ${user.NIP || '-'}`;
       document.getElementById('userUnit').textContent = `Unit Kerja: ${user['Unit Kerja'] || '-'}`;
 
-      // Load announcement
-      loadAnnouncement();
+      // Load pengumuman
+      fetch('announcement.txt')
+        .then(res => res.ok ? res.text() : Promise.reject())
+        .then(text => document.getElementById('userAnnouncement').textContent = text || 'Tidak ada pengumuman')
+        .catch(() => document.getElementById('userAnnouncement').textContent = 'Gagal memuat pengumuman');
 
-      // Display salary data
-      displaySalaryDetails(user);
+      // Tampilkan detail gaji
+      renderSalaryDetails(user);
     });
 
-    function loadAnnouncement() {
-      fetch('announcement.txt')
-        .then(response => {
-          if (!response.ok) throw new Error('Gagal memuat pengumuman');
-          return response.text();
-        })
-        .then(data => {
-          document.getElementById('userAnnouncement').textContent = data || 'Tidak ada pengumuman terbaru.';
-        })
-        .catch(err => {
-          console.error(err);
-          document.getElementById('userAnnouncement').textContent = 'Gagal memuat pengumuman';
-        });
-    }
+    function renderSalaryDetails(user) {
+      const gajiPokok = parseFloat(user['Gaji Kotor']) || 0;
+      const potongan = Object.keys(user)
+        .filter(k => k.includes('Potongan') || ['DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'].includes(k))
+        .reduce((sum, k) => sum + (parseFloat(user[k]) || 0), 0);
+      const takeHomePay = gajiPokok - potongan;
 
-    function displaySalaryDetails(user) {
-      const salaryFields = [
-        { key: 'Gaji Kotor', label: 'Gaji Pokok' },
-        { key: 'Potongan BPD', label: 'Potongan BPD' },
-        { key: 'DPLK', label: 'DPLK' },
-        { key: 'KPRI', label: 'KPRI' },
-        { key: 'PGRI', label: 'PGRI' },
-        { key: 'HPPT', label: 'HPPT' },
-        { key: 'Dansos', label: 'Dansos' },
-        { key: 'Bazda', label: 'Bazda' },
-        { key: 'Darma Wanita', label: 'Darma Wanita' },
-        { key: 'Korpri', label: 'Korpri' },
-        { key: 'Halbi', label: 'Halbi' },
-        { key: 'Gaji Bersih', label: 'Take Home Pay', isTotal: true }
+      const components = [
+        { label: 'Gaji Pokok', value: gajiPokok },
+        { label: 'Total Potongan', value: potongan, isHighlighted: true },
+        { label: 'Take Home Pay', value: takeHomePay, isTotal: true }
       ];
 
-      const salaryTable = document.getElementById('salaryDetails');
-      salaryTable.innerHTML = ''; // Clear existing rows
-
-      // Calculate take home pay
-      const gajiPokok = parseFloat(user['Gaji Kotor']) || 0;
-      const potonganKeys = Object.keys(user).filter(key => 
-        key !== 'Gaji Kotor' && key !== 'Gaji Bersih' && key.includes('Potongan')
-      );
-      const totalPotongan = potonganKeys.reduce((sum, key) => sum + (parseFloat(user[key]) || 0), 0);
-      const takeHomePay = gajiPokok - totalPotongan;
-
-      // Add rows for each salary component
-      salaryFields.forEach(item => {
-        const row = document.createElement('tr');
-        
-        const labelCell = document.createElement('td');
-        labelCell.className = 'px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900';
-        labelCell.textContent = item.label;
-        
-        const valueCell = document.createElement('td');
-        valueCell.className = 'px-4 py-3 whitespace-nowrap text-sm number-format';
-        
-        // Special handling for Take Home Pay
-        const value = item.key === 'Gaji Bersih' ? takeHomePay : (user[item.key] || 0);
-        valueCell.textContent = formatCurrency(value);
-        
-        if (item.isTotal) {
-          row.className = 'bg-gray-50';
-          labelCell.classList.add('font-bold');
-          valueCell.classList.add('font-bold', 'text-green-600');
-        }
-        
-        row.appendChild(labelCell);
-        row.appendChild(valueCell);
-        salaryTable.appendChild(row);
-      });
+      const table = document.getElementById('salaryDetails');
+      table.innerHTML = components.map(item => `
+        <tr class="${item.isTotal ? 'bg-gray-50 dark:bg-gray-700' : ''}">
+          <td class="px-4 py-3 whitespace-nowrap text-sm ${item.isHighlighted ? 'font-medium text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}">
+            ${item.label}
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm number-format ${item.isTotal ? 'font-bold text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}">
+            ${formatCurrency(item.value)}
+          </td>
+        </tr>
+      `).join('');
     }
 
     function formatCurrency(amount) {
-      return new Intl.NumberFormat('id-ID', {
-        style: 'decimal',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(amount);
+      return new Intl.NumberFormat('id-ID').format(amount);
     }
 
     function logout() {
