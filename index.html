@@ -6,15 +6,18 @@
   <title>Manajemen Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    * { transition: all 0.3s ease-in-out; }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen" style="background-image: url('background.png'); background-size: cover;">
-  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-    <h1 class="text-2xl font-bold text-center mb-4">Selamat Datang</h1>
-    <div id="announcement" class="mb-4 p-4 bg-blue-100 rounded"></div>
+<body class="bg-blue-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md hover:shadow-xl">
+    <h1 class="text-2xl font-bold text-center mb-4 text-blue-600">Selamat Datang</h1>
+    <div id="announcement" class="mb-4 p-4 bg-blue-50 rounded text-blue-800"></div>
     <div class="space-y-4">
-      <input id="pinInput" type="text" placeholder="Masukkan PIN" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <button onclick="login('user')" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login User</button>
-      <button onclick="login('admin')" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Login Admin</button>
+      <input id=" dorp-2xl pinInput" type="text" placeholder="Masukkan PIN" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50">
+      <button onclick="login('user')" class="w-full bg-blue-400 text-white p-2 rounded hover:bg-blue-500">Login User</button>
+      <button onclick="login('admin')" class="w-full bg-green-400 text-white p-2 rounded hover:bg-green-500">Login Admin</button>
     </div>
   </div>
 
