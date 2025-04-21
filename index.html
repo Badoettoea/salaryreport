@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Sistem Keuangan</title>
+  <title>Login Sistem Keuangan Sekolah</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -59,18 +59,19 @@
 
       let employeeData = [];
 
-      // Load employee data
+      // Load employee data (keep PIN as string)
       try {
         const data = await new Promise((resolve, reject) => {
           Papa.parse('data.csv', {
             download: true,
             header: true,
+            // Tidak menggunakan dynamicTyping agar PIN tetap string
             complete: resolve,
             error: reject
           });
         });
         employeeData = data.data;
-        console.log('Database loaded with', employeeData.length, 'records');
+        console.log('Database loaded:', employeeData);
       } catch (err) {
         console.error("Error loading database:", err);
         showError("Sistem sedang maintenance. Silakan coba lagi nanti.");
@@ -78,19 +79,19 @@
         return;
       }
 
-      // Validate PIN input
+      // Validate PIN input (as text)
       pinInput.addEventListener('input', () => {
-        // Only allow numbers and limit to 8 digits
+        // Only allow numbers but keep as text
         pinInput.value = pinInput.value.replace(/\D/g, '').slice(0, 8);
         pinError.textContent = '';
         pinInput.classList.remove('border-red-500', 'shake');
       });
 
-      // Login function
+      // Login function (compare as string)
       loginBtn.addEventListener('click', async () => {
         const pin = pinInput.value.trim();
         
-        // Validate format
+        // Validate format (as text)
         if (pin.length !== 8 || !/^\d+$/.test(pin)) {
           showError("PIN harus 8 digit angka");
           pinInput.classList.add('border-red-500', 'shake');
@@ -106,7 +107,7 @@
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Find user - case sensitive exact match
+        // Find user - compare as exact string (including leading zeros)
         const user = employeeData.find(emp => emp.PIN.trim() === pin);
         
         if (user) {
@@ -115,7 +116,7 @@
           window.location.href = user.Role.trim() === 'Admin' ? 'admin.html' : 'user.html';
         } else {
           // PIN not found
-          showError("PIN tidak ditemukan. Contoh PIN valid: 19670304");
+          showError(`PIN tidak ditemukan. Contoh PIN valid: ${employeeData[1]?.PIN || '19670304'}`);
           pinInput.classList.add('border-red-500', 'shake');
           setTimeout(() => {
             pinInput.classList.remove('shake');
