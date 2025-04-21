@@ -3,98 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salary Report System</title>
+  <title>Login | Sistem Manajemen Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { transition: all 0.2s ease; }
     body {
       background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-      min-height: 100vh;
+    }
+    .card {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.8);
+    }
+    .dark body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    .dark .card {
+      background: rgba(30, 41, 59, 0.8);
     }
   </style>
 </head>
-<body class="flex items-center justify-center p-4">
-  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-    <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">Salary Report System</h1>
-    
-    <div id="loginSection">
-      <div class="mb-4">
-        <label class="block text-gray-700 mb-2">Masukkan PIN</label>
-        <input id="pinInput" type="password" 
-               class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300">
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="card rounded-xl shadow-xl p-8 w-full max-w-md border border-white/30 dark:border-gray-700">
+    <!-- Logo & Judul -->
+    <div class="flex flex-col items-center mb-6">
+      <img src="default.png" alt="Logo Perusahaan" class="w-16 h-16 rounded-full border-2 border-white dark:border-gray-600 shadow mb-3" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%233b82f6\"><path d=\"M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z\"/></svg>'">
+      <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400">Manajemen Keuangan</h1>
+      <p class="text-gray-600 dark:text-gray-300 text-sm mt-1">Silakan masuk dengan PIN</p>
+    </div>
+
+    <!-- Input PIN -->
+    <div class="mb-4">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-key text-gray-400 dark:text-gray-500"></i>
+        </div>
+        <input 
+          id="pinInput"
+          type="password" 
+          placeholder="Masukkan PIN" 
+          class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 dark:bg-gray-700/80 dark:text-white"
+        >
       </div>
-      
-      <div class="flex space-x-2">
-        <button id="loginUser" class="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-          Login Karyawan
-        </button>
-        <button id="loginAdmin" class="flex-1 bg-gray-500 text-white p-2 rounded hover:bg-gray-600">
-          Login Admin
-        </button>
-      </div>
-      
-      <div id="errorMessage" class="text-red-500 mt-2 text-sm hidden"></div>
+    </div>
+
+    <!-- Tombol Login -->
+    <div class="space-y-2">
+      <button id="loginUser" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium">
+        <i class="fas fa-user mr-2"></i> Login Karyawan
+      </button>
+      <button id="loginAdmin" class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-2 px-4 rounded-lg font-medium">
+        <i class="fas fa-lock mr-2"></i> Login Admin
+      </button>
+    </div>
+
+    <!-- Pesan Error -->
+    <div id="errorMessage" class="mt-3 text-sm text-center text-red-500 dark:text-red-400 hidden"></div>
+
+    <!-- Dark Mode Toggle -->
+    <div class="mt-4 flex justify-center">
+      <button id="darkModeToggle" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+        <i class="fas fa-moon dark:hidden"></i>
+        <i class="fas fa-sun hidden dark:inline"></i>
+      </button>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       let employeeData = [];
-      
-      // Load employee data from data.csv
+
+      // Load database
       Papa.parse('data.csv', {
         download: true,
         header: true,
-        complete: function(results) {
-          employeeData = results.data;
-        },
-        error: function(error) {
-          showError("Gagal memuat data karyawan");
-          console.error("Error loading data:", error);
-        }
+        complete: (results) => employeeData = results.data,
+        error: (err) => showError("Gagal memuat database")
       });
 
-      // Handle login
+      // Dark Mode Toggle
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+      });
+      if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
+
+      // Login Function
       function login(role) {
         const pin = document.getElementById('pinInput').value.trim();
-        const errorEl = document.getElementById('errorMessage');
-        
-        if (!pin) {
-          showError("Silakan masukkan PIN");
-          return;
-        }
-        
-        const user = employeeData.find(emp => emp.PIN === pin && emp.Role === role);
-        
-        if (user) {
-          if (role === 'User') {
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            window.location.href = 'user.html';
-          } else {
-            window.location.href = 'admin.html';
-          }
+        if (!pin) return showError("Harap masukkan PIN");
+
+        const user = employeeData.find(u => u.PIN === pin && u.Role === (role === 'user' ? 'User' : 'Admin'));
+        if (!user) return showError("PIN tidak valid");
+
+        if (role === 'user') {
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          window.location.href = 'user.html';
         } else {
-          showError("PIN tidak valid");
+          window.location.href = 'admin.html';
         }
       }
 
-      // Show error message
-      function showError(message) {
-        const errorEl = document.getElementById('errorMessage');
-        errorEl.textContent = message;
-        errorEl.classList.remove('hidden');
-        setTimeout(() => errorEl.classList.add('hidden'), 3000);
+      // Error Handler
+      function showError(msg) {
+        const errEl = document.getElementById('errorMessage');
+        errEl.textContent = msg;
+        errEl.classList.remove('hidden');
+        setTimeout(() => errEl.classList.add('hidden'), 3000);
       }
 
-      // Event listeners
-      document.getElementById('loginUser').addEventListener('click', () => login('User'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('Admin'));
-      
-      // Enter key to login as user
-      document.getElementById('pinInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') login('User');
-      });
+      // Event Listeners
+      document.getElementById('loginUser').addEventListener('click', () => login('user'));
+      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
+      document.getElementById('pinInput').addEventListener('keypress', (e) => e.key === 'Enter' && login('user'));
     });
   </script>
 </body>
