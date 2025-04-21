@@ -3,48 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Sistem Manajemen Keuangan</title>
+  <meta name="description" content="Sistem Manajemen Keuangan Perusahaan">
+  <title>Login - Sistem Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #3b82f6;
+      --secondary: #6366f1;
+      --dark: #1e293b;
+      --light: #f8fafc;
+    }
+    
     * { 
       transition: all 0.2s ease-in-out;
+      scroll-behavior: smooth;
     }
-    .input-field {
-      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+    
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
-    .btn-primary {
-      @apply w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 active:bg-blue-700;
-    }
-    .btn-secondary {
-      @apply w-full bg-gray-200 text-gray-800 p-3 rounded-lg hover:bg-gray-300 active:bg-gray-400;
+    
+    .input-focus:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center min-h-screen p-4">
-  <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md hover:shadow-3xl transition-shadow duration-300">
-    <div class="text-center mb-6">
-      <i class="fas fa-wallet text-4xl text-blue-500 mb-2"></i>
-      <h1 class="text-3xl font-bold text-gray-800">Manajemen Keuangan</h1>
-      <p class="text-gray-600 mt-2">Masukkan PIN untuk melanjutkan</p>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center min-h-screen p-4 dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900">
+  <div class="glassmorphism p-8 rounded-xl shadow-2xl w-full max-w-md dark:bg-slate-700/50">
+    <div class="flex justify-center mb-6">
+      <img src="default.png" alt="Logo Perusahaan" class="w-20 h-20 rounded-full object-cover shadow-md">
     </div>
     
-    <div id="announcement" class="mb-6 p-4 bg-blue-50 rounded-lg text-blue-800 border-l-4 border-blue-500"></div>
+    <h1 class="text-3xl font-bold text-center mb-2 text-blue-600 dark:text-blue-300">Selamat Datang</h1>
+    <p class="text-center text-gray-600 dark:text-gray-300 mb-6">Sistem Manajemen Keuangan</p>
+    
+    <div id="announcement" class="mb-6 p-4 bg-blue-50/50 rounded-lg text-blue-800 dark:bg-slate-600/50 dark:text-blue-100 animate-fade-in">
+      <i class="fas fa-bullhorn mr-2"></i>
+      <span id="announcementText">Memuat pengumuman...</span>
+    </div>
     
     <div class="space-y-4">
       <div class="relative">
+        <i class="fas fa-key absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         <input id="pinInput" type="password" placeholder="Masukkan PIN" 
-               class="input-field pr-10">
-        <i class="fas fa-key absolute right-3 top-3.5 text-gray-400"></i>
+               class="w-full pl-10 pr-4 py-3 rounded-lg border-0 bg-white/80 shadow-sm focus:ring-2 focus:ring-blue-300 input-focus dark:bg-slate-600/80 dark:text-white">
       </div>
       
-      <button id="loginUser" class="btn-primary">
-        <i class="fas fa-user mr-2"></i> Login Karyawan
+      <button id="loginUser" class="w-full bg-gradient-to-r from-blue-400 to-blue-500 text-white p-3 rounded-lg hover:from-blue-500 hover:to-blue-600 shadow-md flex items-center justify-center gap-2">
+        <i class="fas fa-user"></i>
+        Login Karyawan
       </button>
       
-      <button id="loginAdmin" class="btn-secondary">
-        <i class="fas fa-lock mr-2"></i> Login Admin
+      <button id="loginAdmin" class="w-full bg-gradient-to-r from-green-400 to-green-500 text-white p-3 rounded-lg hover:from-green-500 hover:to-green-600 shadow-md flex items-center justify-center gap-2">
+        <i class="fas fa-lock"></i>
+        Login Admin
       </button>
     </div>
   </div>
@@ -52,7 +68,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       let loginData = [];
-      let announcementData = '';
+      const announcement = document.getElementById('announcementText');
 
       // Load data login
       function loadLoginData() {
@@ -63,51 +79,57 @@
             loginData = results.data;
             loadAnnouncement();
           },
-          error: function(error) {
-            console.error("Error loading login data:", error);
+          error: function(err) {
+            console.error("Gagal memuat data login:", err);
+            announcement.innerText = "Sistem sedang maintenance";
           }
         });
       }
 
-      // Load pengumuman
       function loadAnnouncement() {
         fetch('announcement.txt')
-          .then(response => response.text())
-          .then(data => {
-            announcementData = data;
-            const announcementEl = document.getElementById('announcement');
-            announcementEl.innerHTML = data 
-              ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
-              : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
+          .then(response => {
+            if (!response.ok) throw new Error("Gagal memuat pengumuman");
+            return response.text();
           })
-          .catch(error => {
-            console.error("Error loading announcement:", error);
+          .then(data => {
+            announcement.innerText = data || 'Tidak ada pengumuman terbaru.';
+          })
+          .catch(err => {
+            console.error(err);
+            announcement.innerText = "Tidak dapat memuat pengumuman";
           });
       }
 
-      // Fungsi login
       function login(role) {
         const pin = document.getElementById('pinInput').value.trim();
         if (!pin) {
-          alert('Silakan masukkan PIN terlebih dahulu');
+          alert('Harap masukkan PIN Anda');
           return;
         }
 
-        const user = loginData.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
-        
+        const user = loginData.find(d => d.PIN === pin && d.Role === role);
         if (user) {
+          // Simpan data user yang login
           localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = role === 'user' ? 'user.html' : 'admin.html';
+          
+          // Redirect berdasarkan role
+          window.location.href = role === 'Admin' ? 'admin.html' : 'user.html';
         } else {
-          alert(`PIN tidak valid atau Anda tidak memiliki akses sebagai ${role === 'user' ? 'User' : 'Admin'}`);
+          alert('PIN tidak valid atau Anda tidak memiliki akses');
         }
       }
 
-      // Event listeners
-      document.getElementById('loginUser').addEventListener('click', () => login('user'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
+      document.getElementById('loginUser').addEventListener('click', () => login('User'));
+      document.getElementById('loginAdmin').addEventListener('click', () => login('Admin'));
 
-      // Load data saat pertama kali
+      // Event listener untuk enter key
+      document.getElementById('pinInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          login('User'); // Default enter untuk login user
+        }
+      });
+
       loadLoginData();
     });
   </script>
