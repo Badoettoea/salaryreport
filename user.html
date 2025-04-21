@@ -34,7 +34,11 @@
       <div class="card col-span-1">
         <h2 class="text-xl font-semibold mb-4 text-blue-600">Informasi Pribadi</h2>
         <div id="personalInfo" class="space-y-2">
-          <!-- Data akan diisi oleh JavaScript -->
+          <div class="flex items-center gap-4 mb-4">
+            <img id="profilePhoto" src="default.png" alt="Foto Profil" class="w-24 h-24 rounded-full object-cover border shadow">
+            <input type="file" accept="image/*" onchange="handlePhotoChange(event)" class="text-sm text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:bg-blue-500 file:text-white hover:file:bg-blue-600">
+          </div>
+          <div id="userInfoText"></div>
         </div>
       </div>
 
@@ -94,15 +98,12 @@
         });
     });
 
-    // Format angka ke format keuangan
     function formatCurrency(num) {
       return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
     }
 
-    // Tampilkan informasi pengguna
     function displayUserInfo(user, salaryData) {
-      // Informasi pribadi
-      const personalInfoEl = document.getElementById('personalInfo');
+      const personalInfoEl = document.getElementById('userInfoText');
       personalInfoEl.innerHTML = `
         <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
         <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
@@ -110,7 +111,11 @@
         <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
       `;
 
-      // Informasi gaji
+      const savedPhoto = localStorage.getItem('profilePhoto');
+      if (savedPhoto) {
+        document.getElementById('profilePhoto').src = savedPhoto;
+      }
+
       const salaryInfoEl = document.getElementById('salaryInfo');
       salaryInfoEl.innerHTML = `
         <div class="grid grid-cols-2 gap-4">
@@ -154,9 +159,22 @@
       `;
     }
 
-    // Fungsi logout
+    function handlePhotoChange(event) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          localStorage.setItem('profilePhoto', base64);
+          document.getElementById('profilePhoto').src = base64;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
     function logout() {
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('profilePhoto'); // opsional, bisa dihapus kalau mau tetap simpan foto
       window.location.href = 'index.html';
     }
   </script>
