@@ -3,72 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil User</title>
+  <title>Profil Karyawan</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { transition: all 0.3s ease-in-out; }
+    .card {
+      @apply bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow;
+    }
+    .number-cell {
+      @apply text-right font-mono;
+    }
+    .btn-primary {
+      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600;
+    }
   </style>
 </head>
-<body class="bg-blue-100 min-h-screen p-4">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg hover:shadow-xl">
-    <h1 class="text-2xl font-bold mb-4 text-blue-600">Profil User</h1>
-    <div class="flex items-center space-x-4 mb-6">
-      <img id="userPhoto" src="default.png" alt="Foto User" class="w-24 h-24 rounded-full object-cover">
-      <input type="file" id="photoUpload" accept="image/*" class="hidden">
-      <button onclick="document.getElementById('photoUpload').click()" class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500">Ubah Foto</button>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">
+        <i class="fas fa-user-circle mr-2 text-blue-500"></i>Profil Karyawan
+      </h1>
+      <button onclick="logout()" class="btn-primary">
+        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+      </button>
     </div>
-    <div id="userProfile" class="space-y-2 text-blue-800"></div>
-    <h2 class="text-xl font-semibold mt-6 text-blue-600">Catatan Keuangan</h2>
-    <div id="financialRecord" class="space-y-2 text-blue-800"></div>
-    <button onclick="logout()" class="mt-6 bg-red-400 text-white px-4 py-2 rounded hover:bg-red-500">Logout</button>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="card col-span-1">
+        <h2 class="text-xl font-semibold mb-4 text-blue-600">Informasi Pribadi</h2>
+        <div id="personalInfo" class="space-y-2">
+          <!-- Data akan diisi oleh JavaScript -->
+        </div>
+      </div>
+
+      <div class="card md:col-span-2">
+        <h2 class="text-xl font-semibold mb-4 text-blue-600">Detail Gaji</h2>
+        <div id="salaryInfo" class="space-y-2">
+          <!-- Data akan diisi oleh JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-6">
+      <h2 class="text-xl font-semibold mb-4 text-blue-600">Pengumuman</h2>
+      <div id="announcement" class="p-4 bg-blue-50 rounded-lg text-blue-800">
+        <i class="fas fa-spinner fa-spin mr-2"></i>Memuat pengumuman...
+      </div>
+    </div>
   </div>
 
   <script>
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    if (!user) {
-      window.location.href = 'index.html';
-    }
-
-    // Display profile
-    const profileDiv = document.getElementById('userProfile');
-    profileDiv.innerHTML = `
-      <p><strong>Nama:</strong> ${user.Nama}</p>
-      <p><strong>NIP:</strong> ${user.NIP}</p>
-      <p><strong>Unit Kerja:</strong> ${user['Unit Kerja']}</p>
-    `;
-
-    // Display financial record
-    const financialDiv = document.getElementById('financialRecord');
-    financialDiv.innerHTML = `
-      <p><strong>Gaji Kotor:</strong> ${user['Gaji Kotor']}</p>
-      <p><strong>Potongan:</strong></p>
-      <ul class="list-disc pl-5">
-        <li>BPD: ${user['Potongan BPD']}</li>
-        <li>DPLK: ${user.DPLK}</li>
-        <li>KPRI: ${user.KPRI}</li>
-        <li>PGRI: ${user.PGRI}</li>
-        <li>HPPT: ${user.HPPT}</li>
-        <li>Dansos: ${user.Dansos}</li>
-        <li>Bazda: ${user.Bazda}</li>
-        <li>Darma Wanita: ${user['Darma Wanita']}</li>
-        <li>Korpri: ${user.Korpri}</li>
-        <li>Halbi: ${user.Halbi}</li>
-      </ul>
-      <p><strong>Gaji Bersih:</strong> ${user['Gaji Bersih']}</p>
-    `;
-
-    // Photo upload
-    document.getElementById('photoUpload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById('userPhoto').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (!currentUser) {
+        alert('Silakan login terlebih dahulu');
+        window.location.href = 'index.html';
+        return;
       }
+
+      // Load data gaji
+      Papa.parse('data.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const userData = results.data.find(d => d.PIN === currentUser.PIN);
+          if (userData) {
+            displayUserInfo(currentUser, userData);
+          } else {
+            alert('Data gaji tidak ditemukan');
+          }
+        },
+        error: function(error) {
+          console.error("Error loading salary data:", error);
+        }
+      });
+
+      // Load pengumuman
+      fetch('announcement.txt')
+        .then(response => response.text())
+        .then(data => {
+          const announcementEl = document.getElementById('announcement');
+          announcementEl.innerHTML = data 
+            ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
+            : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
+        })
+        .catch(error => {
+          console.error("Error loading announcement:", error);
+        });
     });
 
+    // Format angka ke format keuangan
+    function formatCurrency(num) {
+      return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
+    }
+
+    // Tampilkan informasi pengguna
+    function displayUserInfo(user, salaryData) {
+      // Informasi pribadi
+      const personalInfoEl = document.getElementById('personalInfo');
+      personalInfoEl.innerHTML = `
+        <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
+        <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
+        <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
+        <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
+      `;
+
+      // Informasi gaji
+      const salaryInfoEl = document.getElementById('salaryInfo');
+      salaryInfoEl.innerHTML = `
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-blue-50 p-3 rounded-lg">
+            <p class="font-semibold">Gaji Kotor</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
+          </div>
+          <div class="bg-blue-50 p-3 rounded-lg">
+            <p class="font-semibold">Gaji Bersih</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Bersih'] || 0))}</p>
+          </div>
+        </div>
+        
+        <h3 class="font-semibold mt-4">Detail Potongan:</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">BPD</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">DPLK</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">KPRI</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">PGRI</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">HPPT</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">Dansos</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Fungsi logout
     function logout() {
       localStorage.removeItem('currentUser');
       window.location.href = 'index.html';

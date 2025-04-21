@@ -7,110 +7,121 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { transition: all 0.3s ease-in-out; }
+    .input-field {
+      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+    }
+    .btn-primary {
+      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 active:bg-blue-700;
+    }
+    .btn-danger {
+      @apply bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 active:bg-red-700;
+    }
+    .number-cell {
+      @apply text-right font-mono;
+    }
   </style>
 </head>
-<body class="bg-blue-100 min-h-screen p-4">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg hover:shadow-xl">
-    <h1 class="text-2xl font-bold mb-4 text-blue-600">Admin Dashboard</h1>
-    <h2 class="text-xl font-semibold mb-2 text-blue-600">Post Pengumuman</h2>
-    <textarea id="announcementText" class="w-full p-2 border rounded mb-2 bg-blue-50 text-blue-800" rows="4" placeholder="Tulis pengumuman..."></textarea>
-    <button onclick="postAnnouncement()" class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500">Post</button>
-    <h2 class="text-xl font-semibold mt-6 mb-2 text-blue-600">Kelola Database</h2>
-    <input type="file" id="csvUpload" accept=".csv" class="mb-2">
-    <button onclick="uploadDatabase()" class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500">Upload CSV</button>
-    <button onclick="viewDatabase()" class="mt-2 bg-purple-400 text-white px-4 py-2 rounded hover:bg-purple-500">Lihat Database</button>
-    <button onclick="saveAsPDF()" class="mt-2 bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500">Simpan sebagai PDF</button>
-    <div id="databaseView" class="mt-4 p-4 bg-blue-50 rounded text-blue-800"></div>
-    <button onclick="logout()" class="mt-6 bg-red-400 text-white px-4 py-2 rounded hover:bg-red-500">Logout</button>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">
+        <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Admin Dashboard
+      </h1>
+      <button onclick="logout()" class="btn-danger">
+        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+      </button>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-bullhorn mr-2 text-blue-500"></i>Post Pengumuman
+      </h2>
+      <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
+      <button onclick="postAnnouncement()" class="btn-primary mt-2">
+        <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
+      </button>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-database mr-2 text-blue-500"></i>Kelola Data Gaji
+      </h2>
+      <div class="bg-blue-50 p-4 rounded-lg mb-4">
+        <p class="text-blue-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
+        <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-lg file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100">
+      </div>
+      <button onclick="uploadDatabase()" class="btn-primary">
+        <i class="fas fa-upload mr-2"></i>Upload Data Gaji
+      </button>
+    </div>
   </div>
 
   <script>
-    let database = [];
+    // Fungsi untuk post pengumuman
+    function postAnnouncement() {
+      const text = document.getElementById('announcementText').value;
+      if (!text.trim()) {
+        alert('Silakan isi pengumuman terlebih dahulu');
+        return;
+      }
 
-    // Load CSV
-    function loadDatabase() {
-      Papa.parse('database.csv', {
-        download: true,
+      fetch('announcement.txt', {
+        method: 'PUT',
+        body: text
+      })
+      .then(() => {
+        alert('Pengumuman berhasil diposting!');
+        if (window.opener) {
+          window.opener.location.reload();
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Gagal memposting pengumuman');
+      });
+    }
+
+    // Fungsi untuk upload data gaji
+    function uploadDatabase() {
+      const file = document.getElementById('csvUpload').files[0];
+      if (!file) {
+        alert('Silakan pilih file CSV terlebih dahulu');
+        return;
+      }
+
+      Papa.parse(file, {
         header: true,
         complete: function(results) {
-          database = results.data;
+          const csv = Papa.unparse(results.data);
+          fetch('data.csv', {
+            method: 'PUT',
+            body: csv
+          })
+          .then(() => alert('Data gaji berhasil diupdate!'))
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Gagal mengupdate data gaji');
+          });
+        },
+        error: function(error) {
+          console.error('Error parsing CSV:', error);
+          alert('Format file CSV tidak valid');
         }
       });
     }
 
-    function postAnnouncement() {
-      const text = document.getElementById('announcementText').value;
-      fetch('announcement.txt', {
-        method: 'PUT',
-        body: text
-      }).then(() => {
-        alert('Pengumuman dipost!');
-        // Update announcement on login page
-        fetch('announcement.txt')
-          .then(response => response.text())
-          .then(data => {
-            if (window.opener) {
-              window.opener.document.getElementById('announcement').innerText = data || 'Tidak ada pengumuman.';
-            }
-          });
-      });
-    }
-
-    function uploadDatabase() {
-      const file = document.getElementById('csvUpload').files[0];
-      if (file) {
-        Papa.parse(file, {
-          header: true,
-          complete: function(results) {
-            database = results.data;
-            const csv = Papa.unparse(results.data);
-            fetch('database.csv', {
-              method: 'PUT',
-              body: csv
-            }).then(() => alert('Database diupdate!'));
-          }
-        });
-      }
-    }
-
-    function viewDatabase() {
-      const viewDiv = document.getElementById('databaseView');
-      let html = '<h3 class="font-semibold">Data Pengguna</h3><table class="w-full border-collapse"><tr>';
-      const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
-      headers.forEach(header => html += `<th class="border p-2">${header}</th>`);
-      html += '</tr>';
-      database.forEach(row => {
-        html += '<tr>';
-        headers.forEach(header => html += `<td class="border p-2">${row[header] || ''}</td>`);
-        html += '</tr>';
-      });
-      html += '</table>';
-      viewDiv.innerHTML = html;
-    }
-
-    function saveAsPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(12);
-      doc.text('Database Pengguna', 10, 10);
-      let y = 20;
-      const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
-      headers.forEach((header, i) => doc.text(header, 10 + i * 30, y));
-      y += 10;
-      database.forEach(row => {
-        headers.forEach((header, i) => doc.text(row[header] || '', 10 + i * 30, y));
-        y += 10;
-      });
-      doc.save('database.pdf');
-    }
-
+    // Fungsi logout
     function logout() {
+      localStorage.removeItem('currentUser');
       window.location.href = 'index.html';
     }
-
-    loadDatabase();
   </script>
 </body>
 </html>
