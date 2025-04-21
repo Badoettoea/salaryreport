@@ -6,27 +6,56 @@
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { transition: all 0.3s ease-in-out; }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
-    <h2 class="text-xl font-semibold mb-2">Post Pengumuman</h2>
-    <textarea id="announcementText" class="w-full p-2 border rounded mb-2" rows="4" placeholder="Tulis pengumuman..."></textarea>
-    <button onclick="postAnnouncement()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Post</button>
-    <h2 class="text-xl font-semibold mt-6 mb-2">Kelola Database</h2>
+<body class="bg-blue-100 min-h-screen p-4">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg hover:shadow-xl">
+    <h1 class="text-2xl font-bold mb-4 text-blue-600">Admin Dashboard</h1>
+    <h2 class="text-xl font-semibold mb-2 text-blue-600">Post Pengumuman</h2>
+    <textarea id="announcementText" class="w-full p-2 border rounded mb-2 bg-blue-50 text-blue-800" rows="4" placeholder="Tulis pengumuman..."></textarea>
+    <button onclick="postAnnouncement()" class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500">Post</button>
+    <h2 class="text-xl font-semibold mt-6 mb-2 text-blue-600">Kelola Database</h2>
     <input type="file" id="csvUpload" accept=".csv" class="mb-2">
-    <button onclick="uploadDatabase()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Upload CSV</button>
-    <a id="downloadLink" href="database.csv" download class="block mt-2 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 text-center">Download Database</a>
-    <button onclick="logout()" class="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+    <button onclick="uploadDatabase()" class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500">Upload CSV</button>
+    <button onclick="viewDatabase()" class="mt-2 bg-purple-400 text-white px-4 py-2 rounded hover:bg-purple-500">Lihat Database</button>
+    <button onclick="saveAsPDF()" class="mt-2 bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500">Simpan sebagai PDF</button>
+    <div id="databaseView" class="mt-4 p-4 bg-blue-50 rounded text-blue-800"></div>
+    <button onclick="logout()" class="mt-6 bg-red-400 text-white px-4 py-2 rounded hover:bg-red-500">Logout</button>
   </div>
 
   <script>
+    let database = [];
+
+    // Load CSV
+    function loadDatabase() {
+      Papa.parse('database.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+          database = results.data;
+        }
+      });
+    }
+
     function postAnnouncement() {
       const text = document.getElementById('announcementText').value;
       fetch('announcement.txt', {
         method: 'PUT',
         body: text
-      }).then(() => alert('Pengumuman dipost!'));
+      }).then(() => {
+        alert('Pengumuman dipost!');
+        // Update announcement on login page
+        fetch('announcement.txt')
+          .then(response => response.text())
+          .then(data => {
+            if (window.opener) {
+              window.opener.document.getElementById('announcement').innerText = data || 'Tidak ada pengumuman.';
+            }
+          });
+      });
     }
 
     function uploadDatabase() {
@@ -35,6 +64,7 @@
         Papa.parse(file, {
           header: true,
           complete: function(results) {
+            database = results.data;
             const csv = Papa.unparse(results.data);
             fetch('database.csv', {
               method: 'PUT',
@@ -45,9 +75,42 @@
       }
     }
 
+    function viewDatabase() {
+      const viewDiv = document.getElementById('databaseView');
+      let html = '<h3 class="font-semibold">Data Pengguna</h3><table class="w-full border-collapse"><tr>';
+      const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
+      headers.forEach(header => html += `<th class="border p-2">${header}</th>`);
+      html += '</tr>';
+      database.forEach(row => {
+        html += '<tr>';
+        headers.forEach(header => html += `<td class="border p-2">${row[header] || ''}</td>`);
+        html += '</tr>';
+      });
+      html += '</table>';
+      viewDiv.innerHTML = html;
+    }
+
+    function saveAsPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      doc.text('Database Pengguna', 10, 10);
+      let y = 20;
+      const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
+      headers.forEach((header, i) => doc.text(header, 10 + i * 30, y));
+      y += 10;
+      database.forEach(row => {
+        headers.forEach((header, i) => doc.text(row[header] || '', 10 + i * 30, y));
+        y += 10;
+      });
+      doc.save('database.pdf');
+    }
+
     function logout() {
       window.location.href = 'index.html';
     }
+
+    loadDatabase();
   </script>
 </body>
 </html>
