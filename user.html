@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil User</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4">Profil User</h1>
+    <div class="flex items-center space-x-4 mb-6">
+      <img id="userPhoto" src="default.png" alt="Foto User" class="w-24 h-24 rounded-full object-cover">
+      <input type="file" id="photoUpload" accept="image/*" class="hidden">
+      <button onclick="document.getElementById('photoUpload').click()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Ubah Foto</button>
+    </div>
+    <div id="userProfile" class="space-y-2"></div>
+    <h2 class="text-xl font-semibold mt-6">Catatan Keuangan</h2>
+    <div id="financialRecord" class="space-y-2"></div>
+    <button onclick="logout()" class="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (!user) {
+      window.location.href = 'index.html';
+    }
+
+    // Display profile
+    const profileDiv = document.getElementById('userProfile');
+    profileDiv.innerHTML = `
+      <p><strong>Nama:</strong> ${user.Nama}</p>
+      <p><strong>NIP:</strong> ${user.NIP}</p>
+      <p><strong>Unit Kerja:</strong> ${user['Unit Kerja']}</p>
+    `;
+
+    // Display financial record
+    const financialDiv = document.getElementById('financialRecord');
+    financialDiv.innerHTML = `
+      <p><strong>Gaji Kotor:</strong> ${user['Gaji Kotor']}</p>
+      <p><strong>Pot  Potongan:</p>
+      <ul class="list-disc pl-5">
+        <li>BPD: ${user['Potongan BPD']}</li>
+        <li>DPLK: ${user.DPLK}</li>
+        <li>KPRI: ${user.KPRI}</li>
+        <li>PGRI: ${user.PGRI}</li>
+        <li>HPPT: ${user.HPPT}</li>
+        <li>Dansos: ${user.Dansos}</li>
+        <li>Bazda: ${user.Bazda}</li>
+        <li>Darma Wanita: ${user['Darma Wanita']}</li>
+        <li>Korpri: ${user.Korpri}</li>
+        <li>Halbi: ${user.Halbi}</li>
+      </ul>
+      <p><strong>Gaji Bersih:</strong> ${user['Gaji Bersih']}</p>
+    `;
+
+    // Photo upload
+    document.getElementById('photoUpload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('userPhoto').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
