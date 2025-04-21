@@ -5,19 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profil User</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { transition: all 0.3s ease-in-out; }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold mb-4">Profil User</h1>
+<body class="bg-blue-100 min-h-screen p-4">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg hover:shadow-xl">
+    <h1 class="text-2xl font-bold mb-4 text-blue-600">Profil User</h1>
     <div class="flex items-center space-x-4 mb-6">
       <img id="userPhoto" src="default.png" alt="Foto User" class="w-24 h-24 rounded-full object-cover">
       <input type="file" id="photoUpload" accept="image/*" class="hidden">
-      <button onclick="document.getElementById('photoUpload').click()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Ubah Foto</button>
+      <button onclick="document.getElementById('photoUpload').click()" class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500">Ubah Foto</button>
     </div>
-    <div id="userProfile" class="space-y-2"></div>
-    <h2 class="text-xl font-semibold mt-6">Catatan Keuangan</h2>
-    <div id="financialRecord" class="space-y-2"></div>
-    <button onclick="logout()" class="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+    <div id="userProfile" class="space-y-2 text-blue-800"></div>
+    <h2 class="text-xl font-semibold mt-6 text-blue-600">Catatan Keuangan</h2>
+    <div id="financialRecord" class="space-y-2 text-blue-800"></div>
+    <button onclick="logout()" class="mt-6 bg-red-400 text-white px-4 py-2 rounded hover:bg-red-500">Logout</button>
   </div>
 
   <script>
@@ -38,7 +41,7 @@
     const financialDiv = document.getElementById('financialRecord');
     financialDiv.innerHTML = `
       <p><strong>Gaji Kotor:</strong> ${user['Gaji Kotor']}</p>
-      <p><strong>Pot  Potongan:</p>
+      <p><strong>Potongan:</strong></p>
       <ul class="list-disc pl-5">
         <li>BPD: ${user['Potongan BPD']}</li>
         <li>DPLK: ${user.DPLK}</li>
