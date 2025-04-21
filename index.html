@@ -33,6 +33,7 @@
     <div id="announcement" class="mb-6 p-4 bg-blue-50 rounded-lg text-blue-800 border-l-4 border-blue-500"></div>
     
     <div class="space-y-4">
+<<<<<<< HEAD
       <div class="relative">
         <input id="pinInput" type="password" placeholder="Masukkan PIN" 
                class="input-field pr-10">
@@ -46,10 +47,16 @@
       <button id="loginAdmin" class="btn-secondary">
         <i class="fas fa-lock mr-2"></i> Login Admin
       </button>
+=======
+      <input id=" dorp-2xl pinInput" type="text" placeholder="Masukkan PIN" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50">
+      <button onclick="login('user')" class="w-full bg-blue-400 text-white p-2 rounded hover:bg-blue-500">Login User</button>
+      <button onclick="login('admin')" class="w-full bg-green-400 text-white p-2 rounded hover:bg-green-500">Login Admin</button>
+>>>>>>> parent of 98c2588 (Update index.html)
     </div>
   </div>
 
   <script>
+<<<<<<< HEAD
     document.addEventListener('DOMContentLoaded', () => {
       let loginData = [];
       let announcementData = '';
@@ -66,9 +73,33 @@
           error: function(error) {
             console.error("Error loading login data:", error);
           }
-        });
-      }
+=======
+    let database = [];
+    const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
 
+    // Load CSV
+    function loadDatabase() {
+      Papa.parse('database.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+          database = results.data;
+          loadAnnouncement();
+        }
+      });
+    }
+
+    // Load announcement
+    function loadAnnouncement() {
+      fetch('announcement.txt')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('announcement').innerText = data || 'Tidak ada pengumuman.';
+>>>>>>> parent of 98c2588 (Update index.html)
+        });
+    }
+
+<<<<<<< HEAD
       // Load pengumuman
       function loadAnnouncement() {
         fetch('announcement.txt')
@@ -100,9 +131,30 @@
           window.location.href = role === 'user' ? 'user.html' : 'admin.html';
         } else {
           alert(`PIN tidak valid atau Anda tidak memiliki akses sebagai ${role === 'user' ? 'User' : 'Admin'}`);
+=======
+    // Login function
+    function login(role) {
+      const pin = document.getElementById('pinInput').value;
+      if (role === 'user') {
+        const user = database.find(d => d.PIN === pin && d.Role === 'User');
+        if (user) {
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          window.location.href = 'user.html';
+        } else {
+          alert('PIN tidak valid atau bukan user.');
+        }
+      } else if (role === 'admin') {
+        const admin = database.find(d => d.PIN === pin && d.Role === 'Admin');
+        if (admin) {
+          window.location.href = 'admin.html';
+        } else {
+          alert('PIN tidak valid atau bukan admin.');
+>>>>>>> parent of 98c2588 (Update index.html)
         }
       }
+    }
 
+<<<<<<< HEAD
       // Event listeners
       document.getElementById('loginUser').addEventListener('click', () => login('user'));
       document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
@@ -110,6 +162,9 @@
       // Load data saat pertama kali
       loadLoginData();
     });
+=======
+    loadDatabase();
+>>>>>>> parent of 98c2588 (Update index.html)
   </script>
 </body>
 </html>
