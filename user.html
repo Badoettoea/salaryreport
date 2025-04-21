@@ -17,6 +17,9 @@
     .btn-primary {
       @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600;
     }
+    .profile-img {
+      @apply w-24 h-24 rounded-full object-cover border-2 border-blue-200;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
@@ -33,12 +36,15 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div class="card col-span-1">
         <h2 class="text-xl font-semibold mb-4 text-blue-600">Informasi Pribadi</h2>
+        <div class="flex flex-col items-center mb-4">
+          <img id="profilePhoto" src="/default.png" alt="Foto Profil" class="profile-img mb-2">
+          <input type="file" id="photoInput" accept="image/*" class="text-sm">
+          <button onclick="uploadPhoto()" class="btn-primary mt-2">
+            <i class="fas fa-upload mr-2"></i>Upload Foto
+          </button>
+        </div>
         <div id="personalInfo" class="space-y-2">
-          <div class="flex items-center gap-4 mb-4">
-            <img id="profilePhoto" src="default.png" alt="Foto Profil" class="w-24 h-24 rounded-full object-cover border shadow">
-            <input type="file" accept="image/*" onchange="handlePhotoChange(event)" class="text-sm text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:bg-blue-500 file:text-white hover:file:bg-blue-600">
-          </div>
-          <div id="userInfoText"></div>
+          <!-- Data akan diisi oleh JavaScript -->
         </div>
       </div>
 
@@ -60,7 +66,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      let currentUser = JSON.parse(localStorage.getItem('currentUser'));
       if (!currentUser) {
         alert('Silakan login terlebih dahulu');
         window.location.href = 'index.html';
@@ -98,12 +104,15 @@
         });
     });
 
+    // Format angka ke format keuangan
     function formatCurrency(num) {
       return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
     }
 
+    // Tampilkan informasi pengguna
     function displayUserInfo(user, salaryData) {
-      const personalInfoEl = document.getElementById('userInfoText');
+      // Informasi pribadi
+      const personalInfoEl = document.getElementById('personalInfo');
       personalInfoEl.innerHTML = `
         <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
         <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
@@ -111,11 +120,11 @@
         <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
       `;
 
-      const savedPhoto = localStorage.getItem('profilePhoto');
-      if (savedPhoto) {
-        document.getElementById('profilePhoto').src = savedPhoto;
-      }
+      // Set foto profil
+      const profilePhotoEl = document.getElementById('profilePhoto');
+      profilePhotoEl.src = user.photo || '/default.png';
 
+      // Informasi gaji
       const salaryInfoEl = document.getElementById('salaryInfo');
       salaryInfoEl.innerHTML = `
         <div class="grid grid-cols-2 gap-4">
@@ -159,22 +168,40 @@
       `;
     }
 
-    function handlePhotoChange(event) {
-      const file = event.target.files[0];
-      if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const base64 = e.target.result;
-          localStorage.setItem('profilePhoto', base64);
-          document.getElementById('profilePhoto').src = base64;
-        };
-        reader.readAsDataURL(file);
+    // Upload foto profil
+    async function uploadPhoto() {
+      const photoInput = document.getElementById('photoInput');
+      if (!photoInput.files[0]) {
+        alert('Pilih foto terlebih dahulu!');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('photo', photoInput.files[0]);
+      formData.append('pin', JSON.parse(localStorage.getItem('currentUser')).PIN);
+
+      try {
+        const response = await fetch('http://localhost:5000/api/user/upload-photo', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (data.photoPath) {
+          const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+          currentUser.photo = data.photoPath;
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          document.getElementById('profilePhoto').src = data.photoPath;
+          alert('Foto berhasil diunggah!');
+        }
+      } catch (error) {
+        console.error('Error uploading photo:', error);
+        alert('Gagal mengunggah foto!');
       }
     }
 
+    // Fungsi logout
     function logout() {
       localStorage.removeItem('currentUser');
-      localStorage.removeItem('profilePhoto'); // opsional, bisa dihapus kalau mau tetap simpan foto
       window.location.href = 'index.html';
     }
   </script>
