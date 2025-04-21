@@ -3,143 +3,174 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Sistem Keuangan Sekolah</title>
+  <title>Profil Karyawan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .shake {
-      animation: shake 0.5s;
+    .currency {
+      text-align: right;
+      font-family: monospace;
     }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-5px); }
-      40%, 80% { transform: translateX(5px); }
+    .profile-card {
+      background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    }
+    .empty-data {
+      color: #9ca3af;
+      font-style: italic;
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white rounded-lg shadow-md p-6 w-full max-w-sm">
-    <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold text-blue-600">Sistem Keuangan Sekolah</h1>
-      <p class="text-gray-600 mt-1">Masukkan 8 digit PIN Anda</p>
-    </div>
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto p-4">
+    <!-- Authentication Check -->
+    <script>
+      const user = JSON.parse(localStorage.getItem('currentUser'));
+      if (!user) window.location.href = 'index.html';
+    </script>
 
-    <div class="mb-4">
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i class="fas fa-lock text-gray-400"></i>
+    <!-- Profile Header -->
+    <div class="profile-card text-white p-6 rounded-lg shadow-lg mb-6">
+      <div class="flex flex-col md:flex-row items-center gap-6">
+        <img src="default.png" alt="Foto Profil" 
+             class="w-24 h-24 rounded-full border-4 border-white/50 shadow object-cover"
+             onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23ffffff\"><path d=\"M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z\"/></svg>'">
+        <div>
+          <h1 class="text-2xl font-bold">
+            <span id="namaKaryawan" class="empty-data">Memuat...</span>
+          </h1>
+          <p class="text-white/90">
+            NIP: <span id="nipKaryawan" class="empty-data">Memuat...</span>
+          </p>
+          <p class="text-white/90">
+            Unit Kerja: <span id="unitKerja" class="empty-data">Memuat...</span>
+          </p>
         </div>
-        <input
-          id="pinInput"
-          type="password"
-          inputmode="numeric"
-          maxlength="8"
-          placeholder="Contoh: 19670304"
-          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          autocomplete="off"
-        >
       </div>
-      <p id="pinError" class="text-red-500 text-sm mt-1 h-5"></p>
     </div>
 
-    <button id="loginBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg">
-      <span id="btnText">Masuk</span>
-      <span id="spinner" class="ml-2 hidden"><i class="fas fa-spinner fa-spin"></i></span>
-    </button>
+    <!-- Announcement -->
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4 text-blue-600 flex items-center gap-2">
+        <i class="fas fa-bullhorn"></i> Pengumuman Terbaru
+      </h2>
+      <div id="pengumuman" class="p-4 bg-blue-50 rounded-lg text-blue-800">
+        Memuat pengumuman...
+      </div>
+    </div>
+
+    <!-- Salary Details -->
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-xl font-semibold mb-4 text-green-600 flex items-center gap-2">
+        <i class="fas fa-file-invoice-dollar"></i> Rincian Gaji
+      </h2>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Komponen</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Jumlah (Rp)</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="tabelGaji">
+            <!-- Will be populated by JavaScript -->
+          </tbody>
+          <tfoot class="bg-gray-50 font-semibold">
+            <tr>
+              <td class="px-4 py-3 text-left">Take Home Pay</td>
+              <td class="px-4 py-3 text-right currency" id="thp">0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="mt-6 text-center">
+      <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const pinInput = document.getElementById('pinInput');
-      const pinError = document.getElementById('pinError');
-      const loginBtn = document.getElementById('loginBtn');
-      const btnText = document.getElementById('btnText');
-      const spinner = document.getElementById('spinner');
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('currentUser'));
+      if (!user) return;
 
-      let employeeData = [];
+      // Display profile data with proper fallbacks
+      const displayData = (elementId, value, defaultValue = 'Data tidak tersedia') => {
+        const element = document.getElementById(elementId);
+        element.textContent = value || defaultValue;
+        element.className = value ? '' : 'empty-data';
+      };
 
-      // Load employee data (keep PIN as string)
-      try {
-        const data = await new Promise((resolve, reject) => {
-          Papa.parse('data.csv', {
-            download: true,
-            header: true,
-            // Tidak menggunakan dynamicTyping agar PIN tetap string
-            complete: resolve,
-            error: reject
-          });
+      displayData('namaKaryawan', user.Nama);
+      displayData('nipKaryawan', user.NIP);
+      displayData('unitKerja', user['Unit Kerja']);
+
+      // Load announcement
+      fetch('announcement.txt')
+        .then(response => response.text())
+        .then(text => {
+          const content = text.trim() || 'Tidak ada pengumuman saat ini';
+          document.getElementById('pengumuman').textContent = content;
+          if (!text.trim()) document.getElementById('pengumuman').classList.add('empty-data');
+        })
+        .catch(() => {
+          document.getElementById('pengumuman').textContent = 'Gagal memuat pengumuman';
+          document.getElementById('pengumuman').classList.add('text-red-500');
         });
-        employeeData = data.data;
-        console.log('Database loaded:', employeeData);
-      } catch (err) {
-        console.error("Error loading database:", err);
-        showError("Sistem sedang maintenance. Silakan coba lagi nanti.");
-        loginBtn.disabled = true;
-        return;
-      }
 
-      // Validate PIN input (as text)
-      pinInput.addEventListener('input', () => {
-        // Only allow numbers but keep as text
-        pinInput.value = pinInput.value.replace(/\D/g, '').slice(0, 8);
-        pinError.textContent = '';
-        pinInput.classList.remove('border-red-500', 'shake');
-      });
+      // Salary components to display
+      const salaryComponents = [
+        { label: 'Gaji Pokok', key: 'Gaji Kotor' },
+        { label: 'Potongan BPD', key: 'Potongan BPD' },
+        { label: 'DPLK', key: 'DPLK' },
+        { label: 'KPRI', key: 'KPRI' },
+        { label: 'PGRI', key: 'PGRI' },
+        { label: 'HPPT', key: 'HPPT' },
+        { label: 'Dansos', key: 'Dansos' },
+        { label: 'Bazda', key: 'Bazda' },
+        { label: 'Darma Wanita', key: 'Darma Wanita' },
+        { label: 'Korpri', key: 'Korpri' },
+        { label: 'Halbi', key: 'Halbi' }
+      ];
 
-      // Login function (compare as string)
-      loginBtn.addEventListener('click', async () => {
-        const pin = pinInput.value.trim();
+      const tableBody = document.getElementById('tabelGaji');
+      let totalDeductions = 0;
+      let baseSalary = 0;
+
+      salaryComponents.forEach(component => {
+        const value = parseFloat(user[component.key]) || 0;
         
-        // Validate format (as text)
-        if (pin.length !== 8 || !/^\d+$/.test(pin)) {
-          showError("PIN harus 8 digit angka");
-          pinInput.classList.add('border-red-500', 'shake');
-          setTimeout(() => pinInput.classList.remove('shake'), 500);
-          return;
-        }
-
-        // Show loading state
-        btnText.textContent = "Memverifikasi...";
-        spinner.classList.remove('hidden');
-        loginBtn.disabled = true;
-
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Find user - compare as exact string (including leading zeros)
-        const user = employeeData.find(emp => emp.PIN.trim() === pin);
-        
-        if (user) {
-          // Successful login
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = user.Role.trim() === 'Admin' ? 'admin.html' : 'user.html';
+        if (component.key === 'Gaji Kotor') {
+          baseSalary = value;
         } else {
-          // PIN not found
-          showError(`PIN tidak ditemukan. Contoh PIN valid: ${employeeData[1]?.PIN || '19670304'}`);
-          pinInput.classList.add('border-red-500', 'shake');
-          setTimeout(() => {
-            pinInput.classList.remove('shake');
-            pinInput.focus();
-            pinInput.select();
-          }, 500);
+          totalDeductions += value;
         }
 
-        // Reset button state
-        btnText.textContent = "Masuk";
-        spinner.classList.add('hidden');
-        loginBtn.disabled = false;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-4 py-3 whitespace-nowrap">${component.label}</td>
+          <td class="px-4 py-3 whitespace-nowrap currency">${formatCurrency(value)}</td>
+        `;
+        tableBody.appendChild(row);
       });
 
-      // Enter key to submit
-      pinInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') loginBtn.click();
-      });
-
-      function showError(message) {
-        pinError.textContent = message;
-      }
+      // Calculate and display Take Home Pay
+      const takeHomePay = baseSalary - totalDeductions;
+      document.getElementById('thp').textContent = formatCurrency(takeHomePay);
     });
+
+    function formatCurrency(amount) {
+      return isNaN(amount) || amount === 0 ? '-' : new Intl.NumberFormat('id-ID').format(amount);
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index.html';
+    }
   </script>
 </body>
 </html>
