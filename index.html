@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sistem Manajemen Keuangan Perusahaan">
-  <title>Login - Sistem Keuangan</title>
+  <meta name="description" content="Sistem Manajemen Keuangan - Login">
+  <title>Login | Sistem Manajemen Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --primary: #3b82f6;
@@ -21,116 +22,194 @@
       scroll-behavior: smooth;
     }
     
-    .glassmorphism {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+    body.dark {
+      background-color: #0f172a;
+      color: #f8fafc;
     }
     
-    .input-focus:focus {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-primary {
+      background-image: linear-gradient(to right, var(--primary), var(--secondary));
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center min-h-screen p-4 dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900">
-  <div class="glassmorphism p-8 rounded-xl shadow-2xl w-full max-w-md dark:bg-slate-700/50">
-    <div class="flex justify-center mb-6">
-      <img src="default.png" alt="Logo Perusahaan" class="w-20 h-20 rounded-full object-cover shadow-md">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-gray-900 min-h-screen flex items-center justify-center p-4">
+  <div class="glassmorphism rounded-xl shadow-2xl p-8 w-full max-w-md dark:bg-slate-800/50">
+    <!-- Logo & Title -->
+    <div class="flex flex-col items-center mb-8">
+      <img src="default.png" alt="Logo Perusahaan" class="w-20 h-20 rounded-full object-cover mb-4 border-4 border-white dark:border-slate-700 shadow-md">
+      <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+        Manajemen Keuangan
+      </h1>
+      <p class="text-gray-600 dark:text-gray-300 mt-2">Silakan masuk ke akun Anda</p>
     </div>
     
-    <h1 class="text-3xl font-bold text-center mb-2 text-blue-600 dark:text-blue-300">Selamat Datang</h1>
-    <p class="text-center text-gray-600 dark:text-gray-300 mb-6">Sistem Manajemen Keuangan</p>
-    
-    <div id="announcement" class="mb-6 p-4 bg-blue-50/50 rounded-lg text-blue-800 dark:bg-slate-600/50 dark:text-blue-100 animate-fade-in">
-      <i class="fas fa-bullhorn mr-2"></i>
-      <span id="announcementText">Memuat pengumuman...</span>
+    <!-- Announcement -->
+    <div id="announcement" class="mb-6 p-4 bg-blue-100/50 dark:bg-slate-700/50 rounded-lg text-blue-800 dark:text-blue-100 border-l-4 border-blue-500">
+      <div class="flex items-start">
+        <i class="fas fa-bullhorn mr-2 mt-1 text-blue-500 dark:text-blue-300"></i>
+        <div id="announcementText">Memuat pengumuman...</div>
+      </div>
     </div>
     
+    <!-- Login Form -->
     <div class="space-y-4">
       <div class="relative">
-        <i class="fas fa-key absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        <input id="pinInput" type="password" placeholder="Masukkan PIN" 
-               class="w-full pl-10 pr-4 py-3 rounded-lg border-0 bg-white/80 shadow-sm focus:ring-2 focus:ring-blue-300 input-focus dark:bg-slate-600/80 dark:text-white">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-key text-gray-400 dark:text-gray-500"></i>
+        </div>
+        <input 
+          id="pinInput" 
+          type="password" 
+          placeholder="Masukkan PIN Anda" 
+          class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 dark:bg-slate-700/80 dark:text-white dark:placeholder-gray-400"
+        >
       </div>
       
-      <button id="loginUser" class="w-full bg-gradient-to-r from-blue-400 to-blue-500 text-white p-3 rounded-lg hover:from-blue-500 hover:to-blue-600 shadow-md flex items-center justify-center gap-2">
-        <i class="fas fa-user"></i>
-        Login Karyawan
+      <button 
+        id="loginUser" 
+        class="w-full btn-primary text-white p-3 rounded-lg font-medium flex items-center justify-center hover:shadow-lg"
+      >
+        <i class="fas fa-user mr-2"></i> Login sebagai User
       </button>
       
-      <button id="loginAdmin" class="w-full bg-gradient-to-r from-green-400 to-green-500 text-white p-3 rounded-lg hover:from-green-500 hover:to-green-600 shadow-md flex items-center justify-center gap-2">
-        <i class="fas fa-lock"></i>
-        Login Admin
+      <button 
+        id="loginAdmin" 
+        class="w-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-white p-3 rounded-lg font-medium flex items-center justify-center hover:bg-gray-300 dark:hover:bg-slate-600"
+      >
+        <i class="fas fa-lock mr-2"></i> Login sebagai Admin
+      </button>
+    </div>
+    
+    <!-- Dark Mode Toggle -->
+    <div class="mt-6 flex justify-center">
+      <button id="darkModeToggle" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+        <i class="fas fa-moon dark:hidden"></i>
+        <i class="fas fa-sun hidden dark:inline"></i>
       </button>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      let loginData = [];
-      const announcement = document.getElementById('announcementText');
+      let database = [];
+      const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
 
-      // Load data login
-      function loadLoginData() {
-        Papa.parse('login.csv', {
+      // Dark Mode Toggle
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+      });
+      
+      // Check for saved dark mode preference
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark');
+      }
+
+      // Load database
+      function loadDatabase() {
+        Papa.parse('database.csv', {
           download: true,
           header: true,
           complete: function(results) {
-            loginData = results.data;
+            database = results.data;
             loadAnnouncement();
           },
-          error: function(err) {
-            console.error("Gagal memuat data login:", err);
-            announcement.innerText = "Sistem sedang maintenance";
+          error: function(error) {
+            console.error("Error loading database:", error);
+            document.getElementById('announcementText').textContent = "Sistem sedang dalam pemeliharaan. Silakan coba lagi nanti.";
           }
         });
       }
 
+      // Load announcement
       function loadAnnouncement() {
         fetch('announcement.txt')
           .then(response => {
-            if (!response.ok) throw new Error("Gagal memuat pengumuman");
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.text();
           })
           .then(data => {
-            announcement.innerText = data || 'Tidak ada pengumuman terbaru.';
+            document.getElementById('announcementText').textContent = data || 'Tidak ada pengumuman terbaru.';
           })
-          .catch(err => {
-            console.error(err);
-            announcement.innerText = "Tidak dapat memuat pengumuman";
+          .catch(error => {
+            console.error("Error loading announcement:", error);
+            document.getElementById('announcementText').textContent = "Tidak dapat memuat pengumuman.";
           });
       }
 
+      // Login function
       function login(role) {
-        const pin = document.getElementById('pinInput').value.trim();
+        const pinInput = document.getElementById('pinInput');
+        const pin = pinInput.value.trim();
+        
         if (!pin) {
-          alert('Harap masukkan PIN Anda');
+          showAlert('error', 'Silakan masukkan PIN Anda');
+          pinInput.focus();
           return;
         }
-
-        const user = loginData.find(d => d.PIN === pin && d.Role === role);
+        
+        const user = database.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
+        
         if (user) {
-          // Simpan data user yang login
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          
-          // Redirect berdasarkan role
-          window.location.href = role === 'Admin' ? 'admin.html' : 'user.html';
+          if (role === 'user') {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            window.location.href = 'user.html';
+          } else {
+            window.location.href = 'admin.html';
+          }
         } else {
-          alert('PIN tidak valid atau Anda tidak memiliki akses');
+          showAlert('error', `PIN tidak valid atau Anda tidak memiliki akses sebagai ${role === 'user' ? 'User' : 'Admin'}`);
+          pinInput.value = '';
+          pinInput.focus();
         }
       }
 
-      document.getElementById('loginUser').addEventListener('click', () => login('User'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('Admin'));
+      // Show alert
+      function showAlert(type, message) {
+        const alert = document.createElement('div');
+        alert.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+          type === 'error' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+        }`;
+        alert.innerHTML = `
+          <div class="flex items-center">
+            <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>
+            <span>${message}</span>
+          </div>
+        `;
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+          alert.classList.add('opacity-0');
+          setTimeout(() => alert.remove(), 300);
+        }, 3000);
+      }
 
-      // Event listener untuk enter key
+      // Event listeners
+      document.getElementById('loginUser').addEventListener('click', () => login('user'));
+      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
+      
+      // Allow login with Enter key
       document.getElementById('pinInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-          login('User'); // Default enter untuk login user
+          login('user');
         }
       });
 
-      loadLoginData();
+      // Initialize
+      loadDatabase();
     });
   </script>
 </body>
