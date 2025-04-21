@@ -65,12 +65,26 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       let currentUser = JSON.parse(localStorage.getItem('currentUser'));
       if (!currentUser) {
         alert('Silakan login terlebih dahulu');
         window.location.href = 'index.html';
         return;
+      }
+
+      // Cek foto dari backend kalau nggak ada di localStorage
+      if (!currentUser.photo) {
+        try {
+          const response = await fetch(`http://localhost:5000/api/user/get-photo?pin=${currentUser.PIN}`);
+          const data = await response.json();
+          if (data.photoPath) {
+            currentUser.photo = data.photoPath;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          }
+        } catch (error) {
+          console.error('Error fetching photo:', error);
+        }
       }
 
       // Load data gaji
@@ -185,6 +199,9 @@
           method: 'POST',
           body: formData
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data.photoPath) {
           const currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -192,10 +209,12 @@
           localStorage.setItem('currentUser', JSON.stringify(currentUser));
           document.getElementById('profilePhoto').src = data.photoPath;
           alert('Foto berhasil diunggah!');
+        } else {
+          throw new Error('No photoPath in response');
         }
       } catch (error) {
         console.error('Error uploading photo:', error);
-        alert('Gagal mengunggah foto!');
+        alert('Gagal mengunggah foto: ' + error.message);
       }
     }
 
