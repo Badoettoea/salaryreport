@@ -118,6 +118,11 @@
         { key: 'Halbi', label: 'Halbi' },
         { key: 'Gaji Bersih', label: 'Take Home Pay', isTotal: true }
       ];
+      const gajiPokok = parseFloat(userData['Gaji Pokok']);
+      const totalPotongan = Object.keys(userData)
+        .filter(key => key.includes('Potongan'))
+        .reduce((sum, key) => sum + parseFloat(userData[key] || 0), 0);
+      const takeHomePay = gajiPokok - totalPotongan;
 
       const salaryTable = document.getElementById('salaryDetails');
       salaryFields.forEach(item => {
