@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salary Report</title>
+  <title>Salary Report System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
@@ -12,141 +12,89 @@
       background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
       min-height: 100vh;
     }
-    .card {
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.8);
-    }
-    .number-cell {
-      text-align: right;
-      font-family: monospace;
-    }
   </style>
 </head>
-<body>
-  <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="card rounded-xl shadow-xl p-6 w-full max-w-4xl border border-white/30">
-      <!-- User Profile Header -->
-      <div class="flex flex-col md:flex-row items-center mb-6 gap-4">
-        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center border-2 border-white shadow">
-          <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-          </svg>
-        </div>
-        <div class="text-center md:text-left">
-          <h1 class="text-xl font-bold text-blue-600" id="userName">Profil Karyawan</h1>
-          <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
-            <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded" id="userNIP"></span>
-            <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded" id="userUnit"></span>
-          </div>
-        </div>
+<body class="flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">Salary Report System</h1>
+    
+    <div id="loginSection">
+      <div class="mb-4">
+        <label class="block text-gray-700 mb-2">Masukkan PIN</label>
+        <input id="pinInput" type="password" 
+               class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300">
       </div>
-
-      <!-- Salary Summary -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h3 class="text-sm font-medium text-gray-500">Gaji Pokok</h3>
-          <p class="text-2xl font-bold number-cell" id="gajiPokok">Rp0</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h3 class="text-sm font-medium text-gray-500">Total Potongan</h3>
-          <p class="text-2xl font-bold number-cell text-red-600" id="totalPotongan">Rp0</p>
-        </div>
-        <div class="bg-blue-50 p-4 rounded-lg shadow border border-blue-200">
-          <h3 class="text-sm font-medium text-blue-600">Take Home Pay</h3>
-          <p class="text-2xl font-bold number-cell text-blue-600" id="takeHomePay">Rp0</p>
-        </div>
-      </div>
-
-      <!-- Deductions Table -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full bg-white rounded-lg overflow-hidden">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-4 py-2 text-left">Jenis Potongan</th>
-              <th class="px-4 py-2 text-right">Jumlah</th>
-            </tr>
-          </thead>
-          <tbody id="deductionsTable" class="divide-y divide-gray-200">
-            <!-- Dynamic deduction rows will be inserted here -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="mt-6 flex justify-end">
-        <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-          </svg>
-          Cetak Slip Gaji
+      
+      <div class="flex space-x-2">
+        <button id="loginUser" class="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+          Login Karyawan
+        </button>
+        <button id="loginAdmin" class="flex-1 bg-gray-500 text-white p-2 rounded hover:bg-gray-600">
+          Login Admin
         </button>
       </div>
+      
+      <div id="errorMessage" class="text-red-500 mt-2 text-sm hidden"></div>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Load user data from localStorage
-      const userData = JSON.parse(localStorage.getItem('currentUser'));
+      let employeeData = [];
       
-      if (!userData) {
-        alert('Data karyawan tidak ditemukan. Silakan login kembali.');
-        window.location.href = 'index.html';
-        return;
-      }
-
-      // Display user profile
-      document.getElementById('userName').textContent = userData.Nama || '-';
-      document.getElementById('userNIP').textContent = `NIP: ${userData.NIP || '-'}`;
-      document.getElementById('userUnit').textContent = `Unit: ${userData['Unit Kerja'] || '-'}`;
-
-      // Format currency
-      function formatCurrency(amount) {
-        return new Intl.NumberFormat('id-ID', {
-          style: 'currency',
-          currency: 'IDR',
-          minimumFractionDigits: 0
-        }).format(amount || 0);
-      }
-
-      // Calculate salary components
-      const gajiPokok = parseInt(userData['Gaji Kotor']) || 0;
-      const deductionHeaders = Object.keys(userData).filter(key => 
-        key !== 'PIN' && 
-        key !== 'Role' && 
-        key !== 'Nama' && 
-        key !== 'NIP' && 
-        key !== 'Unit Kerja' && 
-        key !== 'Gaji Kotor' && 
-        key !== 'Gaji Bersih' &&
-        parseInt(userData[key]) > 0
-      );
-
-      let totalPotongan = 0;
-      const deductionsTable = document.getElementById('deductionsTable');
-      deductionsTable.innerHTML = '';
-
-      // Process each deduction
-      deductionHeaders.forEach(header => {
-        const amount = parseInt(userData[header]) || 0;
-        if (amount > 0) {
-          totalPotongan += amount;
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td class="px-4 py-2">${header}</td>
-            <td class="px-4 py-2 number-cell">${formatCurrency(amount)}</td>
-          `;
-          deductionsTable.appendChild(row);
+      // Load employee data from data.csv
+      Papa.parse('data.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+          employeeData = results.data;
+        },
+        error: function(error) {
+          showError("Gagal memuat data karyawan");
+          console.error("Error loading data:", error);
         }
       });
 
-      // Calculate take home pay
-      const takeHomePay = gajiPokok - totalPotongan;
+      // Handle login
+      function login(role) {
+        const pin = document.getElementById('pinInput').value.trim();
+        const errorEl = document.getElementById('errorMessage');
+        
+        if (!pin) {
+          showError("Silakan masukkan PIN");
+          return;
+        }
+        
+        const user = employeeData.find(emp => emp.PIN === pin && emp.Role === role);
+        
+        if (user) {
+          if (role === 'User') {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            window.location.href = 'user.html';
+          } else {
+            window.location.href = 'admin.html';
+          }
+        } else {
+          showError("PIN tidak valid");
+        }
+      }
 
-      // Update summary
-      document.getElementById('gajiPokok').textContent = formatCurrency(gajiPokok);
-      document.getElementById('totalPotongan').textContent = formatCurrency(totalPotongan);
-      document.getElementById('takeHomePay').textContent = formatCurrency(takeHomePay);
+      // Show error message
+      function showError(message) {
+        const errorEl = document.getElementById('errorMessage');
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+        setTimeout(() => errorEl.classList.add('hidden'), 3000);
+      }
+
+      // Event listeners
+      document.getElementById('loginUser').addEventListener('click', () => login('User'));
+      document.getElementById('loginAdmin').addEventListener('click', () => login('Admin'));
+      
+      // Enter key to login as user
+      document.getElementById('pinInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') login('User');
+      });
     });
   </script>
 </body>
