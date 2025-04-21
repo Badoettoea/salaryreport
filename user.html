@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profil Karyawan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .number-format {
@@ -19,9 +18,14 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div class="container mx-auto p-4">
+    <!-- Check if user is logged in -->
+    <div id="authCheck"></div>
+
     <div class="profile-section text-white p-6 rounded-lg shadow-lg mb-6">
       <div class="flex flex-col md:flex-row items-center gap-6">
-        <img src="default.png" alt="Foto Profil" class="w-24 h-24 rounded-full border-4 border-white/50 shadow-md">
+        <div class="w-24 h-24 rounded-full border-4 border-white/50 shadow-md bg-white flex items-center justify-center">
+          <i class="fas fa-user text-4xl text-blue-500"></i>
+        </div>
         <div>
           <h1 class="text-2xl font-bold" id="userName">Nama Karyawan</h1>
           <p class="text-white/90" id="userNIP">NIP: -</p>
@@ -71,19 +75,26 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Check authentication
       const user = JSON.parse(localStorage.getItem('currentUser'));
       if (!user) {
-        alert('Silakan login terlebih dahulu');
         window.location.href = 'index.html';
         return;
       }
 
-      // Tampilkan data profil
+      // Display profile data
       document.getElementById('userName').textContent = user.Nama || '-';
       document.getElementById('userNIP').textContent = `NIP: ${user.NIP || '-'}`;
       document.getElementById('userUnit').textContent = `Unit Kerja: ${user['Unit Kerja'] || '-'}`;
 
-      // Load pengumuman
+      // Load announcement
+      loadAnnouncement();
+
+      // Display salary data
+      displaySalaryDetails(user);
+    });
+
+    function loadAnnouncement() {
       fetch('announcement.txt')
         .then(response => {
           if (!response.ok) throw new Error('Gagal memuat pengumuman');
@@ -96,14 +107,9 @@
           console.error(err);
           document.getElementById('userAnnouncement').textContent = 'Gagal memuat pengumuman';
         });
+    }
 
-      // Format angka untuk display
-      function formatCurrency(amount) {
-        if (!amount) return '0';
-        return parseInt(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-      }
-
-      // Tampilkan data gaji
+    function displaySalaryDetails(user) {
       const salaryFields = [
         { key: 'Gaji Kotor', label: 'Gaji Pokok' },
         { key: 'Potongan BPD', label: 'Potongan BPD' },
@@ -118,25 +124,35 @@
         { key: 'Halbi', label: 'Halbi' },
         { key: 'Gaji Bersih', label: 'Take Home Pay', isTotal: true }
       ];
-      const gajiPokok = parseFloat(userData['Gaji Pokok']);
-      const totalPotongan = Object.keys(userData)
-        .filter(key => key.includes('Potongan'))
-        .reduce((sum, key) => sum + parseFloat(userData[key] || 0), 0);
-      const takeHomePay = gajiPokok - totalPotongan;
 
       const salaryTable = document.getElementById('salaryDetails');
+      salaryTable.innerHTML = ''; // Clear existing rows
+
+      // Calculate take home pay
+      const gajiPokok = parseFloat(user['Gaji Kotor']) || 0;
+      const potonganKeys = Object.keys(user).filter(key => 
+        key !== 'Gaji Kotor' && key !== 'Gaji Bersih' && key.includes('Potongan')
+      );
+      const totalPotongan = potonganKeys.reduce((sum, key) => sum + (parseFloat(user[key]) || 0), 0);
+      const takeHomePay = gajiPokok - totalPotongan;
+
+      // Add rows for each salary component
       salaryFields.forEach(item => {
         const row = document.createElement('tr');
-        const labelCell = document.createElement('td');
-        const valueCell = document.createElement('td');
         
+        const labelCell = document.createElement('td');
         labelCell.className = 'px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900';
         labelCell.textContent = item.label;
         
+        const valueCell = document.createElement('td');
         valueCell.className = 'px-4 py-3 whitespace-nowrap text-sm number-format';
-        valueCell.textContent = formatCurrency(user[item.key]);
+        
+        // Special handling for Take Home Pay
+        const value = item.key === 'Gaji Bersih' ? takeHomePay : (user[item.key] || 0);
+        valueCell.textContent = formatCurrency(value);
         
         if (item.isTotal) {
+          row.className = 'bg-gray-50';
           labelCell.classList.add('font-bold');
           valueCell.classList.add('font-bold', 'text-green-600');
         }
@@ -145,7 +161,15 @@
         row.appendChild(valueCell);
         salaryTable.appendChild(row);
       });
-    });
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
 
     function logout() {
       localStorage.removeItem('currentUser');
