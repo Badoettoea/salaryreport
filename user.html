@@ -77,25 +77,51 @@
   </div>
 
   <script>
-    // Dummy example data
-    document.getElementById("user-name").textContent = "Andi Wijaya";
-    document.getElementById("user-saldo").textContent = "Rp 1.200.000";
-    document.getElementById("user-info").textContent = "Keuangan - Bendahara";
+  document.addEventListener("DOMContentLoaded", async () => {
+    const pin = localStorage.getItem("pin");
+    if (!pin) return (window.location.href = "index.html");
 
-    // Pie Chart
-    const ctx = document.getElementById('chart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'pie',
+    const response = await fetch(
+      "https://script.google.com/macros/s/AKfycbwxxxxxxxxxxxxxxxxx/exec?action=user",
+      {
+        method: "POST",
+        body: JSON.stringify({ pin }),
+      }
+    );
+    const data = await response.json();
+    if (!data.success) return alert("Gagal ambil data");
+
+    const user = data.user;
+
+    // 1. Isi nama & foto
+    document.getElementById("nama").innerText = user.Nama || "-";
+    const foto = user.Foto && user.Foto !== "" ? user.Foto : "default.png";
+    document.getElementById("foto").src = `https://drive.google.com/uc?id=${foto}`; // jika ID disimpan
+
+    // 2. Tampilkan rincian gaji & potongan
+    document.getElementById("gaji").innerText = `Rp ${user.Gaji}`;
+    document.getElementById("potongan").innerText = `Rp ${user.Potongan}`;
+    document.getElementById("saldo").innerText = `Rp ${user.Saldo}`;
+
+    // 3. Chart potongan vs saldo
+    const ctx = document.getElementById("pieChart").getContext("2d");
+    new Chart(ctx, {
+      type: "pie",
       data: {
-        labels: ['Simpanan Pokok', 'Simpanan Wajib', 'Pinjaman'],
+        labels: ["Potongan", "Saldo"],
         datasets: [{
-          label: 'Potongan',
-          data: [200000, 500000, 500000],
-          backgroundColor: ['#ff6384', '#36a2eb', '#ffce56'],
-          borderWidth: 1
+          data: [user.Potongan, user.Saldo],
+          backgroundColor: ["#ff6b6b", "#1dd1a1"]
         }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
       }
     });
+  });
+</script>
+
 
     // Upload foto profil (dikirim ke GAS)
     document.getElementById('upload-input').addEventListener('change', async (e) => {
