@@ -74,22 +74,16 @@
         complete: function(results) {
           const userData = results.data.find(d => d.PIN === currentUser.PIN);
           if (userData) {
-            // Hitung Gaji Bersih
-            const gajiKotor = parseFloat(userData['Gaji Kotor'] || 0);
-            const potongan = [
-              'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos',
-              'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'
-            ].reduce((sum, key) => sum + parseFloat(userData[key] || 0), 0);
-            userData['Gaji Bersih'] = gajiKotor - potongan;
-
             displayUserInfo(currentUser, userData);
           } else {
-            alert('Data gaji tidak ditemukan untuk PIN ini');
+            alert('Data gaji tidak ditemukan untuk pengguna ini');
+            window.location.href = 'index.html';
           }
         },
         error: function(error) {
           console.error("Error loading salary data:", error);
-          alert('Gagal memuat data gaji. Silakan coba lagi nanti.');
+          alert('Gagal memuat data gaji. Silakan coba lagi.');
+          window.location.href = 'index.html';
         }
       });
 
@@ -104,7 +98,7 @@
         })
         .catch(error => {
           console.error("Error loading announcement:", error);
-          document.getElementById('announcement').innerHTML = '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
+          document.getElementById('announcement').innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Gagal memuat pengumuman';
         });
 
       // Cek foto profil
@@ -127,6 +121,16 @@
       return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
     }
 
+    // Hitung Gaji Bersih
+    function calculateNetSalary(salaryData) {
+      const grossSalary = parseFloat(salaryData['Gaji Kotor'] || 0);
+      const deductions = [
+        'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos',
+        'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'
+      ].reduce((sum, key) => sum + parseFloat(salaryData[key] || 0), 0);
+      return grossSalary - deductions;
+    }
+
     // Tampilkan informasi pengguna
     function displayUserInfo(user, salaryData) {
       // Informasi pribadi
@@ -139,6 +143,9 @@
         <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
       `;
 
+      // Hitung Gaji Bersih
+      const netSalary = calculateNetSalary(salaryData);
+
       // Informasi gaji
       const salaryInfoEl = document.getElementById('salaryInfo');
       salaryInfoEl.innerHTML = `
@@ -149,7 +156,7 @@
           </div>
           <div class="bg-blue-50 p-3 rounded-lg">
             <p class="font-semibold">Gaji Bersih</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Bersih'] || 0))}</p>
+            <p class="number-cell">${formatCurrency(netSalary)}</p>
           </div>
         </div>
         
@@ -178,6 +185,22 @@
           <div class="bg-gray-50 p-3 rounded-lg">
             <p class="font-semibold">Dansos</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">Bazda</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">Darma Wanita</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">Korpri</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="font-semibold">Halbi</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
           </div>
         </div>
       `;
