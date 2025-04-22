@@ -1,102 +1,61 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard Koperasi</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Koperasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
-      margin: 0;
-      padding: 1rem;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #fff);
     }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 10px 10px 30px #d1d9e6, -10px -10px 30px #ffffff;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .profile-pic {
-      width: 100px;
-      border-radius: 50%;
-      margin: 0 auto 1rem;
-      display: block;
-    }
-    .info {
-      margin-bottom: 1rem;
-    }
-    .info strong {
-      display: inline-block;
-      width: 120px;
-    }
-    #chart-container {
-      width: 100%;
-      max-width: 400px;
-      margin: 2rem auto;
+    .neumorph {
+      box-shadow: 5px 5px 15px #cfd8dc, -5px -5px 15px #ffffff;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <img src="default.png" alt="Foto Profil" class="profile-pic" id="profile-pic">
-    <h1 id="nama">Nama User</h1>
-    <div class="info"><strong>NIP:</strong> <span id="nip">-</span></div>
-    <div class="info"><strong>Gaji:</strong> <span id="gaji">-</span></div>
-    <div class="info"><strong>Potongan:</strong> <span id="potongan">-</span></div>
-
-    <div id="chart-container">
-      <canvas id="pieChart"></canvas>
-    </div>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-sm p-6 bg-white rounded-2xl neumorph">
+    <h1 class="text-2xl font-semibold text-center mb-6 text-gray-800">Login Koperasi</h1>
+    <div id="announcement" class="mb-4 text-sm text-blue-800"></div>
+    <input id="username" type="text" placeholder="Nama" class="w-full mb-3 p-3 rounded-xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400">
+    <input id="pin" type="password" placeholder="PIN" class="w-full mb-4 p-3 rounded-xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400">
+    <button id="loginBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold shadow-md neumorph">
+      <i class="fas fa-sign-in-alt mr-2"></i>Masuk
+    </button>
+    <p id="loginStatus" class="text-center text-sm text-red-600 mt-4"></p>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    async function loadData() {
-      const response = await fetch('data.csv');
-      const text = await response.text();
-      const lines = text.trim().split('\n').map(line => line.split(','));
-      const headers = lines[0];
-      const rows = lines.slice(1);
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('announcement.txt')
+        .then(res => res.text())
+        .then(data => {
+          document.getElementById('announcement').innerText = data;
+        });
 
-      // Ambil data user pertama (simulasi login)
-      const user = rows[0];
-      const userData = {};
-      headers.forEach((h, i) => userData[h] = user[i]);
+      document.getElementById('loginBtn').addEventListener('click', async () => {
+        const username = document.getElementById('username').value.trim();
+        const pin = document.getElementById('pin').value.trim();
 
-      document.getElementById('nama').textContent = userData.Nama;
-      document.getElementById('nip').textContent = userData.NIP;
-      document.getElementById('gaji').textContent = 'Rp ' + Number(userData.Gaji).toLocaleString();
-      document.getElementById('potongan').textContent = 'Rp ' + Number(userData.Potongan).toLocaleString();
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, pin })
+        });
 
-      // Pie Chart
-      const gaji = parseInt(userData.Gaji);
-      const potongan = parseInt(userData.Potongan);
-      const sisa = gaji - potongan;
-
-      new Chart(document.getElementById('pieChart'), {
-        type: 'pie',
-        data: {
-          labels: ['Potongan', 'Sisa Gaji'],
-          datasets: [{
-            data: [potongan, sisa],
-            backgroundColor: ['#f87171', '#60a5fa']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
+        const result = await res.json();
+        if (result.success) {
+          localStorage.setItem('user', JSON.stringify(result.user));
+          window.location.href = 'user.html';
+        } else {
+          document.getElementById('loginStatus').innerText = 'Login gagal. Periksa nama dan PIN Anda.';
         }
       });
-    }
-
-    loadData();
+    });
   </script>
 </body>
 </html>
