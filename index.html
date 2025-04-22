@@ -91,22 +91,14 @@
       transform: translateX(20px);
     }
 
-    .header-container {
-      position: relative;
+    .top-right-container {
       display: flex;
-      justify-content: center;
       align-items: center;
+      gap: 1rem;
     }
     .header-logo {
-      position: absolute;
-      width: 100px;
-      height: 100px;
-      z-index: 0;
-      opacity: 0.3; /* Biar logo agak samar di belakang teks */
-    }
-    .header-text {
-      position: relative;
-      z-index: 1;
+      width: 40px;
+      height: 40px;
     }
 
     .animate-gradient {
@@ -145,23 +137,21 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-6 animate-gradient">
   <div class="login-card relative">
-    <div class="absolute top-4 right-4 theme-toggle">
-      <label class="switch">
-        <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
-        <span class="slider"></span>
-      </label>
-      <span class="text-gray-600 text-sm"><i class="fas fa-adjust mr-1"></i>Dark Mode</span>
+    <div class="absolute top-4 right-4 top-right-container">
+      <img src="logo.png" alt="Logo" class="header-logo">
+      <div class="theme-toggle">
+        <label class="switch">
+          <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
+          <span class="slider"></span>
+        </label>
+        <span class="text-gray-600 text-sm"><i class="fas fa-adjust mr-1"></i>Dark Mode</span>
+      </div>
     </div>
 
     <div class="text-center mb-8">
-      <div class="header-container">
-        <img src="logo.png" alt="Logo" class="header-logo">
-        <div class="header-text">
-          <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
-          <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
-          <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
-        </div>
-      </div>
+      <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
+      <h1 class="text-4xl font-bold text-gray-800">Informasi Potongan Gaji</h1>
+      <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
     </div>
 
     <div id="announcement" class="mb-8 p-5 bg-teal-100 rounded-xl text-teal-900 border-l-4 border-teal-600 text-lg animate-slide-in">
