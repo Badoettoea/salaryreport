@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Sistem Informasi Gaji</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script> <!-- Tambah PapaParse -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" onerror="loadLocalPapaParse()"></script>
+  <script defer src="papaparse.min.js" id="local-papa"></script> <!-- Fallback lokal -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700 displayswap" rel="stylesheet">
@@ -68,6 +69,13 @@
   </div>
 
   <script>
+    // Fallback function if CDN fails
+    function loadLocalPapaParse() {
+      console.log('CDN PapaParse gagal, menggunakan fallback lokal...');
+      const localScript = document.getElementById('local-papa');
+      localScript.setAttribute('src', 'papaparse.min.js');
+    }
+
     // Apply saved theme on page load
     document.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('theme') || 'light';
@@ -106,6 +114,13 @@
       const pin = document.getElementById('pinInput').value.trim();
       if (!pin) {
         alert('Silakan masukkan PIN terlebih dahulu');
+        return;
+      }
+
+      // Cek apakah PapaParse sudah tersedia
+      if (typeof Papa === 'undefined') {
+        console.error('PapaParse belum tersedia. Pastikan script PapaParse terload dengan benar.');
+        alert('Gagal memuat library parsing CSV. Silakan cek koneksi internet atau refresh halaman.');
         return;
       }
 
