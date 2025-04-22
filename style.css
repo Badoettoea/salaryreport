@@ -1,0 +1,92 @@
+/* Base styling */
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #e0e5ec;
+  margin: 0;
+  padding: 1rem;
+  color: #333;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 1rem;
+}
+
+/* Neumorphic Card */
+.card {
+  background: #e0e5ec;
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 9px 9px 16px #b8b9be,
+              -9px -9px 16px #ffffff;
+}
+
+/* Headings */
+h1, h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+/* Inputs */
+input[type="file"],
+input[type="text"],
+textarea {
+  width: 100%;
+  border-radius: 12px;
+  padding: 0.75rem;
+  border: none;
+  background: #e0e5ec;
+  box-shadow: inset 5px 5px 10px #b8b9be,
+              inset -5px -5px 10px #fff;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  resize: none;
+}
+
+/* Buttons */
+button {
+  width: 100%;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 6px #b8b9be,
+              -3px -3px 6px #ffffff;
+  transition: 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #45a049;
+}
+
+/* Profile picture */
+.profile-card img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  box-shadow: inset 5px 5px 10px #c8c9ce,
+              inset -5px -5px 10px #fff;
+}
+
+/* Backup list */
+ul.backup-list {
+  list-style: none;
+  padding: 0;
+}
+
+ul.backup-list li {
+  background: #e0e5ec;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  box-shadow: inset 3px 3px 6px #b8b9be,
+              inset -3px -3px 6px #ffffff;
+  font-size: 0.9rem;
+}
