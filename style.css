@@ -51,7 +51,11 @@ body {
   transform: scale(1.02);
   box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.15), -12px -12px 20px rgba(255, 255, 255, 0.9);
 }
-
+/* announcement Field */
+.announcement-text:hover {
+  animation-play-state: paused;
+  animation: marquee 15s linear infinite;
+}
 /* Input Field */
 .input-field {
   width: 100%;
