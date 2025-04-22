@@ -7,22 +7,45 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <style>
+    * { 
+      transition: all 0.3s ease-in-out;
+    }
+    .input-field {
+      @apply w-full p-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500 bg-white shadow-sm;
+    }
+    .btn-primary {
+      @apply w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white p-5 text-xl rounded-xl hover:from-blue-700 hover:to-blue-600 active:from-blue-800 active:to-blue-700 font-semibold shadow-lg;
+    }
+    body {
+      @apply bg-gradient-to-br from-blue-200 via-blue-100 to-purple-200 flex items-center justify-center min-h-screen p-6;
+    }
+    .login-card {
+      @apply bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg hover:shadow-3xl transition-shadow duration-300;
+    }
+  </style>
 </head>
 <body>
-  <div class="login-box">
-    <img src="images/icon.png" alt="Icon">
-    <h2>Manajemen Keuangan</h2>
-    <div id="announcement" class="mb-4 p-3 bg-gray-100 rounded-lg text-gray-700 text-sm text-center"></div>
-    <form>
+  <div class="login-card">
+    <div class="text-center mb-8">
+      <i class="fas fa-wallet text-5xl text-blue-600 mb-3"></i>
+      <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
+      <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
+    </div>
+    
+    <div id="announcement" class="mb-8 p-5 bg-blue-100 rounded-xl text-blue-900 border-l-4 border-blue-600 text-lg"></div>
+    
+    <div class="space-y-6">
       <div class="relative">
-        <input id="pinInput" type="text" placeholder="Masukkan PIN">
-        <i class="fas fa-key absolute right-4 top-3 text-gray-500"></i>
+        <input id="pinInput" type="text" placeholder="Masukkan PIN" 
+               class="input-field">
+        <i class="fas fa-key absolute right-4 top-4 text-gray-400 text-lg"></i>
       </div>
-      <button id="loginButton" type="submit">Login</button>
-    </form>
-    <br>
-    <a href="#">Lupa PIN?</a>
+      
+      <button id="loginButton" class="btn-primary">
+        <i class="fas fa-sign-in-alt mr-2"></i> Login
+      </button>
+    </div>
   </div>
 
   <script>
@@ -58,8 +81,7 @@
           });
       }
 
-      function login(event) {
-        event.preventDefault();
+      function login() {
         const pin = document.getElementById('pinInput').value.trim();
         if (!pin) {
           alert('Silakan masukkan PIN terlebih dahulu');
