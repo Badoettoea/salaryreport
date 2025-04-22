@@ -1,162 +1,77 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #e0e5ec;
-      margin: 0;
-      padding: 1rem;
-    }
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const Papa = require('papaparse');
+const multer = require('multer');
 
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 1rem;
-    }
+const app = express();
+const port = 3000;
 
-    .card {
-      background: #e0e5ec;
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 9px 9px 16px #b8b9be,
-                  -9px -9px 16px #ffffff;
-    }
+app.use(cors());
+app.use(express.json());
+app.use(express.static('.'));
 
-    h2 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      font-size: 1.25rem;
-    }
+// Middleware untuk upload gambar
+const upload = multer({ dest: 'uploads/' });
 
-    input[type="file"],
-    textarea {
-      width: 100%;
-      border-radius: 12px;
-      padding: 0.75rem;
-      border: none;
-      background: #e0e5ec;
-      box-shadow: inset 5px 5px 10px #b8b9be,
-                  inset -5px -5px 10px #fff;
-      margin-bottom: 1rem;
-      resize: none;
-      font-size: 1rem;
-    }
+// Endpoint: Update announcement
+app.put('/announcement.txt', (req, res) => {
+  fs.writeFile('announcement.txt', req.body, (err) => {
+    if (err) return res.status(500).send('Failed to update announcement.');
+    res.send('Announcement updated');
+  });
+});
 
-    button {
-      width: 100%;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 0.75rem;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 3px 3px 6px #b8b9be,
-                  -3px -3px 6px #ffffff;
-    }
+// Endpoint: Update data.csv
+app.put('/data.csv', (req, res) => {
+  fs.writeFile('data.csv', req.body, (err) => {
+    if (err) return res.status(500).send('Failed to update data.');
+    res.send('Data updated');
+  });
+});
 
-    button:hover {
-      background: #45a049;
-    }
+// Endpoint: Login validation
+app.post('/login', (req, res) => {
+  const { username, pin } = req.body;
+  fs.readFile('data.csv', 'utf8', (err, csvData) => {
+    if (err) return res.status(500).json({ success: false, error: 'Failed to read user data.' });
 
-    ul.backup-list {
-      list-style: none;
-      padding: 0;
-    }
+    Papa.parse(csvData, {
+      header: true,
+      complete: (results) => {
+        const user = results.data.find(row =>
+          row.Nama?.toLowerCase().trim() === username.toLowerCase().trim() && row.PIN === pin
+        );
 
-    ul.backup-list li {
-      background: #e0e5ec;
-      margin-bottom: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 12px;
-      box-shadow: inset 3px 3px 6px #b8b9be,
-                  inset -3px -3px 6px #ffffff;
-      font-size: 0.9rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <!-- Form Upload File -->
-      <h3>Upload File Data</h3>
-      <input type="file" id="uploadFile" />
-      <button id="uploadBtn">Upload</button>
-    </div>
-
-    <!-- Form Kirim Warta -->
-    <div class="card">
-      <h3>Kirim Warta</h3>
-      <textarea id="wartaText" rows="5" placeholder="Tulis pengumuman di sini..."></textarea>
-      <button id="sendWartaBtn">Kirim Warta</button>
-    </div>
-
-    <!-- Daftar Backup -->
-    <div class="card">
-      <h3>Daftar Backup</h3>
-      <ul id="backupList" class="backup-list"></ul>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      // 1. Ambil Daftar Backup
-      const backupResponse = await fetch(
-        "https://script.google.com/macros/s/AKfycbwxxxxxxxxxxxxxxxxx/exec?function=doGetBackup"
-      );
-      const backupData = await backupResponse.json();
-      if (backupData.success) {
-        const backupList = document.getElementById("backupList");
-        backupData.backups.forEach(backup => {
-          const li = document.createElement("li");
-          li.innerHTML = `${backup.timestamp} - ${backup.filename}`;
-          backupList.appendChild(li);
-        });
+        if (user) {
+          res.json({ success: true, user });
+        } else {
+          res.json({ success: false });
+        }
+      },
+      error: (err) => {
+        res.status(500).json({ success: false, error: err.message });
       }
-
-      // 2. Kirim Warta
-      document.getElementById("sendWartaBtn").addEventListener("click", async () => {
-        const wartaText = document.getElementById("wartaText").value;
-        if (!wartaText) return alert("Tulis warta dulu!");
-
-        const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbwxxxxxxxxxxxxxxxxx/exec?action=warta",
-          {
-            method: "POST",
-            body: JSON.stringify({ warta: wartaText }),
-          }
-        );
-        const result = await response.json();
-        if (result.success) alert("Warta berhasil dikirim!");
-        else alert("Gagal kirim warta.");
-      });
-
-      // 3. Upload File
-      document.getElementById("uploadBtn").addEventListener("click", async () => {
-        const fileInput = document.getElementById("uploadFile");
-        if (!fileInput.files[0]) return alert("Pilih file terlebih dahulu!");
-
-        const formData = new FormData();
-        formData.append("file", fileInput.files[0]);
-
-        const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbwxxxxxxxxxxxxxxxxx/exec?action=upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-        const result = await response.json();
-        if (result.success) alert("File berhasil diupload!");
-        else alert("Gagal upload file.");
-      });
     });
-  </script>
-</body>
-</html>
+  });
+});
+
+// Endpoint: Upload foto profil dummy (local saja, nanti diganti GAS)
+app.post('/upload-photo', upload.single('photo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded.' });
+  }
+
+  const filePath = `/uploads/${req.file.filename}`;
+  res.json({ success: true, url: filePath });
+});
+
+// Handle 404
+app.use((req, res) => {
+  res.status(404).send('Endpoint not found');
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
