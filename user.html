@@ -12,7 +12,10 @@
       @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow;
     }
     .number-cell {
-      @apply text-right font-mono text-gray-800 dark:text-gray-200;
+      @apply text-right font-mono text-gray-900 dark:text-gray-100; /* Warna teks lebih kontras */
+    }
+    .label-text {
+      @apply font-semibold text-gray-900 dark:text-gray-100; /* Warna teks judul lebih kontras */
     }
     .btn-primary {
       @apply bg-blue-500 dark:bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700;
@@ -146,15 +149,15 @@
       salaryInfoEl.innerHTML = `
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
-            <p class="font-semibold">Gaji Kotor</p>
+            <p class="label-text">Gaji Kotor</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
           </div>
           <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
-            <p class="font-semibold">Total Potongan</p>
+            <p class="label-text">Total Potongan</p>
             <p class="number-cell">${formatCurrency(totalDeductions)}</p>
           </div>
           <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
-            <p class="font-semibold">Gaji Bersih</p>
+            <p class="label-text">Gaji Bersih</p>
             <p class="number-cell">${formatCurrency(netSalary)}</p>
           </div>
         </div>
@@ -162,43 +165,43 @@
         <h3 class="font-semibold mt-4">Detail Potongan:</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">BPD</p>
+            <p class="label-text">BPD</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">DPLK</p>
+            <p class="label-text">DPLK</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">KPRI</p>
+            <p class="label-text">KPRI</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">PGRI</p>
+            <p class="label-text">PGRI</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">HPPT</p>
+            <p class="label-text">HPPT</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">Dansos</p>
+            <p class="label-text">Dansos</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">Bazda</p>
+            <p class="label-text">Bazda</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">Darma Wanita</p>
+            <p class="label-text">Darma Wanita</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">Korpri</p>
+            <p class="label-text">Korpri</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p class="font-semibold">Halbi</p>
+            <p class="label-text">Halbi</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
           </div>
         </div>
