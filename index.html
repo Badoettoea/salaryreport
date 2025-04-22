@@ -18,11 +18,8 @@
       <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
     </div>
     
-    <div id="announcement" class="mb-8 p-5 bg-teal-100 rounded-xl text-teal-900 border-l-4 border-teal-600 text-lg animate-slide-in flex justify-between items-center">
+    <div id="announcement" class="mb-8 p-5 bg-teal-100 rounded-xl text-teal-900 border-l-4 border-teal-600 text-lg animate-slide-in">
       <span id="announcementText"></span>
-      <button onclick="dismissAnnouncement()" class="text-teal-600 hover:text-teal-800">
-        <i class="fas fa-times"></i>
-      </button>
     </div>
     
     <div class="space-y-6">
@@ -69,12 +66,6 @@
           .catch(error => {
             console.error("Error loading announcement:", error);
           });
-      }
-
-      function dismissAnnouncement() {
-        const announcementEl = document.getElementById('announcement');
-        announcementEl.classList.add('animate-slide-out');
-        setTimeout(() => announcementEl.style.display = 'none', 300);
       }
 
       function login() {
