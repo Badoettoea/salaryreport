@@ -1,113 +1,75 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - Sistem Manajemen Keuangan</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    * { 
-      transition: all 0.2s ease-in-out;
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #e0e5ec;
+      margin: 0;
+      padding: 1rem;
     }
+
+    .login-container {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-container h1 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
     .input-field {
-      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
-    .btn-primary {
-      @apply w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 active:bg-blue-700;
+
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
-    .btn-secondary {
-      @apply w-full bg-gray-200 text-gray-800 p-3 rounded-lg hover:bg-gray-300 active:bg-gray-400;
+
+    .btn-login:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center min-h-screen p-4">
-  <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md hover:shadow-3xl transition-shadow duration-300">
-    <div class="text-center mb-6">
-      <i class="fas fa-wallet text-4xl text-blue-500 mb-2"></i>
-      <h1 class="text-3xl font-bold text-gray-800">Manajemen Keuangan</h1>
-      <p class="text-gray-600 mt-2">Masukkan PIN untuk melanjutkan</p>
-    </div>
-    
-    <div id="announcement" class="mb-6 p-4 bg-blue-50 rounded-lg text-blue-800 border-l-4 border-blue-500"></div>
-    
-    <div class="space-y-4">
-      <div class="relative">
-        <input id="pinInput" type="password" placeholder="Masukkan PIN" 
-               class="input-field pr-10">
-        <i class="fas fa-key absolute right-3 top-3.5 text-gray-400"></i>
-      </div>
-      
-      <button id="loginUser" class="btn-primary">
-        <i class="fas fa-user mr-2"></i> Login Karyawan
-      </button>
-      
-      <button id="loginAdmin" class="btn-secondary">
-        <i class="fas fa-lock mr-2"></i> Login Admin
-      </button>
-    </div>
+<body>
+
+  <div class="login-container">
+    <h1>Login Koperasi</h1>
+    <input id="pinInput" type="password" placeholder="Masukkan PIN" class="input-field" />
+    <button id="loginBtn" class="btn-login">Login</button>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let userData = [];
-
-      // Load data from data.csv
-      function loadUserData() {
-        Papa.parse('data.csv', {
-          download: true,
-          header: true,
-          complete: function(results) {
-            userData = results.data;
-            loadAnnouncement();
-          },
-          error: function(error) {
-            console.error("Error loading user data:", error);
-            alert('Gagal memuat data pengguna. Silakan coba lagi.');
-          }
-        });
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin) {
+        alert('Silakan masukkan PIN!');
+        return;
       }
 
-      // Load announcement
-      function loadAnnouncement() {
-        fetch('announcement.txt')
-          .then(response => response.text())
-          .then(data => {
-            const announcementEl = document.getElementById('announcement');
-            announcementEl.innerHTML = data 
-              ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
-              : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
-          })
-          .catch(error => {
-            console.error("Error loading announcement:", error);
-          });
-      }
-
-      // Login function
-      function login(role) {
-        const pin = document.getElementById('pinInput').value.trim();
-        if (!pin) {
-          alert('Silakan masukkan PIN terlebih dahulu');
-          return;
-        }
-
-        const user = userData.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
-        
-        if (user) {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = role === 'user' ? 'user.html' : 'admin.html';
-        } else {
-          alert(`PIN tidak valid atau Anda tidak memiliki akses sebagai ${role === 'user' ? 'User' : 'Admin'}`);
-        }
-      }
-
-      // Event listeners
-      document.getElementById('loginUser').addEventListener('click', () => login('user'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
-
-      // Load data saat pertama kali
-      loadUserData();
+      localStorage.setItem("pin", pin);
+      window.location.href = 'user.html'; // Ganti sesuai halaman setelah login
     });
   </script>
 </body>
