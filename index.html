@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Login - Sistem Manajemen Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="papaparse.min.js"></script>
@@ -106,7 +109,7 @@
     .login-card {
       position: relative;
       width: 100%;
-      max-width: 400px; /* Batasi lebar maksimum */
+      max-width: 400px;
       padding: 1.5rem;
       box-sizing: border-box;
     }
@@ -119,40 +122,39 @@
       gap: 0.5rem;
       overflow: hidden;
       width: 100%;
-      min-height: 2rem; /* Pastikan ada ruang */
+      min-height: 2rem;
     }
     .announcement-text {
       display: inline-block;
       white-space: nowrap;
       animation: marquee 10s linear infinite;
-      will-change: transform; /* Optimasi animasi di mobile */
-      font-size: 1rem; /* Sesuain ukuran font biar gak kekecilan */
+      will-change: transform;
+      font-size: 1rem;
     }
     .announcement-text:hover {
-      animation-play-state: paused; /* Pause animasi saat hover */
+      animation-play-state: paused;
     }
     @keyframes marquee {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
 
-    /* Responsiveness untuk mobile */
     @media (max-width: 640px) {
       .login-card {
         padding: 1rem;
         max-width: 100%;
       }
       .announcement-text {
-        font-size: 0.9rem; /* Kecilin sedikit di mobile */
+        font-size: 0.9rem;
       }
       .text-4xl {
-        font-size: 2rem; /* Kecilin header di mobile */
+        font-size: 2rem;
       }
       .text-lg {
-        font-size: 1rem; /* Kecilin teks di mobile */
+        font-size: 1rem;
       }
       .text-5xl {
-        font-size: 3rem; /* Kecilin ikon di mobile */
+        font-size: 3rem;
       }
     }
 
@@ -262,12 +264,24 @@
         });
       }
 
-      function loadAnnouncement() {
-        const announcement = localStorage.getItem('announcement') || '';
+      async function loadAnnouncement() {
         const announcementEl = document.getElementById('announcementText');
-        announcementEl.textContent = announcement
-          ? `Pengumuman: ${announcement}`
-          : 'Tidak ada pengumuman';
+        try {
+          const response = await fetch('https://raw.githubusercontent.com/badoettoea/salaryreport/main/announcement.txt', {
+            cache: 'no-store' // Disable cache
+          });
+          if (response.ok) {
+            const announcement = await response.text();
+            announcementEl.textContent = announcement
+              ? ` ${announcement}`
+              : '🥸';
+          } else {
+            throw new Error('Failed to fetch announcement');
+          }
+        } catch (error) {
+          console.error('Error loading announcement:', error);
+          announcementEl.textContent = 'Gagal memuat pengumuman. Cek koneksi internet.';
+        }
       }
 
       function login() {
@@ -291,14 +305,6 @@
           alert('PIN tidak valid');
         }
       }
-
-      window.addEventListener('message', (event) => {
-        if (event.data.type === 'updateAnnouncement') {
-          const newAnnouncement = event.data.text;
-          localStorage.setItem('announcement', newAnnouncement);
-          loadAnnouncement();
-        }
-      });
 
       document.getElementById('loginButton').addEventListener('click', login);
 
@@ -324,6 +330,9 @@
         console.log('PapaParse berhasil load dari file lokal!');
         loadUserData();
       }
+
+      // Poll for announcement updates every 10 seconds
+      setInterval(loadAnnouncement, 10000);
     });
   </script>
 </body>
