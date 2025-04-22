@@ -68,13 +68,19 @@
     <input type="file" id="upload-input" hidden />
     <button class="upload-btn" onclick="document.getElementById('upload-input').click()">Ganti Foto</button>
 
-    <h2 id="user-name">Nama User</h2>
-    <p>Saldo: <strong id="user-saldo">Rp 0</strong></p>
-    <p id="user-info">Divisi - Jabatan</p>
+    <h2 id="nama"></h2>
+      <img id="foto" src="default.png" alt="Foto Profil" style="width: 100px; border-radius: 50%;">
+      
+      <div>
+        <p>Gaji: <span id="gaji">Rp -</span></p>
+        <p>Potongan: <span id="potongan">Rp -</span></p>
+        <p>Saldo: <span id="saldo">Rp -</span></p>
+      </div>
+      
+      <div style="width: 50%; max-width: 200px;">
+        <canvas id="pieChart" width="100" height="100"></canvas>
+      </div>
 
-    <canvas id="chart"></canvas>
-    <button class="logout" onclick="logout()">Keluar</button>
-  </div>
 
   <script>
   document.addEventListener("DOMContentLoaded", async () => {
