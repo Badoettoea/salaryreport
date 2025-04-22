@@ -27,14 +27,16 @@
     <div id="errorMessage" class="text-center text-red-600 mb-6" style="display: none;"></div>
 
     <div id="dashboardContent" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="card col-span-1">
+      <div class="card col-span-1 md:col-span-2">
         <h2 class="text-xl font-semibold mb-4 text-teal-600">Informasi Pribadi</h2>
-        <div id="personalInfo" class="space-y-2">
+        <div class="flex flex-row-reverse items-start space-x-4 space-x-reverse">
           <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
+          <div id="personalInfo" class="space-y-2 flex-1">
+          </div>
         </div>
       </div>
 
-      <div class="card md:col-span-2">
+      <div class="card md:col-span-3">
         <h2 class="text-xl font-semibold mb-4 text-teal-600">Detail Gaji</h2>
         <div id="salaryInfo" class="space-y-2">
         </div>
@@ -69,7 +71,7 @@
           console.log('Parsed CSV Data:', results.data);
           const userData = results.data.find(d => d.PIN === currentUser.PIN);
           if (userData) {
-            displayUserInfo(currentUser, userData);
+            displayUserInfo(currentUser, userData, results.meta.fields);
             updateProfilePhoto(userData);
           } else {
             showError('Data gaji tidak ditemukan untuk pengguna ini');
@@ -120,31 +122,28 @@
       }).format(roundedNum).replace('Rp', 'Rp.');
     }
 
-    function calculateSalaryDetails(salaryData) {
+    function calculateSalaryDetails(salaryData, headers) {
+      const fixedColumns = ['PIN', 'Role', 'Nama', 'NIP', 'L/P', 'Unit Kerja', 'Gaji Kotor'];
+      const deductionHeaders = headers.filter(h => !fixedColumns.includes(h));
       const grossSalary = parseFloat(salaryData['Gaji Kotor'] || 0);
-      const deductions = [
-        'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos',
-        'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'
-      ];
-      const totalDeductions = deductions.reduce((sum, key) => sum + parseFloat(salaryData[key] || 0), 0);
+      const totalDeductions = deductionHeaders.reduce((sum, key) => sum + parseFloat(salaryData[key] || 0), 0);
       const netSalary = grossSalary - totalDeductions;
-      return { netSalary, totalDeductions };
+      return { netSalary, totalDeductions, deductionHeaders };
     }
 
-    function displayUserInfo(user, salaryData) {
+    function displayUserInfo(user, salaryData, headers) {
       const personalInfoEl = document.getElementById('personalInfo');
       personalInfoEl.innerHTML = `
-        <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
         <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
         <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
         <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
         <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
       `;
 
-      const { netSalary, totalDeductions } = calculateSalaryDetails(salaryData);
+      const { netSalary, totalDeductions, deductionHeaders } = calculateSalaryDetails(salaryData, headers);
 
       const salaryInfoEl = document.getElementById('salaryInfo');
-      salaryInfoEl.innerHTML = `
+      let salaryHTML = `
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Gaji Kotor</p>
@@ -162,48 +161,19 @@
         
         <h3 class="font-bold text-lg mt-4 text-teal-600">Detail Potongan:</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">BPD</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">DPLK</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">KPRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">PGRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">HPPT</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Dansos</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Bazda</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Darma Wanita</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Korpri</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Halbi</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
-          </div>
-        </div>
       `;
+
+      deductionHeaders.forEach(header => {
+        salaryHTML += `
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
+            <p class="label-text">${header}</p>
+            <p class="number-cell">${formatCurrency(parseFloat(salaryData[header] || 0))}</p>
+          </div>
+        `;
+      });
+
+      salaryHTML += `</div>`;
+      salaryInfoEl.innerHTML = salaryHTML;
     }
 
     function logout() {
