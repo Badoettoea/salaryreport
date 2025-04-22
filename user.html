@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Profil Karyawan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js?v=1.0"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-lavender-50 font-poppins">
@@ -21,7 +24,9 @@
       </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div id="errorMessage" class="text-center text-red-600 mb-6" style="display: none;"></div>
+
+    <div id="dashboardContent" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div class="card col-span-1">
         <h2 class="text-xl font-semibold mb-4 text-teal-600">Informasi Pribadi</h2>
         <div id="personalInfo" class="space-y-2">
@@ -39,30 +44,41 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      const errorMessageEl = document.getElementById('errorMessage');
+      const dashboardContentEl = document.getElementById('dashboardContent');
+
+      function showError(message) {
+        errorMessageEl.textContent = message;
+        errorMessageEl.style.display = 'block';
+        dashboardContentEl.style.display = 'none';
+      }
+
       const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser) {
-        alert('Silakan login terlebih dahulu');
-        window.location.href = 'index.html';
+      if (!currentUser || !currentUser.PIN) {
+        showError('Silakan login terlebih dahulu');
+        setTimeout(() => window.location.href = 'index.html', 2000);
         return;
       }
+
+      console.log('Current User:', currentUser);
 
       Papa.parse('data.csv', {
         download: true,
         header: true,
         complete: function(results) {
+          console.log('Parsed CSV Data:', results.data);
           const userData = results.data.find(d => d.PIN === currentUser.PIN);
           if (userData) {
             displayUserInfo(currentUser, userData);
             updateProfilePhoto(userData);
           } else {
-            alert('Data gaji tidak ditemukan untuk pengguna ini');
-            window.location.href = 'index.html';
+            showError('Data gaji tidak ditemukan untuk pengguna ini');
+            setTimeout(() => window.location.href = 'index.html', 2000);
           }
         },
         error: function(error) {
           console.error("Error loading salary data:", error);
-          alert('Gagal memuat data gaji. Silakan coba lagi.');
-          window.location.href = 'index.html';
+          showError('Gagal memuat data gaji. Pastikan file data.csv tersedia.');
         }
       });
 
