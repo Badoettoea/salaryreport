@@ -95,13 +95,13 @@
     }
 
     function formatCurrency(num) {
-      const formatter = new Intl.NumberFormat('id-ID', {
+      const roundedNum = Math.round(parseFloat(num) || 0);
+      return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-      return formatter.format(num).replace(',', '-');
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(roundedNum).replace('Rp', 'Rp.');
     }
 
     function calculateSalaryDetails(salaryData) {
