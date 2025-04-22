@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - GANESHA</title>
+  <title>Login - Sistem Manajemen Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -103,22 +103,57 @@
       height: 40px;
     }
 
+    .login-card {
+      position: relative;
+      width: 100%;
+      max-width: 400px; /* Batasi lebar maksimum */
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+
     .announcement-container {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.5rem;
       overflow: hidden;
       width: 100%;
+      min-height: 2rem; /* Pastikan ada ruang */
     }
     .announcement-text {
       display: inline-block;
       white-space: nowrap;
       animation: marquee 10s linear infinite;
+      will-change: transform; /* Optimasi animasi di mobile */
+      font-size: 1rem; /* Sesuain ukuran font biar gak kekecilan */
+    }
+    .announcement-text:hover {
+      animation-play-state: paused; /* Pause animasi saat hover */
     }
     @keyframes marquee {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
+    }
+
+    /* Responsiveness untuk mobile */
+    @media (max-width: 640px) {
+      .login-card {
+        padding: 1rem;
+        max-width: 100%;
+      }
+      .announcement-text {
+        font-size: 0.9rem; /* Kecilin sedikit di mobile */
+      }
+      .text-4xl {
+        font-size: 2rem; /* Kecilin header di mobile */
+      }
+      .text-lg {
+        font-size: 1rem; /* Kecilin teks di mobile */
+      }
+      .text-5xl {
+        font-size: 3rem; /* Kecilin ikon di mobile */
+      }
     }
 
     .animate-gradient {
@@ -156,7 +191,7 @@
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-6 animate-gradient">
-  <div class="login-card relative">
+  <div class="login-card">
     <div class="absolute top-4 right-4 top-right-container">
       <img src="logo.png" alt="Logo" class="header-logo">
       <div class="theme-toggle">
@@ -170,14 +205,14 @@
 
     <div class="text-center mb-8">
       <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
-      <h1 class="text-4xl font-bold text-gray-800">INFO POTONGAN </h1>
+      <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
       <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
     </div>
 
     <div id="announcement" class="mb-8 p-5 bg-teal-100 rounded-xl text-teal-900 border-l-4 border-teal-600 text-lg animate-slide-in">
       <div class="announcement-container">
         <i class="fas fa-bullhorn text-2xl"></i>
-        <span id="announcementText" class="announcement-text"></span>
+        <span id="announcementText" class="announcement-text">Memuat pengumuman...</span>
       </div>
     </div>
 
@@ -221,7 +256,8 @@
           },
           error: function(error) {
             console.error("Error loading user data:", error);
-            alert('Gagal memuat data pengguna. Silakan coba lagi.');
+            const announcementEl = document.getElementById('announcementText');
+            announcementEl.textContent = 'Gagal memuat data pengguna. Cek koneksi internet.';
           }
         });
       }
@@ -230,7 +266,7 @@
         const announcement = localStorage.getItem('announcement') || '';
         const announcementEl = document.getElementById('announcementText');
         announcementEl.textContent = announcement
-          ? `${announcement}`
+          ? `Pengumuman: ${announcement}`
           : 'Tidak ada pengumuman';
       }
 
@@ -282,7 +318,8 @@
 
       if (typeof Papa === 'undefined') {
         console.error('PapaParse gagal load dari file lokal.');
-        alert('Library parsing CSV gagal load. Pastikan file papaparse.min.js ada di repo.');
+        const announcementEl = document.getElementById('announcementText');
+        announcementEl.textContent = 'Library parsing CSV gagal load.';
       } else {
         console.log('PapaParse berhasil load dari file lokal!');
         loadUserData();
