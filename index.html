@@ -34,7 +34,8 @@
     
     <div class="space-y-4">
       <div class="relative">
-        <input id="pinInput" type="password" placeholder="Masukkan PIN" class="input-field pr-10">
+        <input id="pinInput" type="password" placeholder="Masukkan PIN" 
+               class="input-field pr-10">
         <i class="fas fa-key absolute right-3 top-3.5 text-gray-400"></i>
       </div>
       
@@ -50,25 +51,25 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      let loginData = [];
+      let userData = [];
 
-      // Load data login
-      function loadLoginData() {
+      // Load data from data.csv
+      function loadUserData() {
         Papa.parse('data.csv', {
           download: true,
           header: true,
           complete: function(results) {
-            loginData = results.data;
+            userData = results.data;
             loadAnnouncement();
           },
           error: function(error) {
-            console.error("Error loading login data:", error);
-            alert('Gagal memuat data login. Silakan coba lagi nanti.');
+            console.error("Error loading user data:", error);
+            alert('Gagal memuat data pengguna. Silakan coba lagi.');
           }
         });
       }
 
-      // Load pengumuman
+      // Load announcement
       function loadAnnouncement() {
         fetch('announcement.txt')
           .then(response => response.text())
@@ -80,11 +81,10 @@
           })
           .catch(error => {
             console.error("Error loading announcement:", error);
-            document.getElementById('announcement').innerHTML = '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
           });
       }
 
-      // Fungsi login
+      // Login function
       function login(role) {
         const pin = document.getElementById('pinInput').value.trim();
         if (!pin) {
@@ -92,7 +92,7 @@
           return;
         }
 
-        const user = loginData.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
+        const user = userData.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
         
         if (user) {
           localStorage.setItem('currentUser', JSON.stringify(user));
@@ -107,7 +107,7 @@
       document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
 
       // Load data saat pertama kali
-      loadLoginData();
+      loadUserData();
     });
   </script>
 </body>
