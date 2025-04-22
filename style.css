@@ -251,4 +251,10 @@ body {
     width: 4rem;
     height: 4rem;
   }
+  .profile-pic {
+  width: 180px; /* Asumsi ukuran awal 100px, 80% lebih besar = 180px */
+  height: 180px;
+  object-fit: cover; /* Biar gak distorsi */
+  border-radius: 0; /* Jadi kotak */
+}
 }
