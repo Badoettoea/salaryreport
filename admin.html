@@ -1,151 +1,112 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Sistem Manajemen Keuangan</title>
+  <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      transition: all 0.3s ease-in-out;
-      font-family: 'Poppins', sans-serif;
-    }
-    body {
-      @apply flex items-center justify-center min-h-screen p-4;
-      background: #E6F0FA; /* Light grayish-blue sebagai latar belakang */
-    }
-    .container {
-      @apply w-full max-w-md;
-    }
-    .form-card {
-      @apply bg-white p-8 rounded-2xl shadow-lg;
-      background: #f5f5f5;
-    }
     .input-field {
-      @apply w-full p-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-0;
-      box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.05), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
     }
-    .input-field:focus {
-      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.7);
-      border-color: #4ECDC4; /* Soft teal sebagai aksen fokus */
+    .btn-primary {
+      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 active:bg-blue-700;
     }
-    .btn-login {
-      @apply w-full p-5 mt-4 rounded-lg text-white font-semibold; /* Padding lebih besar untuk tombol 30% lebih besar */
-      background: #FF6B6B; /* Vibrant coral */
-      box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1), -4px -4px 8px rgba(255, 255, 255, 0.9);
+    .btn-danger {
+      @apply bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 active:bg-red-700;
     }
-    .btn-login:hover {
-      background: #FF8787; /* Coral lebih terang saat hover */
-      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.7);
-    }
-    .btn-login:active {
-      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2), inset -2px -2px 4px rgba(255, 255, 255, 0.5);
-    }
-    .announcement {
-      @apply mb-6 p-4 bg-teal-50 rounded-lg text-teal-800 text-sm; /* Menggunakan soft teal untuk pengumuman */
-    }
-    .text-teal {
-      color: #4ECDC4; /* Soft teal untuk ikon */
-    }
-    @media (min-width: 640px) {
-      .container {
-        @apply max-w-sm;
-      }
-      .form-card {
-        @apply p-10;
-      }
+    .number-cell {
+      @apply text-right font-mono;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <div class="form-card">
-      <div class="text-center mb-6">
-        <i class="fas fa-wallet text-3xl text-teal mb-2"></i>
-        <h1 class="text-2xl font-semibold text-gray-800">Manajemen Keuangan</h1>
-      </div>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">
+        <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Admin Dashboard
+      </h1>
+      <button onclick="logout()" class="btn-danger">
+        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+      </button>
+    </div>
 
-      <div id="announcement" class="announcement"></div>
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-bullhorn mr-2 text-blue-500"></i>Post Pengumuman
+      </h2>
+      <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
+      <button onclick="postAnnouncement()" class="btn-primary mt-2">
+        <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
+      </button>
+    </div>
 
-      <div class="space-y-4">
-        <div class="relative">
-          <input id="pinInput" type="text" placeholder="Masukkan PIN" 
-                 class="input-field">
-          <i class="fas fa-key absolute right-4 top-4 text-gray-400"></i>
-        </div>
-        
-        <button id="loginButton" class="btn-login">
-          <i class="fas fa-sign-in-alt mr-2"></i> Login
-        </button>
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-database mr-2 text-blue-500"></i>Kelola Data Gaji
+      </h2>
+      <div class="bg-blue-50 p-4 rounded-lg mb-4">
+        <p class="text-blue-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
+        <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-lg file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100">
       </div>
+      <button onclick="uploadDatabase()" class="btn-primary">
+        <i class="fas fa-upload mr-2"></i>Upload Data Gaji
+      </button>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let userData = [];
-
-      // Load data from data.csv
-      function loadUserData() {
-        Papa.parse('data.csv', {
-          download: true,
-          header: true,
-          complete: function(results) {
-            userData = results.data;
-            loadAnnouncement();
-          },
-          error: function(error) {
-            console.error("Error loading user data:", error);
-            alert('Gagal memuat data pengguna. Silakan coba lagi.');
-          }
-        });
+    // Fungsi untuk post pengumuman
+    function postAnnouncement() {
+      const text = document.getElementById('announcementText').value;
+      if (!text.trim()) {
+        alert('Silakan isi pengumuman terlebih dahulu');
+        return;
       }
 
-      // Load announcement
-      function loadAnnouncement() {
-        fetch('announcement.txt')
-          .then(response => response.text())
-          .then(data => {
-            const announcementEl = document.getElementById('announcement');
-            announcementEl.innerHTML = data 
-              ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
-              : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
-          })
-          .catch(error => {
-            console.error("Error loading announcement:", error);
-          });
+      // Simpan pengumuman ke localStorage untuk pengujian
+      localStorage.setItem('announcement', text);
+      alert('Pengumuman berhasil diposting! (Disimpan di localStorage untuk pengujian)');
+      if (window.opener) {
+        window.opener.location.reload();
+      }
+    }
+
+    // Fungsi untuk upload data gaji
+    function uploadDatabase() {
+      const file = document.getElementById('csvUpload').files[0];
+      if (!file) {
+        alert('Silakan pilih file CSV terlebih dahulu');
+        return;
       }
 
-      // Login function
-      function login() {
-        const pin = document.getElementById('pinInput').value.trim();
-        if (!pin) {
-          alert('Silakan masukkan PIN terlebih dahulu');
-          return;
+      Papa.parse(file, {
+        header: true,
+        complete: function(results) {
+          // Simpan data CSV ke localStorage untuk pengujian
+          localStorage.setItem('dataCsv', Papa.unparse(results.data));
+          alert('Data gaji berhasil diupdate! (Disimpan di localStorage untuk pengujian)');
+        },
+        error: function(error) {
+          console.error('Error parsing CSV:', error);
+          alert('Format file CSV tidak valid');
         }
+      });
+    }
 
-        const user = userData.find(d => d.PIN === pin);
-        
-        if (user) {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = user.Role === 'User' ? 'user.html' : 'admin.html';
-        } else {
-          alert('PIN tidak valid');
-        }
-      }
-
-      // Event listener
-      document.getElementById('loginButton').addEventListener('click', login);
-
-      // Load data saat pertama kali
-      loadUserData();
-    });
+    // Fungsi logout
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index.html';
+    }
   </script>
 </body>
 </html>
