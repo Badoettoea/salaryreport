@@ -136,10 +136,15 @@
           const fixedColumns = ['PIN', 'Role', 'Nama', 'NIP', 'L/P', 'Unit Kerja'];
           const csvColumns = Object.keys(results.data[0] || {});
           console.log('Detected CSV Headers:', csvColumns);
-          const missingFixedColumns = fixedColumns.filter(col => !csvColumns.includes(col));
+
+          // Validasi header case-insensitive
+          const csvColumnsLower = csvColumns.map(col => col.toLowerCase());
+          const fixedColumnsLower = fixedColumns.map(col => col.toLowerCase());
+          console.log('Comparing Headers (lowercase):', { csvColumnsLower, fixedColumnsLower });
+          const missingFixedColumns = fixedColumns.filter((col, index) => !csvColumnsLower.includes(fixedColumnsLower[index]));
 
           if (missingFixedColumns.length > 0) {
-            alert(`Format CSV tidak valid. Kolom wajib yang hilang: ${missingFixedColumns.join(', ')}. Pastikan 6 kolom pertama adalah: ${fixedColumns.join(', ')}.`);
+            alert(`Format CSV tidak valid. Kolom wajib yang hilang: ${missingFixedColumns.join(', ')}. Pastikan 6 kolom pertama adalah: ${fixedColumns.join(', ')} (huruf besar/kecil tidak masalah).`);
             resetButton();
             return;
           }
