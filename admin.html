@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="papaparse.min.js"></script> <!-- Load lokal -->
+  <script src="papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700 displayswap" rel="stylesheet">
   <style>
-    /* Base styles for light mode */
     body.light-mode {
       background-color: #fef5f5;
       color: #1e4f5e;
@@ -29,7 +28,6 @@
     body.light-mode .btn-primary { background-color: #2dd4bf; }
     body.light-mode .btn-danger { background-color: #f87171; }
 
-    /* Dark mode styles */
     body.dark-mode {
       background-color: #1e293b;
       color: #e2e8f0;
@@ -47,7 +45,6 @@
     body.dark-mode .btn-primary { background-color: #0f766e; }
     body.dark-mode .btn-danger { background-color: #b91c1c; }
 
-    /* Toggle switch styles */
     .theme-toggle {
       display: flex;
       align-items: center;
@@ -92,25 +89,55 @@
     input:checked + .slider:before {
       transform: translateX(20px);
     }
+
+    .header-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .header-logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+      z-index: 0;
+      opacity: 0.3;
+    }
+    .header-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
   </style>
 </head>
 <body class="min-h-screen p-4 font-poppins transition-colors duration-300">
   <div class="max-w-5xl mx-auto">
-    <div class="flex justify-between items-center mb-6 bg-teal-500 p-4 rounded-xl shadow-lg">
-      <h1 class="text-2xl font-bold text-white">
-        <i class="fas fa-tachometer-alt mr-2"></i>Admin Dashboard
-      </h1>
-      <div class="flex items-center gap-4">
-        <div class="theme-toggle">
-          <label class="switch">
-            <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
-            <span class="slider"></span>
-          </label>
-          <span class="text-white text-sm"><i class="fas fa-adjust mr-1"></i>Dark Mode</span>
+    <div class="mb-6 bg-teal-500 p-4 rounded-xl shadow-lg">
+      <div class="header-container">
+        <img src="logo.png" alt="Logo" class="header-logo">
+        <div class="header-content">
+          <h1 class="text-2xl font-bold text-white">
+            <i class="fas fa-tachometer-alt mr-2"></i>Admin Dashboard
+          </h1>
+          <div class="flex items-center gap-4">
+            <div class="theme-toggle">
+              <label class="switch">
+                <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
+                <span class="slider"></span>
+              </label>
+              <span class="text-white text-sm"><i class="fas fa-adjust mr-1"></i>Dark Mode</span>
+            </div>
+            <button onclick="logout()" class="btn-danger ripple">
+              <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </button>
+          </div>
         </div>
-        <button onclick="logout()" class="btn-danger ripple">
-          <i class="fas fa-sign-out-alt mr-2"></i>Logout
-        </button>
       </div>
     </div>
 
@@ -148,10 +175,8 @@
   </div>
 
   <script>
-    // Hard-coded Admin PIN
     const ADMIN_PIN = '12345678';
 
-    // Theme toggle functionality
     function toggleTheme() {
       const body = document.body;
       const isDark = body.classList.contains('dark-mode');
@@ -161,7 +186,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Apply saved theme on page load
       const savedTheme = localStorage.getItem('theme') || 'light';
       const body = document.body;
       body.classList.add(savedTheme + '-mode');
@@ -174,7 +198,6 @@
         return;
       }
 
-      // Ripple effect for buttons
       document.querySelectorAll('.ripple').forEach(button => {
         button.addEventListener('click', function(e) {
           const ripple = document.createElement('span');
@@ -189,7 +212,6 @@
         });
       });
 
-      // Cek PapaParse
       if (typeof Papa === 'undefined') {
         console.error('PapaParse gagal load dari file lokal.');
         alert('Library parsing CSV gagal load. Pastikan file papaparse.min.js ada di repo.');
@@ -208,7 +230,6 @@
       localStorage.setItem('announcement', text);
       alert('Pengumuman berhasil diposting! (Disimpan di localStorage untuk pengujian)');
 
-      // Notify index.html to update announcement
       if (window.opener) {
         window.opener.postMessage({ type: 'updateAnnouncement', text: text }, '*');
       }
@@ -350,7 +371,7 @@
 
             if (response.ok) {
               alert('Data gaji berhasil diupload ke GitHub! File data.csv telah diperbarui.');
-              window.location.reload(); // Refresh laman setelah upload berhasil
+              window.location.reload();
             } else if (response.status === 401) {
               throw new Error('Bad credentials. Pastikan Personal Access Token valid dan punya scope "repo".');
             } else if (response.status === 422) {
