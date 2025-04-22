@@ -10,32 +10,27 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-lavender-50 dark:bg-gray-900 font-poppins">
+<body class="bg-lavender-50 font-poppins">
   <div class="max-w-4xl mx-auto">
     <div class="flex justify-between items-center mb-6 pt-4 bg-teal-500 p-4 rounded-xl shadow-lg">
       <h1 class="text-3xl font-bold text-white">
-        <i class="fas fa-user-circle mr-2"></i>Profil Karyawan
+        <img src="logo.png" alt="Logo" class="inline-block w-8 h-8 mr-2">Profil Karyawan
       </h1>
-      <div class="flex space-x-2">
-        <button onclick="toggleDarkMode()" class="btn-toggle ripple">
-          <i id="darkModeIcon" class="fas fa-moon"></i> <span id="darkModeText">Dark Mode</span>
-        </button>
-        <button onclick="logout()" class="btn-primary ripple">
-          <i class="fas fa-sign-out-alt mr-2"></i>Logout
-        </button>
-      </div>
+      <button onclick="logout()" class="btn-primary ripple">
+        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+      </button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div class="card col-span-1">
-        <h2 class="text-xl font-semibold mb-4 text-teal-600 dark:text-teal-400">Informasi Pribadi</h2>
+        <h2 class="text-xl font-semibold mb-4 text-teal-600">Informasi Pribadi</h2>
         <div id="personalInfo" class="space-y-2">
           <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
         </div>
       </div>
 
       <div class="card md:col-span-2">
-        <h2 class="text-xl font-semibold mb-4 text-teal-600 dark:text-teal-400">Detail Gaji</h2>
+        <h2 class="text-xl font-semibold mb-4 text-teal-600">Detail Gaji</h2>
         <div id="salaryInfo" class="space-y-2">
         </div>
       </div>
@@ -50,8 +45,6 @@
         window.location.href = 'index.html';
         return;
       }
-
-      initializeDarkMode();
 
       Papa.parse('data.csv', {
         download: true,
@@ -102,7 +95,13 @@
     }
 
     function formatCurrency(num) {
-      return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
+      const formatter = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      return formatter.format(num).replace(',', '-');
     }
 
     function calculateSalaryDetails(salaryData) {
@@ -131,59 +130,59 @@
       const salaryInfoEl = document.getElementById('salaryInfo');
       salaryInfoEl.innerHTML = `
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div class="bg-blue-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Gaji Kotor</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
           </div>
-          <div class="bg-blue-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Total Potongan</p>
             <p class="number-cell">${formatCurrency(totalDeductions)}</p>
           </div>
-          <div class="bg-blue-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Gaji Bersih</p>
             <p class="number-cell">${formatCurrency(netSalary)}</p>
           </div>
         </div>
         
-        <h3 class="font-bold text-lg mt-4 text-gray-900 dark:text-white">Detail Potongan:</h3>
+        <h3 class="font-bold text-lg mt-4 text-teal-600">Detail Potongan:</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">BPD</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">DPLK</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">KPRI</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">PGRI</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">HPPT</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Dansos</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Bazda</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Darma Wanita</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Korpri</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
           </div>
-          <div class="bg-gray-100 dark:bg-teal-700 p-4 rounded-lg shadow-sm">
+          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Halbi</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
           </div>
@@ -194,36 +193,6 @@
     function logout() {
       localStorage.removeItem('currentUser');
       window.location.href = 'index.html';
-    }
-
-    function initializeDarkMode() {
-      const isDarkMode = localStorage.getItem('darkMode') === 'true';
-      const darkModeIcon = document.getElementById('darkModeIcon');
-      const darkModeText = document.getElementById('darkModeText');
-      
-      if (isDarkMode) {
-        document.body.classList.add('dark');
-        darkModeIcon.classList.replace('fa-moon', 'fa-sun');
-        darkModeText.textContent = 'Light Mode';
-      } else {
-        darkModeIcon.classList.replace('fa-sun', 'fa-moon');
-        darkModeText.textContent = 'Dark Mode';
-      }
-    }
-
-    function toggleDarkMode() {
-      const isDarkMode = document.body.classList.toggle('dark');
-      const darkModeIcon = document.getElementById('darkModeIcon');
-      const darkModeText = document.getElementById('darkModeText');
-      
-      localStorage.setItem('darkMode', isDarkMode);
-      if (isDarkMode) {
-        darkModeIcon.classList.replace('fa-moon', 'fa-sun');
-        darkModeText.textContent = 'Light Mode';
-      } else {
-        darkModeIcon.classList.replace('fa-sun', 'fa-moon');
-        darkModeText.textContent = 'Dark Mode';
-      }
     }
   </script>
 </body>
