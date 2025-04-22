@@ -27,6 +27,7 @@
     }
     body.light-mode .btn-primary { background-color: #2dd4bf; }
     body.light-mode .text-gray-400 { color: #6b7280; }
+    body.light-mode .announcement-text { color: #1e4f5e; }
 
     body.dark-mode {
       background: linear-gradient(to bottom right, #1e293b, #334155, #4b5e6a);
@@ -45,6 +46,7 @@
     }
     body.dark-mode .btn-primary { background-color: #0f766e; }
     body.dark-mode .text-gray-400 { color: #94a3b8; }
+    body.dark-mode .announcement-text { color: #e2e8f0; }
 
     .theme-toggle {
       display: flex;
@@ -101,6 +103,24 @@
       height: 40px;
     }
 
+    .announcement-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      overflow: hidden;
+      width: 100%;
+    }
+    .announcement-text {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 10s linear infinite;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
     .animate-gradient {
       animation: gradient 15s ease infinite;
       background-size: 400% 400%;
@@ -150,12 +170,15 @@
 
     <div class="text-center mb-8">
       <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
-      <h1 class="text-4xl font-bold text-gray-800">Informasi Potongan Gaji</h1>
+      <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
       <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
     </div>
 
     <div id="announcement" class="mb-8 p-5 bg-teal-100 rounded-xl text-teal-900 border-l-4 border-teal-600 text-lg animate-slide-in">
-      <span id="announcementText"></span>
+      <div class="announcement-container">
+        <i class="fas fa-bullhorn text-2xl"></i>
+        <span id="announcementText" class="announcement-text"></span>
+      </div>
     </div>
 
     <div class="space-y-6">
@@ -206,9 +229,9 @@
       function loadAnnouncement() {
         const announcement = localStorage.getItem('announcement') || '';
         const announcementEl = document.getElementById('announcementText');
-        announcementEl.innerHTML = announcement
-          ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${announcement}`
-          : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
+        announcementEl.textContent = announcement
+          ? `Pengumuman: ${announcement}`
+          : 'Tidak ada pengumuman';
       }
 
       function login() {
