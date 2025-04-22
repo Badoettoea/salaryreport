@@ -54,7 +54,7 @@ body {
 /* announcement Field */
 .announcement-text:hover {
   animation-play-state: paused;
-  animation: marquee 15s linear infinite;
+  animation: marquee 35s linear infinite;
 }
 /* Input Field */
 .input-field {
