@@ -84,92 +84,79 @@
 <body>
   <div class="container">
     <div class="card">
-      <h2>Upload Data Potongan</h2>
-      <input type="file" id="upload-data" />
-      <button onclick="uploadFile()">Upload & Backup</button>
+      <!-- Form Upload File -->
+      <h3>Upload File Data</h3>
+      <input type="file" id="uploadFile" />
+      <button id="uploadBtn">Upload</button>
     </div>
 
+    <!-- Form Kirim Warta -->
     <div class="card">
-      <h2>Tulis Warta</h2>
-      <textarea rows="5" id="warta" placeholder="Tulis warta terbaru di sini..."></textarea>
-      <button onclick="kirimWarta()">Posting Warta</button>
+      <h3>Kirim Warta</h3>
+      <textarea id="wartaText" rows="5" placeholder="Tulis pengumuman di sini..."></textarea>
+      <button id="sendWartaBtn">Kirim Warta</button>
     </div>
 
+    <!-- Daftar Backup -->
     <div class="card">
-      <h2>Riwayat Backup</h2>
-      <ul id="backup-list" class="backup-list">
-        <li>Loading...</li>
-      </ul>
+      <h3>Daftar Backup</h3>
+      <ul id="backupList" class="backup-list"></ul>
     </div>
   </div>
 
   <script>
-    async function uploadFile() {
-      const fileInput = document.getElementById("upload-data");
-      const file = fileInput.files[0];
-      if (!file) {
-        alert("Pilih file terlebih dahulu.");
-        return;
-      }
-
-      const form = new FormData();
-      form.append("file", file);
-
-      const res = await fetch("https://script.google.com/macros/s/AKfycbwzmPWB-ziTbUXi5PrH5RitFze-bH76oTlwAnNXpGAP3fglsRXmn3J-DG-J7eWOA_HK/exec", {
-        method: "POST",
-        body: form
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert("File berhasil diupload dan di-backup.");
-        loadBackupList();
-      } else {
-        alert("Gagal upload file.");
-      }
-    }
-
-    async function kirimWarta() {
-      const text = document.getElementById("warta").value;
-      if (!text.trim()) {
-        alert("Warta tidak boleh kosong.");
-        return;
-      }
-
-      const res = await fetch("https://script.google.com/macros/s/AKfycbwzmPWB-ziTbUXi5PrH5RitFze-bH76oTlwAnNXpGAP3fglsRXmn3J-DG-J7eWOA_HK/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ warta: text })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert("Warta berhasil dikirim.");
-        document.getElementById("warta").value = "";
-      } else {
-        alert("Gagal kirim warta.");
-      }
-    }
-
-    async function loadBackupList() {
-      const res = await fetch("https://script.google.com/macros/s/AKfycbwzmPWB-ziTbUXi5PrH5RitFze-bH76oTlwAnNXpGAP3fglsRXmn3J-DG-J7eWOA_HK/exec");
-      const data = await res.json();
-      const list = document.getElementById("backup-list");
-
-      list.innerHTML = "";
-      if (data.backups && data.backups.length > 0) {
-        data.backups.forEach(item => {
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1. Ambil Daftar Backup
+      const backupResponse = await fetch(
+        "https://script.google.com/macros/s/AKfycbwxxxxxxxxxxxxxxxxx/exec?function=doGetBackup"
+      );
+      const backupData = await backupResponse.json();
+      if (backupData.success) {
+        const backupList = document.getElementById("backupList");
+        backupData.backups.forEach(backup => {
           const li = document.createElement("li");
-          li.textContent = `${item.timestamp} - ${item.filename}`;
-          list.appendChild(li);
+          li.innerHTML = `${backup.timestamp} - ${backup.filename}`;
+          backupList.appendChild(li);
         });
-      } else {
-        list.innerHTML = "<li>Belum ada backup</li>";
       }
-    }
 
-    // Load on open
-    loadBackupList();
+      // 2. Kirim Warta
+      document.getElementById("sendWartaBtn").addEventListener("click", async () => {
+        const wartaText = document.getElementById("wartaText").value;
+        if (!wartaText) return alert("Tulis warta dulu!");
+
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbwxxxxxxxxxxxxxxxxx/exec?action=warta",
+          {
+            method: "POST",
+            body: JSON.stringify({ warta: wartaText }),
+          }
+        );
+        const result = await response.json();
+        if (result.success) alert("Warta berhasil dikirim!");
+        else alert("Gagal kirim warta.");
+      });
+
+      // 3. Upload File
+      document.getElementById("uploadBtn").addEventListener("click", async () => {
+        const fileInput = document.getElementById("uploadFile");
+        if (!fileInput.files[0]) return alert("Pilih file terlebih dahulu!");
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbwxxxxxxxxxxxxxxxxx/exec?action=upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const result = await response.json();
+        if (result.success) alert("File berhasil diupload!");
+        else alert("Gagal upload file.");
+      });
+    });
   </script>
 </body>
 </html>
