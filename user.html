@@ -3,86 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Profil Karyawan</title>
+  <title>User Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js?v=1.0"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700 displayswap" rel="stylesheet">
+  <style>
+    body.light-mode {
+      background-color: #fef5f5;
+      color: #1e4f5e;
+    }
+    body.light-mode .bg-teal-500 { background-color: #2dd4bf; }
+    body.light-mode .text-white { color: #ffffff; }
+    body.light-mode .bg-teal-50 { background-color: #e6fffa; }
+    body.light-mode .text-teal-800 { color: #1e4f5e; }
+    body.light-mode .text-teal-600 { color: #1e4f5e; }
+    body.light-mode .input-field {
+      background-color: #ffffff;
+      color: #1e4f5e;
+      border-color: #2dd4bf;
+    }
+    body.light-mode .btn-primary { background-color: #2dd4bf; }
+    body.light-mode .btn-danger { background-color: #f87171; }
+
+    body.dark-mode {
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+    body.dark-mode .bg-teal-500 { background-color: #0f766e; }
+    body.dark-mode .text-white { color: #e2e8f0; }
+    body.dark-mode .bg-teal-50 { background-color: #2d4a48; }
+    body.dark-mode .text-teal-800 { color: #a5f3fc; }
+    body.dark-mode .text-teal-600 { color: #a5f3fc; }
+    body.dark-mode .input-field {
+      background-color: #334155;
+      color: #e2e8f0;
+      border-color: #0f766e;
+    }
+    body.dark-mode .btn-primary { background-color: #0f766e; }
+    body.dark-mode .btn-danger { background-color: #b91c1c; }
+
+    .profile-pic {
+      width: 180px; /* Diperbesar 80% dari 100px */
+      height: 180px;
+      border-radius: 0; /* Kotak */
+      object-fit: cover;
+    }
+  </style>
 </head>
-<body class="bg-lavender-50 font-poppins">
+<body class="min-h-screen p-4 font-poppins transition-colors duration-300">
   <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6 pt-4 bg-teal-500 p-4 rounded-xl shadow-lg">
-      <h1 class="text-3xl font-bold text-white">
-        <img src="logo.png" alt="Logo" class="inline-block w-8 h-8 mr-2">Profil Karyawan
+    <div class="flex justify-between items-center mb-6 bg-teal-500 p-4 rounded-xl shadow-lg">
+      <h1 class="text-2xl font-bold text-white">
+        <i class="fas fa-tachometer-alt mr-2"></i>User Dashboard
       </h1>
-      <button onclick="logout()" class="btn-primary ripple">
+      <button onclick="logout()" class="btn-danger ripple">
         <i class="fas fa-sign-out-alt mr-2"></i>Logout
       </button>
     </div>
 
-    <div id="errorMessage" class="text-center text-red-600 mb-6" style="display: none;"></div>
-
-    <div id="dashboardContent" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="card col-span-1 md:col-span-2">
-        <h2 class="text-xl font-semibold mb-4 text-teal-600">Informasi Pribadi</h2>
-        <div class="flex flex-row-reverse items-start space-x-4 space-x-reverse">
-          <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
-          <div id="personalInfo" class="space-y-2 flex-1">
-          </div>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="card flex flex-col items-center">
+        <img src="https://via.placeholder.com/180" alt="Profile Picture" class="profile-pic mb-4">
+        <h2 id="userName" class="text-xl font-semibold text-teal-600"></h2>
+        <p id="userUnit" class="text-teal-800"></p>
       </div>
 
-      <div class="card md:col-span-3">
-        <h2 class="text-xl font-semibold mb-4 text-teal-600">Detail Gaji</h2>
-        <div id="salaryInfo" class="space-y-2">
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-3 text-teal-600">
+          <i class="fas fa-money-bill-wave mr-2"></i>Detail Gaji
+        </h2>
+        <div class="bg-teal-50 p-4 rounded-lg">
+          <p class="text-teal-800 mb-2"><strong>Gaji Kotor:</strong> <span id="gajiKotor"></span></p>
+          <div id="potonganList"></div>
+          <p class="text-teal-800 mt-2 font-semibold"><strong>Total Potongan:</strong> <span id="totalPotongan"></span></p>
+          <p class="text-teal-800 mt-2 font-bold"><strong>Gaji Bersih:</strong> <span id="gajiBersih"></span></p>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    // Apply saved theme on page load
     document.addEventListener('DOMContentLoaded', () => {
-      const errorMessageEl = document.getElementById('errorMessage');
-      const dashboardContentEl = document.getElementById('dashboardContent');
-
-      function showError(message) {
-        errorMessageEl.textContent = message;
-        errorMessageEl.style.display = 'block';
-        dashboardContentEl.style.display = 'none';
-      }
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.body.classList.add(savedTheme + '-mode');
 
       const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser || !currentUser.PIN) {
-        showError('Silakan login terlebih dahulu');
-        setTimeout(() => window.location.href = 'index.html', 2000);
+      if (!currentUser || currentUser.Role !== 'User') {
+        alert('Akses ditolak. Hanya User yang dapat mengakses dashboard ini.');
+        window.location.href = 'index.html';
         return;
       }
 
-      console.log('Current User:', currentUser);
+      document.getElementById('userName').textContent = currentUser.Nama || 'Nama Tidak Diketahui';
+      document.getElementById('userUnit').textContent = currentUser['Unit Kerja'] || 'Unit Kerja Tidak Diketahui';
 
-      Papa.parse('data.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-          console.log('Parsed CSV Data:', results.data);
-          const userData = results.data.find(d => d.PIN === currentUser.PIN);
-          if (userData) {
-            displayUserInfo(currentUser, userData, results.meta.fields);
-            updateProfilePhoto(userData);
-          } else {
-            showError('Data gaji tidak ditemukan untuk pengguna ini');
-            setTimeout(() => window.location.href = 'index.html', 2000);
-          }
-        },
-        error: function(error) {
-          console.error("Error loading salary data:", error);
-          showError('Gagal memuat data gaji. Pastikan file data.csv tersedia.');
+      const gajiKotor = parseFloat(currentUser['Gaji Kotor']) || 0;
+      document.getElementById('gajiKotor').textContent = gajiKotor.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+
+      const potonganKeys = Object.keys(currentUser).filter(key => key.includes('Potongan') || key === 'DPLK' || key === 'KPRI' || key === 'PGRI' || key === 'HPPT' || key === 'Dansos' || key === 'Bazda' || key === 'Darma Wanita' || key === 'Korpri' || key === 'Halbi');
+      const potonganList = document.getElementById('potonganList');
+      let totalPotongan = 0;
+
+      potonganKeys.forEach(key => {
+        const potonganValue = parseFloat(currentUser[key]) || 0;
+        if (potonganValue > 0) {
+          totalPotongan += potonganValue;
+          const p = document.createElement('p');
+          p.className = 'text-teal-800 mb-1';
+          p.innerHTML = `<strong>${key}:</strong> ${potonganValue.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}`;
+          potonganList.appendChild(p);
         }
       });
+
+      document.getElementById('totalPotongan').textContent = totalPotongan.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+      const gajiBersih = gajiKotor - totalPotongan;
+      document.getElementById('gajiBersih').textContent = gajiBersih.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 
       // Ripple effect for buttons
       document.querySelectorAll('.ripple').forEach(button => {
@@ -99,82 +136,6 @@
         });
       });
     });
-
-    function updateProfilePhoto(userData) {
-      const profilePhoto = document.getElementById('profilePhoto');
-      const gender = userData['L/P'];
-      if (gender === '1') {
-        profilePhoto.src = 'male.png';
-      } else if (gender === '2') {
-        profilePhoto.src = 'female.png';
-      } else {
-        profilePhoto.src = 'default.png';
-      }
-    }
-
-    function formatCurrency(num) {
-      const roundedNum = Math.round(parseFloat(num) || 0);
-      return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(roundedNum).replace('Rp', 'Rp.');
-    }
-
-    function calculateSalaryDetails(salaryData, headers) {
-      const fixedColumns = ['PIN', 'Role', 'Nama', 'NIP', 'L/P', 'Unit Kerja', 'Gaji Kotor'];
-      const deductionHeaders = headers.filter(h => !fixedColumns.includes(h));
-      const grossSalary = parseFloat(salaryData['Gaji Kotor'] || 0);
-      const totalDeductions = deductionHeaders.reduce((sum, key) => sum + parseFloat(salaryData[key] || 0), 0);
-      const netSalary = grossSalary - totalDeductions;
-      return { netSalary, totalDeductions, deductionHeaders };
-    }
-
-    function displayUserInfo(user, salaryData, headers) {
-      const personalInfoEl = document.getElementById('personalInfo');
-      personalInfoEl.innerHTML = `
-        <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
-        <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
-        <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
-        <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
-      `;
-
-      const { netSalary, totalDeductions, deductionHeaders } = calculateSalaryDetails(salaryData, headers);
-
-      const salaryInfoEl = document.getElementById('salaryInfo');
-      let salaryHTML = `
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Gaji Kotor</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Total Potongan</p>
-            <p class="number-cell">${formatCurrency(totalDeductions)}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Gaji Bersih</p>
-            <p class="number-cell">${formatCurrency(netSalary)}</p>
-          </div>
-        </div>
-        
-        <h3 class="font-bold text-lg mt-4 text-teal-600">Detail Potongan:</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      `;
-
-      deductionHeaders.forEach(header => {
-        salaryHTML += `
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">${header}</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData[header] || 0))}</p>
-          </div>
-        `;
-      });
-
-      salaryHTML += `</div>`;
-      salaryInfoEl.innerHTML = salaryHTML;
-    }
 
     function logout() {
       localStorage.removeItem('currentUser');
