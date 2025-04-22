@@ -149,6 +149,7 @@
       transition: var(--transition);
       background-color: rgba(255, 255, 255, 0.8);
       font-family: 'Nunito', sans-serif;
+      color: #333;
     }
 
     input:focus {
@@ -309,20 +310,32 @@
         Papa.parse('data.csv', {
           download: true,
           header: true,
+          delimiter: ',',
+          skipEmptyLines: true,
           complete: function(results) {
+            console.log('Parsed CSV data:', results.data);
             userData = results.data;
+            if (!results.data || results.data.length === 0) {
+              alert('Data CSV kosong atau format tidak valid.');
+              return;
+            }
             loadAnnouncement();
           },
           error: function(error) {
-            console.error("Error loading user data:", error);
-            alert('Gagal memuat data pengguna. Silakan coba lagi.');
+            console.error('Error loading user data:', error);
+            alert('Gagal memuat data pengguna. Pastikan file data.csv ada dan formatnya benar.');
           }
         });
       }
 
       function loadAnnouncement() {
         fetch('announcement.txt')
-          .then(response => response.text())
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('File announcement.txt tidak ditemukan');
+            }
+            return response.text();
+          })
           .then(data => {
             const announcementEl = document.getElementById('announcement');
             announcementEl.innerHTML = data 
@@ -330,24 +343,32 @@
               : '<i class="fas fa-info-circle mr-2 text-[var(--candy-purple)]"></i>Tidak ada pengumuman';
           })
           .catch(error => {
-            console.error("Error loading announcement:", error);
+            console.error('Error loading announcement:', error);
+            const announcementEl = document.getElementById('announcement');
+            announcementEl.innerHTML = '<i class="fas fa-info-circle mr-2 text-[var(--candy-purple)]"></i>Tidak ada pengumuman';
           });
       }
 
       function login() {
         const pin = document.getElementById('pinInput').value.trim();
+        console.log('Input PIN:', pin);
         if (!pin) {
           alert('Silakan masukkan PIN terlebih dahulu');
           return;
         }
 
         const user = userData.find(d => d.PIN === pin);
+        console.log('Found user:', user);
         
         if (user) {
+          if (!user.Role || !['Admin', 'User'].includes(user.Role)) {
+            alert('Role pengguna tidak valid. Harus "Admin" atau "User".');
+            return;
+          }
           localStorage.setItem('currentUser', JSON.stringify(user));
           window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
         } else {
-          alert('PIN tidak valid');
+          alert('PIN tidak valid. Pastikan PIN sesuai dengan data di data.csv.');
         }
       }
 
@@ -356,5 +377,5 @@
       loadUserData();
     });
   </script>
-</body>
+</head>
 </html>
