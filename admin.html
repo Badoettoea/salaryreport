@@ -116,20 +116,24 @@
           // Kirim data ke server
           try {
             const csvContent = Papa.unparse(results.data);
-            const response = await fetch('/data.csv', {
+            console.log('Mengirim data ke server:', csvContent); // Debugging
+            const response = await fetch('http://localhost:3000/data.csv', {
               method: 'PUT',
               headers: { 'Content-Type': 'text/plain' },
               body: csvContent
             });
 
+            const responseText = await response.text();
+            console.log('Response dari server:', responseText); // Debugging
+
             if (response.ok) {
               alert('Data gaji berhasil diupdate!');
             } else {
-              throw new Error('Gagal mengupdate data di server');
+              throw new Error(`Gagal mengupdate data di server: ${response.status} - ${responseText}`);
             }
           } catch (error) {
             console.error('Error updating data:', error);
-            alert('Gagal mengupdate data di server. Silakan coba lagi.');
+            alert(`Gagal mengupdate data di server: ${error.message}. Pastikan server berjalan di http://localhost:3000.`);
           } finally {
             resetButton();
           }
