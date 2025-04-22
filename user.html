@@ -1,239 +1,335 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil Karyawan</title>
+  <title>User Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    .card {
-      @apply bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-blue-100 dark:border-blue-600;
+    :root {
+      --neon-blue: #3B82F6;
+      --neon-purple: #8B5CF6;
+      --neon-yellow: #FACC15;
+      --dark-bg: #1E3A8A;
+      --dark-accent: #4C1D95;
+      --candy-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      --border-radius: 20px;
+      --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .number-cell {
-      @apply text-right font-mono text-gray-900 dark:text-white font-medium;
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .label-text {
-      @apply font-bold text-gray-900 dark:text-white text-lg;
-    }
-    .btn-primary {
-      @apply bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 font-semibold text-lg;
-    }
-    .btn-toggle {
-      @apply text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700;
-    }
-    .profile-img {
-      @apply w-28 h-28 rounded-full object-cover mb-4 border-4 border-blue-300 dark:border-blue-500 shadow-md;
-    }
+
     body {
-      @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white transition-colors duration-300;
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg), var(--dark-accent));
+      color: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
     }
-    h2 {
-      @apply text-2xl font-bold mb-4 text-blue-700 dark:text-blue-300;
+
+    .user-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      box-shadow: var(--candy-shadow);
+      padding: 40px;
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      border: 2px solid var(--neon-blue);
+    }
+
+    .user-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(59, 130, 246, 0.2) 50%,
+        transparent 100%
+      );
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .user-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--neon-yellow);
+      font-weight: 800;
+    }
+
+    .user-info {
+      color: #FFFFFF;
+      font-size: 1.25rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .announcement {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+      color: #FFFFFF;
+      font-size: 16px;
+      border-left: 4px solid var(--neon-yellow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+    }
+
+    th {
+      background: var(--neon-yellow);
+      color: #1F2937;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) {
+      background: rgba(45, 55, 72, 0.5);
+    }
+
+    .btn {
+      background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 15px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--candy-shadow);
+      margin: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0) 60%
+      );
+      transform: rotate(30deg);
+    }
+
+    .btn:hover::after {
+      animation: shine 1.5s infinite;
+    }
+
+    @media (max-width: 600px) {
+      .user-container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .user-info {
+        font-size: 1rem;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6 pt-4">
-      <h1 class="text-3xl font-bold">
-        <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400"></i>Profil Karyawan
-      </h1>
-      <div class="flex space-x-2">
-        <button onclick="toggleDarkMode()" class="btn-toggle">
-          <i id="darkModeIcon" class="fas fa-moon"></i> <span id="darkModeText">Dark Mode</span>
-        </button>
-        <button onclick="logout()" class="btn-primary">
-          <i class="fas fa-sign-out-alt mr-2"></i>Logout
-        </button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="card col-span-1">
-        <h2 class="text-xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Informasi Pribadi</h2>
-        <div id="personalInfo" class="space-y-2">
-          <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
-        </div>
-      </div>
-
-      <div class="card md:col-span-2">
-        <h2 class="text-xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Detail Gaji</h2>
-        <div id="salaryInfo" class="space-y-2">
-        </div>
-      </div>
-    </div>
+  <div class="user-container">
+    <h1>User Dashboard</h1>
+    <div id="userInfo" class="user-info"></div>
+    
+    <div id="announcement" class="announcement"></div>
+    
+    <table id="salaryTable">
+      <thead>
+        <tr>
+          <th>Kategori</th>
+          <th>Nominal</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <button onclick="downloadPDF()" class="btn">
+      <i class="fas fa-download mr-2"></i>Download PDF
+    </button>
+    <button onclick="logout()" class="btn">
+      <i class="fas fa-sign-out-alt mr-2"></i>Logout
+    </button>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser) {
-        alert('Silakan login terlebih dahulu');
+      if (!currentUser || !currentUser.Nama || !currentUser['Unit Kerja']) {
+        alert('Data pengguna tidak lengkap. Silakan login kembali.');
         window.location.href = 'index.html';
         return;
       }
 
-      initializeDarkMode();
+      // Tampilkan Nama dan Unit Kerja
+      const userInfo = document.getElementById('userInfo');
+      userInfo.innerHTML = `
+        <p>Nama: ${currentUser.Nama}</p>
+        <p>Unit Kerja: ${currentUser['Unit Kerja']}</p>
+      `;
 
-      Papa.parse('data.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const userData = results.data.find(d => d.PIN === currentUser.PIN);
-          if (userData) {
-            displayUserInfo(currentUser, userData);
-            updateProfilePhoto(userData);
-          } else {
-            alert('Data gaji tidak ditemukan untuk pengguna ini');
-            window.location.href = 'index.html';
-          }
-        },
-        error: function(error) {
-          console.error("Error loading salary data:", error);
-          alert('Gagal memuat data gaji. Silakan coba lagi.');
-          window.location.href = 'index.html';
-        }
-      });
-    });
+      // Tampilkan pengumuman
+      fetch('announcement.txt')
+        .then(response => {
+          if (!response.ok) throw new Error('File announcement.txt tidak ditemukan');
+          return response.text();
+        })
+        .then(data => {
+          const announcementEl = document.getElementById('announcement');
+          announcementEl.innerHTML = data 
+            ? `<strong><i class="fas fa-bullhorn mr-2 text-[var(--neon-yellow)]"></i>Pengumuman:</strong> ${data}`
+            : '<i class="fas fa-info-circle mr-2 text-[var(--neon-yellow)]"></i>Tidak ada pengumuman';
+        })
+        .catch(error => {
+          console.error('Error loading announcement:', error);
+          document.getElementById('announcement').innerHTML = 
+            '<i class="fas fa-info-circle mr-2 text-[var(--neon-yellow)]"></i>Tidak ada pengumuman';
+        });
 
-    function updateProfilePhoto(userData) {
-      const profilePhoto = document.getElementById('profilePhoto');
-      const gender = userData['L/P'];
-      if (gender === '1') {
-        profilePhoto.src = 'male.png';
-      } else if (gender === '2') {
-        profilePhoto.src = 'female.png';
-      } else {
-        profilePhoto.src = 'male.png';
-      }
-    }
-
-    function formatCurrency(num) {
-      return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
-    }
-
-    function calculateSalaryDetails(salaryData) {
-      const grossSalary = parseFloat(salaryData['Gaji Kotor'] || 0);
-      const deductions = [
-        'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos',
-        'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'
+      // Tampilkan data gaji
+      const salaryTableBody = document.querySelector('#salaryTable tbody');
+      const salaryData = [
+        { category: 'Gaji Kotor', value: parseFloat(currentUser['Gaji Kotor']) || 0 },
+        { category: 'Potongan BPD', value: parseFloat(currentUser['Potongan BPD']) || 0 },
+        { category: 'DPLK', value: parseFloat(currentUser.DPLK) || 0 },
+        { category: 'KPRI', value: parseFloat(currentUser.KPRI) || 0 },
+        { category: 'PGRI', value: parseFloat(currentUser.PGRI) || 0 },
+        { category: 'HPPT', value: parseFloat(currentUser.HPPT) || 0 },
+        { category: 'Dansos', value: parseFloat(currentUser.Dansos) || 0 },
+        { category: 'Bazda', value: parseFloat(currentUser.Bazda) || 0 },
+        { category: 'Darma Wanita', value: parseFloat(currentUser['Darma Wanita']) || 0 },
+        { category: 'Korpri', value: parseFloat(currentUser.Korpri) || 0 },
+        { category: 'Halbi', value: parseFloat(currentUser.Halbi) || 0 }
       ];
-      const totalDeductions = deductions.reduce((sum, key) => sum + parseFloat(salaryData[key] || 0), 0);
-      const netSalary = grossSalary - totalDeductions;
-      return { netSalary, totalDeductions };
-    }
 
-    function displayUserInfo(user, salaryData) {
-      const personalInfoEl = document.getElementById('personalInfo');
-      personalInfoEl.innerHTML = `
-        <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
-        <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
-        <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
-        <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
-        <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
+      let totalPotongan = 0;
+      salaryData.forEach(item => {
+        if (item.category !== 'Gaji Kotor') {
+          totalPotongan += item.value;
+        }
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.category}</td>
+          <td>Rp ${item.value.toLocaleString('id-ID')}</td>
+        `;
+        salaryTableBody.appendChild(row);
+      });
+
+      const gajiBersih = salaryData[0].value - totalPotongan;
+      const netRow = document.createElement('tr');
+      netRow.innerHTML = `
+        <td><strong>Gaji Bersih</strong></td>
+        <td><strong>Rp ${gajiBersih.toLocaleString('id-ID')}</strong></td>
       `;
+      salaryTableBody.appendChild(netRow);
 
-      const { netSalary, totalDeductions } = calculateSalaryDetails(salaryData);
-
-      const salaryInfoEl = document.getElementById('salaryInfo');
-      salaryInfoEl.innerHTML = `
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Gaji Kotor</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
-          </div>
-          <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Total Potongan</p>
-            <p class="number-cell">${formatCurrency(totalDeductions)}</p>
-          </div>
-          <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Gaji Bersih</p>
-            <p class="number-cell">${formatCurrency(netSalary)}</p>
-          </div>
-        </div>
+      // Fungsi download PDF
+      function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         
-        <h3 class="font-bold text-lg mt-4 text-gray-900 dark:text-white">Detail Potongan:</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">BPD</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">DPLK</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">KPRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">PGRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">HPPT</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Dansos</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Bazda</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Darma Wanita</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Korpri</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
-          </div>
-          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Halbi</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
-          </div>
-        </div>
-      `;
-    }
-
-    function logout() {
-      localStorage.removeItem('currentUser');
-      window.location.href = 'index.html';
-    }
-
-    function initializeDarkMode() {
-      const isDarkMode = localStorage.getItem('darkMode') === 'true';
-      const darkModeIcon = document.getElementById('darkModeIcon');
-      const darkModeText = document.getElementById('darkModeText');
-      
-      if (isDarkMode) {
-        document.body.classList.add('dark');
-        darkModeIcon.classList.replace('fa-moon', 'fa-sun');
-        darkModeText.textContent = 'Light Mode';
-      } else {
-        darkModeIcon.classList.replace('fa-sun', 'fa-moon');
-        darkModeText.textContent = 'Dark Mode';
+        doc.setFontSize(16);
+        doc.text('Laporan Gaji', 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Nama: ${currentUser.Nama}`, 20, 30);
+        doc.text(`Unit Kerja: ${currentUser['Unit Kerja']}`, 20, 40);
+        
+        const tableData = salaryData.map(item => [item.category, `Rp ${item.value.toLocaleString('id-ID')}`]);
+        tableData.push(['Gaji Bersih', `Rp ${gajiBersih.toLocaleString('id-ID')}`]);
+        
+        doc.autoTable({
+          startY: 50,
+          head: [['Kategori', 'Nominal']],
+          body: tableData,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2 },
+          headStyles: { fillColor: [250, 204, 21], textColor: [31, 41, 55] }
+        });
+        
+        doc.save(`Laporan_Gaji_${currentUser.Nama}.pdf`);
       }
-    }
 
-    function toggleDarkMode() {
-      const isDarkMode = document.body.classList.toggle('dark');
-      const darkModeIcon = document.getElementById('darkModeIcon');
-      const darkModeText = document.getElementById('darkModeText');
-      
-      localStorage.setItem('darkMode', isDarkMode);
-      if (isDarkMode) {
-        darkModeIcon.classList.replace('fa-moon', 'fa-sun');
-        darkModeText.textContent = 'Light Mode';
-      } else {
-        darkModeIcon.classList.replace('fa-sun', 'fa-moon');
-        darkModeText.textContent = 'Dark Mode';
+      // Fungsi logout
+      function logout() {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
       }
-    }
+    });
   </script>
 </body>
 </html>
