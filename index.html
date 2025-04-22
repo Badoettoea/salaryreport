@@ -1,176 +1,114 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil Karyawan</title>
+  <title>Login - Sistem Manajemen Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .currency {
-      text-align: right;
-      font-family: monospace;
+    * { 
+      transition: all 0.2s ease-in-out;
     }
-    .profile-card {
-      background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    .input-field {
+      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
     }
-    .empty-data {
-      color: #9ca3af;
-      font-style: italic;
+    .btn-primary {
+      @apply w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 active:bg-blue-700;
+    }
+    .btn-secondary {
+      @apply w-full bg-gray-200 text-gray-800 p-3 rounded-lg hover:bg-gray-300 active:bg-gray-400;
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div class="container mx-auto p-4">
-    <!-- Authentication Check -->
-    <script>
-      const user = JSON.parse(localStorage.getItem('currentUser'));
-      if (!user) window.location.href = 'index.html';
-    </script>
-
-    <!-- Profile Header -->
-    <div class="profile-card text-white p-6 rounded-lg shadow-lg mb-6">
-      <div class="flex flex-col md:flex-row items-center gap-6">
-        <img src="default.png" alt="Foto Profil" 
-             class="w-24 h-24 rounded-full border-4 border-white/50 shadow object-cover"
-             onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23ffffff\"><path d=\"M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z\"/></svg>'">
-        <div>
-          <h1 class="text-2xl font-bold">
-            <span id="namaKaryawan" class="empty-data">Memuat...</span>
-          </h1>
-          <p class="text-white/90">
-            NIP: <span id="nipKaryawan" class="empty-data">Memuat...</span>
-          </p>
-          <p class="text-white/90">
-            Unit Kerja: <span id="unitKerja" class="empty-data">Memuat...</span>
-          </p>
-        </div>
-      </div>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center min-h-screen p-4">
+  <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md hover:shadow-3xl transition-shadow duration-300">
+    <div class="text-center mb-6">
+      <i class="fas fa-wallet text-4xl text-blue-500 mb-2"></i>
+      <h1 class="text-3xl font-bold text-gray-800">Manajemen Keuangan</h1>
+      <p class="text-gray-600 mt-2">Masukkan PIN untuk melanjutkan</p>
     </div>
-
-    <!-- Announcement -->
-    <div class="bg-white p-6 rounded-lg shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4 text-blue-600 flex items-center gap-2">
-        <i class="fas fa-bullhorn"></i> Pengumuman Terbaru
-      </h2>
-      <div id="pengumuman" class="p-4 bg-blue-50 rounded-lg text-blue-800">
-        Memuat pengumuman...
+    
+    <div id="announcement" class="mb-6 p-4 bg-blue-50 rounded-lg text-blue-800 border-l-4 border-blue-500"></div>
+    
+    <div class="space-y-4">
+      <div class="relative">
+        <input id="pinInput" type="password" placeholder="Masukkan PIN" class="input-field pr-10">
+        <i class="fas fa-key absolute right-3 top-3.5 text-gray-400"></i>
       </div>
-    </div>
-
-    <!-- Salary Details -->
-    <div class="bg-white p-6 rounded-lg shadow">
-      <h2 class="text-xl font-semibold mb-4 text-green-600 flex items-center gap-2">
-        <i class="fas fa-file-invoice-dollar"></i> Rincian Gaji
-      </h2>
       
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Komponen</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Jumlah (Rp)</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200" id="tabelGaji">
-            <!-- Will be populated by JavaScript -->
-          </tbody>
-          <tfoot class="bg-gray-50 font-semibold">
-            <tr>
-              <td class="px-4 py-3 text-left">Take Home Pay</td>
-              <td class="px-4 py-3 text-right currency" id="thp">0</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-
-    <!-- Logout Button -->
-    <div class="mt-6 text-center">
-      <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2">
-        <i class="fas fa-sign-out-alt"></i> Logout
+      <button id="loginUser" class="btn-primary">
+        <i class="fas fa-user mr-2"></i> Login Karyawan
+      </button>
+      
+      <button id="loginAdmin" class="btn-secondary">
+        <i class="fas fa-lock mr-2"></i> Login Admin
       </button>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const user = JSON.parse(localStorage.getItem('currentUser'));
-      if (!user) return;
+      let loginData = [];
 
-      // Display profile data with proper fallbacks
-      const displayData = (elementId, value, defaultValue = 'Data tidak tersedia') => {
-        const element = document.getElementById(elementId);
-        element.textContent = value || defaultValue;
-        element.className = value ? '' : 'empty-data';
-      };
-
-      displayData('namaKaryawan', user.Nama);
-      displayData('nipKaryawan', user.NIP);
-      displayData('unitKerja', user['Unit Kerja']);
-
-      // Load announcement
-      fetch('announcement.txt')
-        .then(response => response.text())
-        .then(text => {
-          const content = text.trim() || 'Tidak ada pengumuman saat ini';
-          document.getElementById('pengumuman').textContent = content;
-          if (!text.trim()) document.getElementById('pengumuman').classList.add('empty-data');
-        })
-        .catch(() => {
-          document.getElementById('pengumuman').textContent = 'Gagal memuat pengumuman';
-          document.getElementById('pengumuman').classList.add('text-red-500');
+      // Load data login
+      function loadLoginData() {
+        Papa.parse('data.csv', {
+          download: true,
+          header: true,
+          complete: function(results) {
+            loginData = results.data;
+            loadAnnouncement();
+          },
+          error: function(error) {
+            console.error("Error loading login data:", error);
+            alert('Gagal memuat data login. Silakan coba lagi nanti.');
+          }
         });
+      }
 
-      // Salary components to display
-      const salaryComponents = [
-        { label: 'Gaji Pokok', key: 'Gaji Kotor' },
-        { label: 'Potongan BPD', key: 'Potongan BPD' },
-        { label: 'DPLK', key: 'DPLK' },
-        { label: 'KPRI', key: 'KPRI' },
-        { label: 'PGRI', key: 'PGRI' },
-        { label: 'HPPT', key: 'HPPT' },
-        { label: 'Dansos', key: 'Dansos' },
-        { label: 'Bazda', key: 'Bazda' },
-        { label: 'Darma Wanita', key: 'Darma Wanita' },
-        { label: 'Korpri', key: 'Korpri' },
-        { label: 'Halbi', key: 'Halbi' }
-      ];
+      // Load pengumuman
+      function loadAnnouncement() {
+        fetch('announcement.txt')
+          .then(response => response.text())
+          .then(data => {
+            const announcementEl = document.getElementById('announcement');
+            announcementEl.innerHTML = data 
+              ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
+              : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
+          })
+          .catch(error => {
+            console.error("Error loading announcement:", error);
+            document.getElementById('announcement').innerHTML = '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
+          });
+      }
 
-      const tableBody = document.getElementById('tabelGaji');
-      let totalDeductions = 0;
-      let baseSalary = 0;
-
-      salaryComponents.forEach(component => {
-        const value = parseFloat(user[component.key]) || 0;
-        
-        if (component.key === 'Gaji Kotor') {
-          baseSalary = value;
-        } else {
-          totalDeductions += value;
+      // Fungsi login
+      function login(role) {
+        const pin = document.getElementById('pinInput').value.trim();
+        if (!pin) {
+          alert('Silakan masukkan PIN terlebih dahulu');
+          return;
         }
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td class="px-4 py-3 whitespace-nowrap">${component.label}</td>
-          <td class="px-4 py-3 whitespace-nowrap currency">${formatCurrency(value)}</td>
-        `;
-        tableBody.appendChild(row);
-      });
+        const user = loginData.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
+        
+        if (user) {
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          window.location.href = role === 'user' ? 'user.html' : 'admin.html';
+        } else {
+          alert(`PIN tidak valid atau Anda tidak memiliki akses sebagai ${role === 'user' ? 'User' : 'Admin'}`);
+        }
+      }
 
-      // Calculate and display Take Home Pay
-      const takeHomePay = baseSalary - totalDeductions;
-      document.getElementById('thp').textContent = formatCurrency(takeHomePay);
+      // Event listeners
+      document.getElementById('loginUser').addEventListener('click', () => login('user'));
+      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
+
+      // Load data saat pertama kali
+      loadLoginData();
     });
-
-    function formatCurrency(amount) {
-      return isNaN(amount) || amount === 0 ? '-' : new Intl.NumberFormat('id-ID').format(amount);
-    }
-
-    function logout() {
-      localStorage.removeItem('currentUser');
-      window.location.href = 'index.html';
-    }
   </script>
 </body>
 </html>
