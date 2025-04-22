@@ -21,6 +21,10 @@
     .number-cell {
       @apply text-right font-mono;
     }
+    .loading::after {
+      content: ' \f110'; /* Font Awesome spinner */
+      @apply inline-block animate-spin ml-2;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
@@ -57,7 +61,7 @@
           file:bg-blue-50 file:text-blue-700
           hover:file:bg-blue-100">
       </div>
-      <button onclick="uploadDatabase()" class="btn-primary">
+      <button id="uploadButton" onclick="uploadDatabase()" class="btn-primary">
         <i class="fas fa-upload mr-2"></i>Upload Data Gaji
       </button>
     </div>
@@ -83,23 +87,65 @@
     // Fungsi untuk upload data gaji
     function uploadDatabase() {
       const file = document.getElementById('csvUpload').files[0];
+      const uploadButton = document.getElementById('uploadButton');
+      
       if (!file) {
         alert('Silakan pilih file CSV terlebih dahulu');
         return;
       }
 
+      // Tambahkan indikator loading
+      uploadButton.disabled = true;
+      uploadButton.classList.add('loading');
+      uploadButton.innerHTML = '<i class="fas fa-upload mr-2"></i>Uploading...';
+
       Papa.parse(file, {
         header: true,
-        complete: function(results) {
-          // Simpan data CSV ke localStorage untuk pengujian
-          localStorage.setItem('dataCsv', Papa.unparse(results.data));
-          alert('Data gaji berhasil diupdate! (Disimpan di localStorage untuk pengujian)');
+        complete: async function(results) {
+          // Validasi struktur CSV
+          const requiredColumns = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'];
+          const csvColumns = Object.keys(results.data[0] || {});
+          const missingColumns = requiredColumns.filter(col => !csvColumns.includes(col));
+
+          if (missingColumns.length > 0) {
+            alert(`Format CSV tidak valid. Kolom yang hilang: ${missingColumns.join(', ')}`);
+            resetButton();
+            return;
+          }
+
+          // Kirim data ke server
+          try {
+            const csvContent = Papa.unparse(results.data);
+            const response = await fetch('/data.csv', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'text/plain' },
+              body: csvContent
+            });
+
+            if (response.ok) {
+              alert('Data gaji berhasil diupdate!');
+            } else {
+              throw new Error('Gagal mengupdate data di server');
+            }
+          } catch (error) {
+            console.error('Error updating data:', error);
+            alert('Gagal mengupdate data di server. Silakan coba lagi.');
+          } finally {
+            resetButton();
+          }
         },
         error: function(error) {
           console.error('Error parsing CSV:', error);
           alert('Format file CSV tidak valid');
+          resetButton();
         }
       });
+
+      function resetButton() {
+        uploadButton.disabled = false;
+        uploadButton.classList.remove('loading');
+        uploadButton.innerHTML = '<i class="fas fa-upload mr-2"></i>Upload Data Gaji';
+      }
     }
 
     // Fungsi logout
