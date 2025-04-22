@@ -307,7 +307,11 @@
       let userData = [];
 
       function loadUserData() {
-        Papa.parse('data.csv', {
+        // Pastikan path ke data.csv sesuai dengan struktur repositori
+        const csvPath = 'data.csv'; // Untuk GitHub Pages, file harus ada di /salary-report/data.csv
+        console.log('Attempting to load CSV from:', csvPath);
+        
+        Papa.parse(csvPath, {
           download: true,
           header: true,
           delimiter: ',',
@@ -315,10 +319,12 @@
           complete: function(results) {
             console.log('Parsed CSV data:', results.data);
             userData = results.data;
+            
             if (!results.data || results.data.length === 0) {
               alert('Data CSV kosong atau format tidak valid.');
               return;
             }
+
             const requiredColumns = ['PIN', 'Role', 'Nama', 'Unit Kerja'];
             const csvColumns = Object.keys(results.data[0] || {});
             const missingColumns = requiredColumns.filter(col => !csvColumns.includes(col));
@@ -326,11 +332,12 @@
               alert(`Format CSV tidak valid. Kolom yang hilang: ${missingColumns.join(', ')}`);
               return;
             }
+
             loadAnnouncement();
           },
           error: function(error) {
             console.error('Error loading user data:', error);
-            alert('Gagal memuat data pengguna. Pastikan file data.csv ada dan formatnya benar.');
+            alert('Gagal memuat data.csv. Pastikan file ada di repositori (salary-report/data.csv) dan dapat diakses.');
           }
         });
       }
@@ -364,7 +371,8 @@
           return;
         }
 
-        const user = userData.find(d => d.PIN === pin);
+        // Konversi PIN ke string untuk mencegah masalah tipe data
+        const user = userData.find(d => String(d.PIN) === String(pin));
         console.log('Found user:', user);
         
         if (user) {
