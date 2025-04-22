@@ -1,215 +1,123 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil Karyawan</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Koperasi</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    .card {
-      @apply bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow;
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #e0e5ec;
+      margin: 0;
+      padding: 1rem;
     }
-    .number-cell {
-      @apply text-right font-mono;
+
+    .profile-card {
+      background: #e0e5ec;
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 9px 9px 16px #b8b9be,
+                  -9px -9px 16px #ffffff;
+      text-align: center;
     }
-    .btn-primary {
-      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600;
+
+    .profile-card img {
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      box-shadow: inset 5px 5px 10px #c8c9ce,
+                  inset -5px -5px 10px #fff;
     }
-    .profile-img {
-      @apply w-24 h-24 rounded-full object-cover mb-4 border-2 border-blue-200;
+
+    .upload-btn {
+      margin-top: 0.5rem;
+      background: #e0e5ec;
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      border: none;
+      box-shadow: 3px 3px 6px #b8b9be,
+                  -3px -3px 6px #ffffff;
+      cursor: pointer;
+    }
+
+    canvas {
+      margin-top: 2rem;
+      max-width: 100%;
+    }
+
+    .logout {
+      margin-top: 2rem;
+      background: #ff5c5c;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 1rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 3px 3px 6px #b8b9be,
+                  -3px -3px 6px #ffffff;
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">
-        <i class="fas fa-user-circle mr-2 text-blue-500"></i>Profil Karyawan
-      </h1>
-      <button onclick="logout()" class="btn-primary">
-        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-      </button>
-    </div>
+<body>
+  <div class="profile-card">
+    <img id="profile-pic" src="https://drive.google.com/uc?id=default" alt="Foto Profil" />
+    <input type="file" id="upload-input" hidden />
+    <button class="upload-btn" onclick="document.getElementById('upload-input').click()">Ganti Foto</button>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="card col-span-1">
-        <h2 class="text-xl font-semibold mb-4 text-blue-600">Informasi Pribadi</h2>
-        <div id="personalInfo" class="space-y-2">
-          <img id="profilePhoto" class="profile-img" src="/default.png" alt="Foto Profil">
-          <!-- Data akan diisi oleh JavaScript -->
-        </div>
-      </div>
+    <h2 id="user-name">Nama User</h2>
+    <p>Saldo: <strong id="user-saldo">Rp 0</strong></p>
+    <p id="user-info">Divisi - Jabatan</p>
 
-      <div class="card md:col-span-2">
-        <h2 class="text-xl font-semibold mb-4 text-blue-600">Detail Gaji</h2>
-        <div id="salaryInfo" class="space-y-2">
-          <!-- Data akan diisi oleh JavaScript -->
-        </div>
-      </div>
-    </div>
-
-    <div class="card mb-6">
-      <h2 class="text-xl font-semibold mb-4 text-blue-600">Pengumuman</h2>
-      <div id="announcement" class="p-4 bg-blue-50 rounded-lg text-blue-800">
-        <i class="fas fa-spinner fa-spin mr-2"></i>Memuat pengumuman...
-      </div>
-    </div>
+    <canvas id="chart"></canvas>
+    <button class="logout" onclick="logout()">Keluar</button>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser) {
-        alert('Silakan login terlebih dahulu');
-        window.location.href = 'index.html';
-        return;
+    // Dummy example data
+    document.getElementById("user-name").textContent = "Andi Wijaya";
+    document.getElementById("user-saldo").textContent = "Rp 1.200.000";
+    document.getElementById("user-info").textContent = "Keuangan - Bendahara";
+
+    // Pie Chart
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Simpanan Pokok', 'Simpanan Wajib', 'Pinjaman'],
+        datasets: [{
+          label: 'Potongan',
+          data: [200000, 500000, 500000],
+          backgroundColor: ['#ff6384', '#36a2eb', '#ffce56'],
+          borderWidth: 1
+        }]
       }
-
-      // Load data gaji
-      Papa.parse('data.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const userData = results.data.find(d => d.PIN === currentUser.PIN);
-          if (userData) {
-            displayUserInfo(currentUser, userData);
-          } else {
-            alert('Data gaji tidak ditemukan untuk pengguna ini');
-            window.location.href = 'index.html';
-          }
-        },
-        error: function(error) {
-          console.error("Error loading salary data:", error);
-          alert('Gagal memuat data gaji. Silakan coba lagi.');
-          window.location.href = 'index.html';
-        }
-      });
-
-      // Load pengumuman
-      fetch('announcement.txt')
-        .then(response => response.text())
-        .then(data => {
-          const announcementEl = document.getElementById('announcement');
-          announcementEl.innerHTML = data 
-            ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
-            : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
-        })
-        .catch(error => {
-          console.error("Error loading announcement:", error);
-          document.getElementById('announcement').innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Gagal memuat pengumuman';
-        });
-
-      // Cek foto profil
-      const profilePhoto = document.getElementById('profilePhoto');
-      fetch(`/users/${currentUser.PIN}.jpg`)
-        .then(response => {
-          if (response.ok) {
-            profilePhoto.src = `/users/${currentUser.PIN}.jpg`;
-          } else {
-            profilePhoto.src = '/default.png'; // Fallback ke default.png
-          }
-        })
-        .catch(() => {
-          profilePhoto.src = '/default.png'; // Fallback kalo error
-        });
     });
 
-    // Format angka ke format keuangan
-    function formatCurrency(num) {
-      return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
-    }
+    // Upload foto profil (dikirim ke GAS)
+    document.getElementById('upload-input').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    // Hitung Gaji Bersih
-    function calculateNetSalary(salaryData) {
-      const grossSalary = parseFloat(salaryData['Gaji Kotor'] || 0);
-      const deductions = [
-        'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos',
-        'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'
-      ].reduce((sum, key) => sum + parseFloat(salaryData[key] || 0), 0);
-      return grossSalary - deductions;
-    }
+      const form = new FormData();
+      form.append('photo', file);
 
-    // Tampilkan informasi pengguna
-    function displayUserInfo(user, salaryData) {
-      // Informasi pribadi
-      const personalInfoEl = document.getElementById('personalInfo');
-      personalInfoEl.innerHTML = `
-        <img id="profilePhoto" class="profile-img" src="/default.png" alt="Foto Profil">
-        <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
-        <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
-        <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
-        <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
-      `;
+      const response = await fetch('YOUR_GAS_UPLOAD_URL', {
+        method: 'POST',
+        body: form
+      });
 
-      // Hitung Gaji Bersih
-      const netSalary = calculateNetSalary(salaryData);
+      const data = await response.json();
+      if (data.success && data.url) {
+        document.getElementById('profile-pic').src = data.url;
+      }
+    });
 
-      // Informasi gaji
-      const salaryInfoEl = document.getElementById('salaryInfo');
-      salaryInfoEl.innerHTML = `
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-blue-50 p-3 rounded-lg">
-            <p class="font-semibold">Gaji Kotor</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
-          </div>
-          <div class="bg-blue-50 p-3 rounded-lg">
-            <p class="font-semibold">Gaji Bersih</p>
-            <p class="number-cell">${formatCurrency(netSalary)}</p>
-          </div>
-        </div>
-        
-        <h3 class="font-semibold mt-4">Detail Potongan:</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">BPD</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">DPLK</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">KPRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">PGRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">HPPT</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">Dansos</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">Bazda</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">Darma Wanita</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">Korpri</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
-          </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="font-semibold">Halbi</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
-          </div>
-        </div>
-      `;
-    }
-
-    // Fungsi logout
     function logout() {
-      localStorage.removeItem('currentUser');
-      window.location.href = 'index.html';
+      window.location.href = "login.html";
     }
   </script>
 </body>
