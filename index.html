@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Sistem Informasi Gaji</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" id="papa-script"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700 displayswap" rel="stylesheet">
@@ -41,13 +40,6 @@
       border-color: #0f766e;
     }
     body.dark-mode .btn-primary { background-color: #0f766e; }
-
-    /* Disable button style */
-    .btn-primary:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
   </style>
 </head>
 <body class="min-h-screen p-4 font-poppins flex items-center justify-center transition-colors duration-300">
@@ -62,7 +54,7 @@
         <i class="fas fa-user-lock mr-2"></i>Login
       </h2>
       <input type="text" id="pinInput" class="input-field mb-4" placeholder="Masukkan PIN">
-      <button id="loginButton" onclick="login()" class="btn-primary w-full ripple" disabled>
+      <button onclick="login()" class="btn-primary w-full ripple">
         <i class="fas fa-sign-in-alt mr-2"></i>Login
       </button>
     </div>
@@ -107,39 +99,12 @@
           setTimeout(() => ripple.remove(), 600);
         });
       });
-
-      // Check if PapaParse script is loaded
-      const papaScript = document.getElementById('papa-script');
-      const loginButton = document.getElementById('loginButton');
-
-      papaScript.onload = () => {
-        console.log('PapaParse loaded successfully!');
-        if (typeof Papa !== 'undefined') {
-          console.log('Papa is defined, enabling login button.');
-          loginButton.disabled = false;
-        } else {
-          console.error('Papa is still undefined after script load.');
-          alert('Gagal memuat library parsing CSV. Silakan refresh halaman atau cek koneksi.');
-        }
-      };
-
-      papaScript.onerror = () => {
-        console.error('Failed to load PapaParse from CDN.');
-        alert('Gagal memuat library parsing CSV dari CDN. Silakan cek koneksi internet atau refresh halaman.');
-      };
     });
 
     async function login() {
       const pin = document.getElementById('pinInput').value.trim();
       if (!pin) {
         alert('Silakan masukkan PIN terlebih dahulu');
-        return;
-      }
-
-      // Double-check Papa availability
-      if (typeof Papa === 'undefined') {
-        console.error('PapaParse belum tersedia saat login dipanggil.');
-        alert('Library parsing CSV belum siap. Silakan refresh halaman atau cek koneksi.');
         return;
       }
 
