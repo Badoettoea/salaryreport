@@ -2,82 +2,174 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Koperasi</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(to bottom right, #eef2f7, #ffffff);
+      font-family: "Segoe UI", sans-serif;
+      background: #e0e5ec;
+      margin: 0;
+      padding: 1rem;
     }
-    .neumorph {
-      box-shadow: 6px 6px 16px #d1d9e6, -6px -6px 16px #ffffff;
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 1rem;
+    }
+
+    .card {
+      background: #e0e5ec;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 9px 9px 16px #b8b9be,
+                  -9px -9px 16px #ffffff;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+
+    input[type="file"],
+    textarea {
+      width: 100%;
+      border-radius: 12px;
+      padding: 0.75rem;
+      border: none;
+      background: #e0e5ec;
+      box-shadow: inset 5px 5px 10px #b8b9be,
+                  inset -5px -5px 10px #fff;
+      margin-bottom: 1rem;
+      resize: none;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 3px 3px 6px #b8b9be,
+                  -3px -3px 6px #ffffff;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    ul.backup-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul.backup-list li {
+      background: #e0e5ec;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      box-shadow: inset 3px 3px 6px #b8b9be,
+                  inset -3px -3px 6px #ffffff;
+      font-size: 0.9rem;
     }
   </style>
 </head>
-<body class="min-h-screen p-6 flex flex-col gap-6">
-  <header class="text-center">
-    <h1 class="text-2xl font-bold text-gray-700">Halaman Admin</h1>
-    <p class="text-sm text-gray-500">Kelola data & warta koperasi</p>
-  </header>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>Upload Data Potongan</h2>
+      <input type="file" id="upload-data" />
+      <button onclick="uploadFile()">Upload & Backup</button>
+    </div>
 
-  <!-- Upload CSV -->
-  <section class="bg-white p-4 rounded-2xl neumorph">
-    <h2 class="font-semibold text-gray-800 mb-2">Unggah Data (CSV)</h2>
-    <input id="csvFile" type="file" accept=".csv" class="block mb-2">
-    <button id="uploadBtn" class="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600">Upload</button>
-    <p id="uploadStatus" class="text-sm mt-2 text-gray-600"></p>
-  </section>
+    <div class="card">
+      <h2>Tulis Warta</h2>
+      <textarea rows="5" id="warta" placeholder="Tulis warta terbaru di sini..."></textarea>
+      <button onclick="kirimWarta()">Posting Warta</button>
+    </div>
 
-  <!-- Edit Warta -->
-  <section class="bg-white p-4 rounded-2xl neumorph">
-    <h2 class="font-semibold text-gray-800 mb-2">Edit Warta</h2>
-    <textarea id="announcementText" class="w-full h-32 p-2 border border-gray-300 rounded-xl mb-2"></textarea>
-    <button id="saveWarta" class="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600">Simpan</button>
-    <p id="wartaStatus" class="text-sm mt-2 text-gray-600"></p>
-  </section>
-
-  <footer class="text-center text-sm text-gray-400 mt-auto">&copy; Admin Koperasi</footer>
+    <div class="card">
+      <h2>Riwayat Backup</h2>
+      <ul id="backup-list" class="backup-list">
+        <li>Loading...</li>
+      </ul>
+    </div>
+  </div>
 
   <script>
-    document.getElementById('uploadBtn').addEventListener('click', () => {
-      const file = document.getElementById('csvFile').files[0];
-      if (!file) return alert('Pilih file terlebih dahulu');
+    async function uploadFile() {
+      const fileInput = document.getElementById("upload-data");
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Pilih file terlebih dahulu.");
+        return;
+      }
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        fetch('/data.csv', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'text/csv' },
-          body: reader.result
-        }).then(res => res.text())
-          .then(msg => {
-            document.getElementById('uploadStatus').textContent = msg;
-          });
-      };
-      reader.readAsText(file);
-    });
+      const form = new FormData();
+      form.append("file", file);
 
-    document.getElementById('saveWarta').addEventListener('click', () => {
-      const text = document.getElementById('announcementText').value;
-      fetch('/announcement.txt', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'text/plain' },
-        body: text
-      })
-      .then(res => res.text())
-      .then(msg => {
-        document.getElementById('wartaStatus').textContent = msg;
+      const res = await fetch("https://script.google.com/macros/s/AKfycbwzmPWB-ziTbUXi5PrH5RitFze-bH76oTlwAnNXpGAP3fglsRXmn3J-DG-J7eWOA_HK/exec", {
+        method: "POST",
+        body: form
       });
-    });
 
-    // Load current announcement
-    fetch('/announcement.txt')
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById('announcementText').value = data;
+      const data = await res.json();
+      if (data.success) {
+        alert("File berhasil diupload dan di-backup.");
+        loadBackupList();
+      } else {
+        alert("Gagal upload file.");
+      }
+    }
+
+    async function kirimWarta() {
+      const text = document.getElementById("warta").value;
+      if (!text.trim()) {
+        alert("Warta tidak boleh kosong.");
+        return;
+      }
+
+      const res = await fetch("https://script.google.com/macros/s/AKfycbwzmPWB-ziTbUXi5PrH5RitFze-bH76oTlwAnNXpGAP3fglsRXmn3J-DG-J7eWOA_HK/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ warta: text })
       });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("Warta berhasil dikirim.");
+        document.getElementById("warta").value = "";
+      } else {
+        alert("Gagal kirim warta.");
+      }
+    }
+
+    async function loadBackupList() {
+      const res = await fetch("https://script.google.com/macros/s/AKfycbwzmPWB-ziTbUXi5PrH5RitFze-bH76oTlwAnNXpGAP3fglsRXmn3J-DG-J7eWOA_HK/exec");
+      const data = await res.json();
+      const list = document.getElementById("backup-list");
+
+      list.innerHTML = "";
+      if (data.backups && data.backups.length > 0) {
+        data.backups.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.timestamp} - ${item.filename}`;
+          list.appendChild(li);
+        });
+      } else {
+        list.innerHTML = "<li>Belum ada backup</li>";
+      }
+    }
+
+    // Load on open
+    loadBackupList();
   </script>
 </body>
 </html>
