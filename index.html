@@ -9,42 +9,41 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { 
-      transition: all 0.2s ease-in-out;
+      transition: all 0.3s ease-in-out;
     }
     .input-field {
-      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+      @apply w-full p-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500 bg-white shadow-sm;
     }
     .btn-primary {
-      @apply w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 active:bg-blue-700;
+      @apply w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white p-5 text-xl rounded-xl hover:from-blue-700 hover:to-blue-600 active:from-blue-800 active:to-blue-700 font-semibold shadow-lg;
     }
-    .btn-secondary {
-      @apply w-full bg-gray-200 text-gray-800 p-3 rounded-lg hover:bg-gray-300 active:bg-gray-400;
+    body {
+      @apply bg-gradient-to-br from-blue-200 via-blue-100 to-purple-200 flex items-center justify-center min-h-screen p-6;
+    }
+    .login-card {
+      @apply bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg hover:shadow-3xl transition-shadow duration-300;
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center min-h-screen p-4">
-  <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md hover:shadow-3xl transition-shadow duration-300">
-    <div class="text-center mb-6">
-      <i class="fas fa-wallet text-4xl text-blue-500 mb-2"></i>
-      <h1 class="text-3xl font-bold text-gray-800">Manajemen Keuangan</h1>
-      <p class="text-gray-600 mt-2">Masukkan PIN untuk melanjutkan</p>
+<body>
+  <div class="login-card">
+    <div class="text-center mb-8">
+      <i class="fas fa-wallet text-5xl text-blue-600 mb-3"></i>
+      <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
+      <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
     </div>
     
-    <div id="announcement" class="mb-6 p-4 bg-blue-50 rounded-lg text-blue-800 border-l-4 border-blue-500"></div>
+    <div id="announcement" class="mb-8 p-5 bg-blue-100 rounded-xl text-blue-900 border-l-4 border-blue-600 text-lg"></div>
     
-    <div class="space-y-4">
+    <div class="space-y-6">
       <div class="relative">
-        <input id="pinInput" type="password" placeholder="Masukkan PIN" 
-               class="input-field pr-10">
-        <i class="fas fa-key absolute right-3 top-3.5 text-gray-400"></i>
+        <input id="pinInput" type="text" placeholder="Masukkan PIN" 
+               class="input-field">
+        <i class="fas fa-key absolute right-4 top-4 text-gray-400 text-lg"></i>
       </div>
       
-      <button id="loginUser" class="btn-primary">
-        <i class="fas fa-user mr-2"></i> Login Karyawan
-      </button>
-      
-      <button id="loginAdmin" class="btn-secondary">
-        <i class="fas fa-lock mr-2"></i> Login Admin
+      <button id="loginButton" class="btn-primary">
+        <i class="fas fa-sign-in-alt mr-2"></i> Login
       </button>
     </div>
   </div>
@@ -53,7 +52,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       let userData = [];
 
-      // Load data from data.csv
       function loadUserData() {
         Papa.parse('data.csv', {
           download: true,
@@ -69,7 +67,6 @@
         });
       }
 
-      // Load announcement
       function loadAnnouncement() {
         fetch('announcement.txt')
           .then(response => response.text())
@@ -84,29 +81,25 @@
           });
       }
 
-      // Login function
-      function login(role) {
+      function login() {
         const pin = document.getElementById('pinInput').value.trim();
         if (!pin) {
           alert('Silakan masukkan PIN terlebih dahulu');
           return;
         }
 
-        const user = userData.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
+        const user = userData.find(d => d.PIN === pin);
         
         if (user) {
           localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = role === 'user' ? 'user.html' : 'admin.html';
+          window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
         } else {
-          alert(`PIN tidak valid atau Anda tidak memiliki akses sebagai ${role === 'user' ? 'User' : 'Admin'}`);
+          alert('PIN tidak valid');
         }
       }
 
-      // Event listeners
-      document.getElementById('loginUser').addEventListener('click', () => login('user'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
+      document.getElementById('loginButton').addEventListener('click', login);
 
-      // Load data saat pertama kali
       loadUserData();
     });
   </script>
