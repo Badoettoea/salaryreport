@@ -9,144 +9,123 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .number-format {
-      text-align: right;
-      font-family: monospace;
+    .input-field {
+      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+    }
+    .btn-primary {
+      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 active:bg-blue-700;
+    }
+    .btn-danger {
+      @apply bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 active:bg-red-700;
+    }
+    .number-cell {
+      @apply text-right font-mono;
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div class="container mx-auto p-4">
-    <header class="bg-blue-600 text-white p-4 rounded-lg shadow mb-6">
-      <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold flex items-center gap-2">
-          <i class="fas fa-cog"></i>
-          Admin Dashboard
-        </h1>
-        <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg flex items-center gap-2">
-          <i class="fas fa-sign-out-alt"></i>
-          Logout
-        </button>
-      </div>
-    </header>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Panel Pengumuman -->
-      <div class="bg-white p-6 rounded-lg shadow hover:shadow-md">
-        <h2 class="text-xl font-semibold mb-4 text-blue-600 flex items-center gap-2">
-          <i class="fas fa-bullhorn"></i>
-          Post Pengumuman
-        </h2>
-        <textarea id="announcementText" class="w-full p-3 border rounded-lg mb-4 bg-gray-50 focus:ring-2 focus:ring-blue-300" 
-                  rows="4" placeholder="Tulis pengumuman untuk karyawan..."></textarea>
-        <button onclick="postAnnouncement()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2">
-          <i class="fas fa-paper-plane"></i>
-          Post Pengumuman
-        </button>
-      </div>
-
-      <!-- Panel Upload Data -->
-      <div class="bg-white p-6 rounded-lg shadow hover:shadow-md">
-        <h2 class="text-xl font-semibold mb-4 text-green-600 flex items-center gap-2">
-          <i class="fas fa-database"></i>
-          Update Data Gaji
-        </h2>
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2">Upload File CSV Data Gaji:</label>
-          <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-lg file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100">
-        </div>
-        <button onclick="uploadDatabase()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2">
-          <i class="fas fa-upload"></i>
-          Upload Data
-        </button>
-      </div>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">
+        <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Admin Dashboard
+      </h1>
+      <button onclick="logout()" class="btn-danger">
+        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+      </button>
     </div>
 
-    <div class="mt-6 bg-white p-6 rounded-lg shadow">
-      <h2 class="text-xl font-semibold mb-4 text-purple-600 flex items-center gap-2">
-        <i class="fas fa-info-circle"></i>
-        Petunjuk Penggunaan
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-bullhorn mr-2 text-blue-500"></i>Post Pengumuman
       </h2>
-      <ul class="list-disc pl-5 space-y-2 text-gray-700">
-        <li>Format CSV harus sesuai dengan struktur data gaji karyawan</li>
-        <li>Pastikan file CSV menggunakan format angka yang benar</li>
-        <li>Data yang diupload akan menggantikan data sebelumnya</li>
-      </ul>
+      <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
+      <button onclick="postAnnouncement()" class="btn-primary mt-2">
+        <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
+      </button>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-database mr-2 text-blue-500"></i>Kelola Data Gaji
+      </h2>
+      <div class="bg-blue-50 p-4 rounded-lg mb-4">
+        <p class="text-blue-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
+        <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-lg file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100">
+      </div>
+      <button onclick="uploadDatabase()" class="btn-primary">
+        <i class="fas fa-upload mr-2"></i>Upload Data Gaji
+      </button>
     </div>
   </div>
 
   <script>
-    const { jsPDF } = window.jspdf;
-    let currentData = [];
-
+    // Fungsi untuk post pengumuman
     function postAnnouncement() {
       const text = document.getElementById('announcementText').value;
       if (!text.trim()) {
-        alert('Pengumuman tidak boleh kosong');
+        alert('Silakan isi pengumuman terlebih dahulu');
         return;
       }
 
       fetch('announcement.txt', {
-        method: 'POST',
-        body: text,
-        headers: {
-          'Content-Type': 'text/plain'
-        }
+        method: 'PUT',
+        body: text
       })
       .then(response => {
         if (!response.ok) throw new Error('Gagal memposting pengumuman');
-        return response.text();
-      })
-      .then(() => {
         alert('Pengumuman berhasil diposting!');
-        // Update announcement on login page
         if (window.opener) {
           window.opener.location.reload();
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('Gagal memposting pengumuman');
+        alert('Gagal memposting pengumuman. Silakan coba lagi.');
       });
     }
 
+    // Fungsi untuk upload data gaji
     function uploadDatabase() {
-      const fileInput = document.getElementById('csvUpload');
-      if (!fileInput.files.length) {
-        alert('Pilih file CSV terlebih dahulu');
+      const file = document.getElementById('csvUpload').files[0];
+      if (!file) {
+        alert('Silakan pilih file CSV terlebih dahulu');
         return;
       }
 
-      const file = fileInput.files[0];
       Papa.parse(file, {
         header: true,
         complete: function(results) {
-          currentData = results.data;
-          
-          // Format angka untuk disimpan
-          const formattedData = results.data.map(row => {
-            const newRow = {...row};
-            // Konversi format angka jika diperlukan
-            Object.keys(newRow).forEach(key => {
-              if (!isNaN(newRow[key]) && key !== 'PIN' && key !== 'NIP') {
-                newRow[key] = newRow[key].toString().replace(/\D/g, '');
-              }
-            });
-            return newRow;
-          });
-
-          const csv = Papa.unparse(formattedData);
-          
+          const csv = Papa.unparse(results.data);
           fetch('data.csv', {
-            method: 'POST',
-            body: csv,
-            headers: {
-              'Content-Type': 'text/csv'
-            }
+            method: 'PUT',
+            body: csv
           })
-          .then(response =>
+          .then(response => {
+            if (!response.ok) throw new Error('Gagal mengupdate data gaji');
+            alert('Data gaji berhasil diupdate!');
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Gagal mengupdate data gaji. Silakan coba lagi.');
+          });
+        },
+        error: function(error) {
+          console.error('Error parsing CSV:', error);
+          alert('Format file CSV tidak valid');
+        }
+      });
+    }
+
+    // Fungsi logout
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
