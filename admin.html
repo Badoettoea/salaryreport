@@ -21,7 +21,9 @@
     .number-cell {
       @apply text-right font-mono;
     }
-  </style>
+  </styleම: 1.5;
+  }
+</style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
   <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
@@ -72,21 +74,12 @@
         return;
       }
 
-      fetch('announcement.txt', {
-        method: 'PUT',
-        body: text
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Gagal memposting pengumuman');
-        alert('Pengumuman berhasil diposting!');
-        if (window.opener) {
-          window.opener.location.reload();
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Gagal memposting pengumuman. Silakan coba lagi.');
-      });
+      // Simpan pengumuman ke localStorage untuk pengujian
+      localStorage.setItem('announcement', text);
+      alert('Pengumuman berhasil diposting! (Disimpan di localStorage untuk pengujian)');
+      if (window.opener) {
+        window.opener.location.reload();
+      }
     }
 
     // Fungsi untuk upload data gaji
@@ -100,19 +93,9 @@
       Papa.parse(file, {
         header: true,
         complete: function(results) {
-          const csv = Papa.unparse(results.data);
-          fetch('data.csv', {
-            method: 'PUT',
-            body: csv
-          })
-          .then(response => {
-            if (!response.ok) throw new Error('Gagal mengupdate data gaji');
-            alert('Data gaji berhasil diupdate!');
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('Gagal mengupdate data gaji. Silakan coba lagi.');
-          });
+          // Simpan data CSV ke localStorage untuk pengujian
+          localStorage.setItem('dataCsv', Papa.unparse(results.data));
+          alert('Data gaji berhasil diupdate! (Disimpan di localStorage untuk pengujian)');
         },
         error: function(error) {
           console.error('Error parsing CSV:', error);
