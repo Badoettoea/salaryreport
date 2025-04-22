@@ -1,4 +1,4 @@
-# Salary Report
+# Salary Report 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
 
 Aplikasi web untuk menampilkan informasi potongan gaji karyawan dan dashboard admin untuk mengelola data gaji dan pengumuman.
 
