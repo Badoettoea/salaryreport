@@ -10,16 +10,108 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700 displayswap" rel="stylesheet">
+  <style>
+    /* Base styles for light mode */
+    body.light-mode {
+      background-color: #fef5f5;
+      color: #1e4f5e;
+    }
+    body.light-mode .bg-teal-500 { background-color: #2dd4bf; }
+    body.light-mode .text-white { color: #ffffff; }
+    body.light-mode .bg-teal-50 { background-color: #e6fffa; }
+    body.light-mode .text-teal-800 { color: #1e4f5e; }
+    body.light-mode .text-teal-600 { color: #1e4f5e; }
+    body.light-mode .input-field {
+      background-color: #ffffff;
+      color: #1e4f5e;
+      border-color: #2dd4bf;
+    }
+    body.light-mode .btn-primary { background-color: #2dd4bf; }
+    body.light-mode .btn-danger { background-color: #f87171; }
+
+    /* Dark mode styles */
+    body.dark-mode {
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+    body.dark-mode .bg-teal-500 { background-color: #0f766e; }
+    body.dark-mode .text-white { color: #e2e8f0; }
+    body.dark-mode .bg-teal-50 { background-color: #2d4a48; }
+    body.dark-mode .text-teal-800 { color: #a5f3fc; }
+    body.dark-mode .text-teal-600 { color: #a5f3fc; }
+    body.dark-mode .input-field {
+      background-color: #334155;
+      color: #e2e8f0;
+      border-color: #0f766e;
+    }
+    body.dark-mode .btn-primary { background-color: #0f766e; }
+    body.dark-mode .btn-danger { background-color: #b91c1c; }
+
+    /* Toggle switch styles */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 20px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #2dd4bf;
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+  </style>
 </head>
-<body class="bg-coral-50 min-h-screen p-4 font-poppins">
+<body class="min-h-screen p-4 font-poppins transition-colors duration-300">
   <div class="max-w-5xl mx-auto">
     <div class="flex justify-between items-center mb-6 bg-teal-500 p-4 rounded-xl shadow-lg">
       <h1 class="text-2xl font-bold text-white">
         <i class="fas fa-tachometer-alt mr-2"></i>Admin Dashboard
       </h1>
-      <button onclick="logout()" class="btn-danger ripple">
-        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-      </button>
+      <div class="flex items-center gap-4">
+        <div class="theme-toggle">
+          <label class="switch">
+            <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
+            <span class="slider"></span>
+          </label>
+          <span class="text-white text-sm"><i class="fas fa-adjust mr-1"></i>Dark Mode</span>
+        </div>
+        <button onclick="logout()" class="btn-danger ripple">
+          <i class="fas fa-sign-out-alt mr-2"></i>Logout
+        </button>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -56,13 +148,42 @@
   </div>
 
   <script>
+    // Hard-coded Admin PIN
+    const ADMIN_PIN = '12345678'; // Ganti PIN ini sesuai kebutuhan
+
+    // Theme toggle functionality
+    function toggleTheme() {
+      const body = document.body;
+      const isDark = body.classList.contains('dark-mode');
+      body.classList.toggle('dark-mode', !isDark);
+      body.classList.toggle('light-mode', isDark);
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+
+    // Apply saved theme on page load and validate admin
     document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const body = document.body;
+      body.classList.add(savedTheme + '-mode');
+      document.getElementById('themeSwitch').checked = savedTheme === 'dark';
+
       const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser || currentUser.Role !== 'Admin') {
+      if (!currentUser) {
+        alert('Akses ditolak. Silakan login terlebih dahulu.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Validasi PIN admin secara lokal
+      if (currentUser.PIN !== ADMIN_PIN) {
         alert('Akses ditolak. Hanya Admin yang dapat mengakses dashboard ini.');
         window.location.href = 'index.html';
         return;
       }
+
+      // Set role sebagai Admin untuk konteks dashboard
+      currentUser.Role = 'Admin';
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
       // Ripple effect for buttons
       document.querySelectorAll('.ripple').forEach(button => {
@@ -89,8 +210,10 @@
 
       localStorage.setItem('announcement', text);
       alert('Pengumuman berhasil diposting! (Disimpan di localStorage untuk pengujian)');
+
+      // Notify index.html to update announcement
       if (window.opener) {
-        window.opener.location.reload();
+        window.opener.postMessage({ type: 'updateAnnouncement', text: text }, '*');
       }
     }
 
@@ -111,7 +234,6 @@
         return;
       }
 
-      // Validasi format PAT (harus diawali ghp_ dan panjang 40 karakter)
       const patRegex = /^ghp_[a-zA-Z0-9]{36}$/;
       if (!patRegex.test(githubToken)) {
         alert('Format Personal Access Token tidak valid. Harus diawali "ghp_" dan panjang 40 karakter. Silakan cek kembali.');
@@ -119,7 +241,6 @@
         return;
       }
 
-      // Validasi ukuran file (GitHub API batas 1MB tanpa Git LFS)
       if (file.size > 1_000_000) {
         alert('Ukuran file terlalu besar. Maksimal 1MB. Silakan kecilkan file CSV Anda.');
         resetButton();
@@ -137,7 +258,6 @@
           const csvColumns = Object.keys(results.data[0] || {});
           console.log('Detected CSV Headers:', csvColumns);
 
-          // Validasi header case-insensitive
           const csvColumnsLower = csvColumns.map(col => col.toLowerCase());
           const fixedColumnsLower = fixedColumns.map(col => col.toLowerCase());
           console.log('Comparing Headers (lowercase):', { csvColumnsLower, fixedColumnsLower });
@@ -152,7 +272,6 @@
           try {
             const csvContent = Papa.unparse(results.data);
 
-            // Ambil SHA file data.csv (kalo ada)
             let sha = null;
             let fileExists = false;
             try {
@@ -193,7 +312,6 @@
               return;
             }
 
-            // Encode CSV content ke Base64
             let base64Content;
             try {
               const encoder = new TextEncoder();
@@ -206,7 +324,6 @@
               return;
             }
 
-            // Upload ke GitHub (otomatis jadi data.csv, timpa file lama)
             const payload = {
               message: 'Update data.csv via Admin Dashboard',
               content: base64Content,
@@ -236,6 +353,7 @@
 
             if (response.ok) {
               alert('Data gaji berhasil diupload ke GitHub! File data.csv telah diperbarui.');
+              window.location.reload();
             } else if (response.status === 401) {
               throw new Error('Bad credentials. Pastikan Personal Access Token valid dan punya scope "repo".');
             } else if (response.status === 422) {
