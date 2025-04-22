@@ -37,7 +37,7 @@
       <div class="card col-span-1">
         <h2 class="text-xl font-semibold mb-4 text-blue-600">Informasi Pribadi</h2>
         <div id="personalInfo" class="space-y-2">
-          <img id="profilePhoto" class="profile-img" src="/default.png" alt="Foto Profil">
+          <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
           <!-- Data akan diisi oleh JavaScript -->
         </div>
       </div>
@@ -47,13 +47,6 @@
         <div id="salaryInfo" class="space-y-2">
           <!-- Data akan diisi oleh JavaScript -->
         </div>
-      </div>
-    </div>
-
-    <div class="card mb-6">
-      <h2 class="text-xl font-semibold mb-4 text-blue-600">Pengumuman</h2>
-      <div id="announcement" class="p-4 bg-blue-50 rounded-lg text-blue-800">
-        <i class="fas fa-spinner fa-spin mr-2"></i>Memuat pengumuman...
       </div>
     </div>
   </div>
@@ -87,32 +80,18 @@
         }
       });
 
-      // Load pengumuman
-      fetch('announcement.txt')
-        .then(response => response.text())
-        .then(data => {
-          const announcementEl = document.getElementById('announcement');
-          announcementEl.innerHTML = data 
-            ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
-            : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
-        })
-        .catch(error => {
-          console.error("Error loading announcement:", error);
-          document.getElementById('announcement').innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Gagal memuat pengumuman';
-        });
-
       // Cek foto profil
       const profilePhoto = document.getElementById('profilePhoto');
-      fetch(`/users/${currentUser.PIN}.jpg`)
+      fetch(`./users/${currentUser.PIN}.jpg`)
         .then(response => {
           if (response.ok) {
-            profilePhoto.src = `/users/${currentUser.PIN}.jpg`;
+            profilePhoto.src = `./users/${currentUser.PIN}.jpg`;
           } else {
-            profilePhoto.src = '/default.png'; // Fallback ke default.png
+            profilePhoto.src = 'default.png'; // Pastikan path ini sesuai
           }
         })
         .catch(() => {
-          profilePhoto.src = '/default.png'; // Fallback kalo error
+          profilePhoto.src = 'default.png'; // Fallback jika error
         });
     });
 
@@ -136,7 +115,7 @@
       // Informasi pribadi
       const personalInfoEl = document.getElementById('personalInfo');
       personalInfoEl.innerHTML = `
-        <img id="profilePhoto" class="profile-img" src="/default.png" alt="Foto Profil">
+        <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
         <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
         <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
         <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
