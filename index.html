@@ -319,6 +319,13 @@
               alert('Data CSV kosong atau format tidak valid.');
               return;
             }
+            const requiredColumns = ['PIN', 'Role', 'Nama', 'Unit Kerja'];
+            const csvColumns = Object.keys(results.data[0] || {});
+            const missingColumns = requiredColumns.filter(col => !csvColumns.includes(col));
+            if (missingColumns.length > 0) {
+              alert(`Format CSV tidak valid. Kolom yang hilang: ${missingColumns.join(', ')}`);
+              return;
+            }
             loadAnnouncement();
           },
           error: function(error) {
@@ -366,6 +373,7 @@
             return;
           }
           localStorage.setItem('currentUser', JSON.stringify(user));
+          console.log('Saved currentUser:', user);
           window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
         } else {
           alert('PIN tidak valid. Pastikan PIN sesuai dengan data di data.csv.');
@@ -377,5 +385,5 @@
       loadUserData();
     });
   </script>
-</head>
+</body>
 </html>
