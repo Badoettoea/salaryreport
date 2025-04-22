@@ -148,9 +148,6 @@
   </div>
 
   <script>
-    // Hard-coded Admin PIN
-    const ADMIN_PIN = '12345678'; // Ganti PIN ini sesuai kebutuhan
-
     // Theme toggle functionality
     function toggleTheme() {
       const body = document.body;
@@ -160,7 +157,7 @@
       localStorage.setItem('theme', isDark ? 'light' : 'dark');
     }
 
-    // Apply saved theme on page load and validate admin
+    // Apply saved theme on page load
     document.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('theme') || 'light';
       const body = document.body;
@@ -168,22 +165,11 @@
       document.getElementById('themeSwitch').checked = savedTheme === 'dark';
 
       const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser) {
-        alert('Akses ditolak. Silakan login terlebih dahulu.');
-        window.location.href = 'index.html';
-        return;
-      }
-
-      // Validasi PIN admin secara lokal
-      if (currentUser.PIN !== ADMIN_PIN) {
+      if (!currentUser || currentUser.Role !== 'Admin') {
         alert('Akses ditolak. Hanya Admin yang dapat mengakses dashboard ini.');
         window.location.href = 'index.html';
         return;
       }
-
-      // Set role sebagai Admin untuk konteks dashboard
-      currentUser.Role = 'Admin';
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
       // Ripple effect for buttons
       document.querySelectorAll('.ripple').forEach(button => {
@@ -353,7 +339,7 @@
 
             if (response.ok) {
               alert('Data gaji berhasil diupload ke GitHub! File data.csv telah diperbarui.');
-              window.location.reload();
+              window.location.reload(); // Refresh laman setelah upload berhasil
             } else if (response.status === 401) {
               throw new Error('Bad credentials. Pastikan Personal Access Token valid dan punya scope "repo".');
             } else if (response.status === 422) {
