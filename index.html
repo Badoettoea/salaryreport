@@ -7,42 +7,32 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    * { 
-      transition: all 0.3s ease-in-out;
-    }
-    .input-field {
-      @apply w-full p-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500 bg-white shadow-sm;
-    }
-    .btn-primary {
-      @apply w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white p-5 text-xl rounded-xl hover:from-blue-700 hover:to-blue-600 active:from-blue-800 active:to-blue-700 font-semibold shadow-lg;
-    }
-    body {
-      @apply bg-gradient-to-br from-blue-200 via-blue-100 to-purple-200 flex items-center justify-center min-h-screen p-6;
-    }
-    .login-card {
-      @apply bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg hover:shadow-3xl transition-shadow duration-300;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gradient-to-br from-coral-100 via-teal-100 to-lavender-100 flex items-center justify-center min-h-screen p-6 animate-gradient">
   <div class="login-card">
     <div class="text-center mb-8">
-      <i class="fas fa-wallet text-5xl text-blue-600 mb-3"></i>
+      <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
       <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
       <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
     </div>
     
-    <div id="announcement" class="mb-8 p-5 bg-blue-100 rounded-xl text-blue-900 border-l-4 border-blue-600 text-lg"></div>
+    <div id="announcement" class="mb-8 p-5 bg-teal-100 rounded-xl text-teal-900 border-l-4 border-teal-600 text-lg animate-slide-in flex justify-between items-center">
+      <span id="announcementText"></span>
+      <button onclick="dismissAnnouncement()" class="text-teal-600 hover:text-teal-800">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     
     <div class="space-y-6">
       <div class="relative">
         <input id="pinInput" type="text" placeholder="Masukkan PIN" 
                class="input-field">
-        <i class="fas fa-key absolute right-4 top-4 text-gray-400 text-lg"></i>
+        <i class="fas fa-key absolute right-4 top-4 text-gray-400 text-lg animate-pulse"></i>
       </div>
       
-      <button id="loginButton" class="btn-primary">
+      <button id="loginButton" class="btn-primary ripple">
         <i class="fas fa-sign-in-alt mr-2"></i> Login
       </button>
     </div>
@@ -71,7 +61,7 @@
         fetch('announcement.txt')
           .then(response => response.text())
           .then(data => {
-            const announcementEl = document.getElementById('announcement');
+            const announcementEl = document.getElementById('announcementText');
             announcementEl.innerHTML = data 
               ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
               : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
@@ -79,6 +69,12 @@
           .catch(error => {
             console.error("Error loading announcement:", error);
           });
+      }
+
+      function dismissAnnouncement() {
+        const announcementEl = document.getElementById('announcement');
+        announcementEl.classList.add('animate-slide-out');
+        setTimeout(() => announcementEl.style.display = 'none', 300);
       }
 
       function login() {
@@ -99,6 +95,21 @@
       }
 
       document.getElementById('loginButton').addEventListener('click', login);
+
+      // Ripple effect for button
+      document.querySelectorAll('.ripple').forEach(button => {
+        button.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple-effect');
+          const rect = button.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = `${size}px`;
+          ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+          ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+          button.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 600);
+        });
+      });
 
       loadUserData();
     });
