@@ -230,7 +230,7 @@
         const announcement = localStorage.getItem('announcement') || '';
         const announcementEl = document.getElementById('announcementText');
         announcementEl.textContent = announcement
-          ? `pengumuman; ${announcement}`
+          ? `${announcement}`
           : 'Tidak ada pengumuman';
       }
 
