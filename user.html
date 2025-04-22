@@ -230,17 +230,21 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser || !currentUser.Nama || !currentUser['Unit Kerja']) {
-        alert('Data pengguna tidak lengkap. Silakan login kembali.');
+      console.log('currentUser:', currentUser);
+
+      if (!currentUser) {
+        alert('Sesi tidak valid. Silakan login kembali.');
         window.location.href = 'index.html';
         return;
       }
 
-      // Tampilkan Nama dan Unit Kerja
+      // Tampilkan Nama dan Unit Kerja dengan fallback
       const userInfo = document.getElementById('userInfo');
+      const nama = currentUser.Nama || 'Tidak diketahui';
+      const unitKerja = currentUser['Unit Kerja'] || 'Tidak diketahui';
       userInfo.innerHTML = `
-        <p>Nama: ${currentUser.Nama}</p>
-        <p>Unit Kerja: ${currentUser['Unit Kerja']}</p>
+        <p>Nama: ${nama}</p>
+        <p>Unit Kerja: ${unitKerja}</p>
       `;
 
       // Tampilkan pengumuman
@@ -306,8 +310,8 @@
         doc.setFontSize(16);
         doc.text('Laporan Gaji', 20, 20);
         doc.setFontSize(12);
-        doc.text(`Nama: ${currentUser.Nama}`, 20, 30);
-        doc.text(`Unit Kerja: ${currentUser['Unit Kerja']}`, 20, 40);
+        doc.text(`Nama: ${nama}`, 20, 30);
+        doc.text(`Unit Kerja: ${unitKerja}`, 20, 40);
         
         const tableData = salaryData.map(item => [item.category, `Rp ${item.value.toLocaleString('id-ID')}`]);
         tableData.push(['Gaji Bersih', `Rp ${gajiBersih.toLocaleString('id-ID')}`]);
@@ -321,7 +325,7 @@
           headStyles: { fillColor: [250, 204, 21], textColor: [31, 41, 55] }
         });
         
-        doc.save(`Laporan_Gaji_${currentUser.Nama}.pdf`);
+        doc.save(`Laporan_Gaji_${nama}.pdf`);
       }
 
       // Fungsi logout
