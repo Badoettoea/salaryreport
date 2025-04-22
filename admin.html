@@ -22,7 +22,7 @@
       @apply text-right font-mono;
     }
     .loading::after {
-      content: ' \f110'; /* Font Awesome spinner */
+      content: ' \f110';
       @apply inline-block animate-spin ml-2;
     }
   </style>
@@ -68,7 +68,15 @@
   </div>
 
   <script>
-    // Fungsi untuk post pengumuman
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (!currentUser || currentUser.Role !== 'Admin') {
+        alert('Akses ditolak. Hanya Admin yang dapat mengakses dashboard ini.');
+        window.location.href = 'index.html';
+        return;
+      }
+    });
+
     function postAnnouncement() {
       const text = document.getElementById('announcementText').value;
       if (!text.trim()) {
@@ -76,7 +84,6 @@
         return;
       }
 
-      // Simpan pengumuman ke localStorage untuk pengujian
       localStorage.setItem('announcement', text);
       alert('Pengumuman berhasil diposting! (Disimpan di localStorage untuk pengujian)');
       if (window.opener) {
@@ -84,7 +91,6 @@
       }
     }
 
-    // Fungsi untuk upload data gaji
     function uploadDatabase() {
       const file = document.getElementById('csvUpload').files[0];
       const uploadButton = document.getElementById('uploadButton');
@@ -94,7 +100,6 @@
         return;
       }
 
-      // Tambahkan indikator loading
       uploadButton.disabled = true;
       uploadButton.classList.add('loading');
       uploadButton.innerHTML = '<i class="fas fa-upload mr-2"></i>Uploading...';
@@ -102,8 +107,7 @@
       Papa.parse(file, {
         header: true,
         complete: async function(results) {
-          // Validasi struktur CSV
-          const requiredColumns = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'];
+          const requiredColumns = ['PIN', 'Role', 'Nama', 'NIP', 'L/P', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'];
           const csvColumns = Object.keys(results.data[0] || {});
           const missingColumns = requiredColumns.filter(col => !csvColumns.includes(col));
 
@@ -113,10 +117,9 @@
             return;
           }
 
-          // Kirim data ke server
           try {
             const csvContent = Papa.unparse(results.data);
-            console.log('Mengirim data ke server:', csvContent); // Debugging
+            console.log('Mengirim data ke server:', csvContent);
             const response = await fetch('http://localhost:3000/data.csv', {
               method: 'PUT',
               headers: { 'Content-Type': 'text/plain' },
@@ -124,7 +127,7 @@
             });
 
             const responseText = await response.text();
-            console.log('Response dari server:', responseText); // Debugging
+            console.log('Response dari server:', responseText);
 
             if (response.ok) {
               alert('Data gaji berhasil diupdate!');
@@ -152,7 +155,6 @@
       }
     }
 
-    // Fungsi logout
     function logout() {
       localStorage.removeItem('currentUser');
       window.location.href = 'index.html';
