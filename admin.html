@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .input-field {
+      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+    }
+    .btn-primary {
+      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 active:bg-blue-700;
+    }
+    .btn-danger {
+      @apply bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 active:bg-red-700;
+    }
+    .number-cell {
+      @apply text-right font-mono;
+    }
+  </styleම: 1.5;
+  }
+</style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">
+        <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Admin Dashboard
+      </h1>
+      <button onclick="logout()" class="btn-danger">
+        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+      </button>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-bullhorn mr-2 text-blue-500"></i>Post Pengumuman
+      </h2>
+      <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
+      <button onclick="postAnnouncement()" class="btn-primary mt-2">
+        <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
+      </button>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-700">
+        <i class="fas fa-database mr-2 text-blue-500"></i>Kelola Data Gaji
+      </h2>
+      <div class="bg-blue-50 p-4 rounded-lg mb-4">
+        <p class="text-blue-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
+        <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-lg file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100">
+      </div>
+      <button onclick="uploadDatabase()" class="btn-primary">
+        <i class="fas fa-upload mr-2"></i>Upload Data Gaji
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Fungsi untuk post pengumuman
+    function postAnnouncement() {
+      const text = document.getElementById('announcementText').value;
+      if (!text.trim()) {
+        alert('Silakan isi pengumuman terlebih dahulu');
+        return;
+      }
+
+      // Simpan pengumuman ke localStorage untuk pengujian
+      localStorage.setItem('announcement', text);
+      alert('Pengumuman berhasil diposting! (Disimpan di localStorage untuk pengujian)');
+      if (window.opener) {
+        window.opener.location.reload();
+      }
+    }
+
+    // Fungsi untuk upload data gaji
+    function uploadDatabase() {
+      const file = document.getElementById('csvUpload').files[0];
+      if (!file) {
+        alert('Silakan pilih file CSV terlebih dahulu');
+        return;
+      }
+
+      Papa.parse(file, {
+        header: true,
+        complete: function(results) {
+          // Simpan data CSV ke localStorage untuk pengujian
+          localStorage.setItem('dataCsv', Papa.unparse(results.data));
+          alert('Data gaji berhasil diupdate! (Disimpan di localStorage untuk pengujian)');
+        },
+        error: function(error) {
+          console.error('Error parsing CSV:', error);
+          alert('Format file CSV tidak valid');
+        }
+      });
+    }
+
+    // Fungsi logout
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
