@@ -8,62 +8,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    .input-field {
-      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
-    }
-    .btn-primary {
-      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 active:bg-blue-700;
-    }
-    .btn-danger {
-      @apply bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 active:bg-red-700;
-    }
-    .number-cell {
-      @apply text-right font-mono;
-    }
-    .loading::after {
-      content: ' \f110';
-      @apply inline-block animate-spin ml-2;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">
-        <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Admin Dashboard
+<body class="bg-coral-50 min-h-screen p-4 font-poppins">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-6 bg-teal-500 p-4 rounded-xl shadow-lg">
+      <h1 class="text-2xl font-bold text-white">
+        <i class="fas fa-tachometer-alt mr-2"></i>Admin Dashboard
       </h1>
-      <button onclick="logout()" class="btn-danger">
+      <button onclick="logout()" class="btn-danger ripple">
         <i class="fas fa-sign-out-alt mr-2"></i>Logout
       </button>
     </div>
 
-    <div class="mb-8">
-      <h2 class="text-xl font-semibold mb-3 text-gray-700">
-        <i class="fas fa-bullhorn mr-2 text-blue-500"></i>Post Pengumuman
-      </h2>
-      <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
-      <button onclick="postAnnouncement()" class="btn-primary mt-2">
-        <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
-      </button>
-    </div>
-
-    <div class="mb-8">
-      <h2 class="text-xl font-semibold mb-3 text-gray-700">
-        <i class="fas fa-database mr-2 text-blue-500"></i>Kelola Data Gaji
-      </h2>
-      <div class="bg-blue-50 p-4 rounded-lg mb-4">
-        <p class="text-blue-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
-        <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
-          file:mr-4 file:py-2 file:px-4
-          file:rounded-lg file:border-0
-          file:text-sm file:font-semibold
-          file:bg-blue-50 file:text-blue-700
-          hover:file:bg-blue-100">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-3 text-teal-600">
+          <i class="fas fa-bullhorn mr-2"></i>Post Pengumuman
+        </h2>
+        <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
+        <button onclick="postAnnouncement()" class="btn-primary mt-2 ripple">
+          <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
+        </button>
       </div>
-      <button id="uploadButton" onclick="uploadDatabase()" class="btn-primary">
-        <i class="fas fa-upload mr-2"></i>Upload Data Gaji
-      </button>
+
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-3 text-teal-600">
+          <i class="fas fa-database mr-2"></i>Kelola Data Gaji
+        </h2>
+        <div class="bg-teal-50 p-4 rounded-lg mb-4">
+          <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
+          <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-lg file:border-0
+            file:text-sm file:font-semibold
+            file:bg-teal-100 file:text-teal-700
+            hover:file:bg-teal-200">
+        </div>
+        <button id="uploadButton" onclick="uploadDatabase()" class="btn-primary ripple">
+          <i class="fas fa-upload mr-2"></i>Upload Data Gaji
+        </button>
+      </div>
     </div>
   </div>
 
@@ -75,6 +61,21 @@
         window.location.href = 'index.html';
         return;
       }
+
+      // Ripple effect for buttons
+      document.querySelectorAll('.ripple').forEach(button => {
+        button.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple-effect');
+          const rect = button.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = `${size}px`;
+          ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+          ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+          button.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 600);
+        });
+      });
     });
 
     function postAnnouncement() {
