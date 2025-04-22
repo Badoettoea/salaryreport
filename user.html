@@ -9,33 +9,36 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .card {
-      @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow;
+      @apply bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-blue-100 dark:border-blue-600;
     }
     .number-cell {
-      @apply text-right font-mono text-gray-900 dark:text-gray-100; /* Warna teks lebih kontras */
+      @apply text-right font-mono text-gray-900 dark:text-white font-medium;
     }
     .label-text {
-      @apply font-semibold text-gray-900 dark:text-gray-100; /* Warna teks judul lebih kontras */
+      @apply font-bold text-gray-900 dark:text-white text-lg;
     }
     .btn-primary {
-      @apply bg-blue-500 dark:bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700;
+      @apply bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 font-semibold text-lg;
     }
     .btn-toggle {
       @apply text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700;
     }
     .profile-img {
-      @apply w-24 h-24 rounded-full object-cover mb-4 border-2 border-blue-200 dark:border-blue-500;
+      @apply w-28 h-28 rounded-full object-cover mb-4 border-4 border-blue-300 dark:border-blue-500 shadow-md;
     }
     body {
-      @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300;
+      @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white transition-colors duration-300;
+    }
+    h2 {
+      @apply text-2xl font-bold mb-4 text-blue-700 dark:text-blue-300;
     }
   </style>
 </head>
 <body>
   <div class="max-w-4xl mx-auto">
     <div class="flex justify-between items-center mb-6 pt-4">
-      <h1 class="text-2xl font-bold">
-        <i class="fas fa-user-circle mr-2 text-blue-500 dark:text-blue-400"></i>Profil Karyawan
+      <h1 class="text-3xl font-bold">
+        <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400"></i>Profil Karyawan
       </h1>
       <div class="flex space-x-2">
         <button onclick="toggleDarkMode()" class="btn-toggle">
@@ -52,14 +55,12 @@
         <h2 class="text-xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Informasi Pribadi</h2>
         <div id="personalInfo" class="space-y-2">
           <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
-          <!-- Data akan diisi oleh JavaScript -->
         </div>
       </div>
 
       <div class="card md:col-span-2">
         <h2 class="text-xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Detail Gaji</h2>
         <div id="salaryInfo" class="space-y-2">
-          <!-- Data akan diisi oleh JavaScript -->
         </div>
       </div>
     </div>
@@ -74,10 +75,8 @@
         return;
       }
 
-      // Inisialisasi dark mode
       initializeDarkMode();
 
-      // Load data gaji
       Papa.parse('data.csv', {
         download: true,
         header: true,
@@ -85,6 +84,7 @@
           const userData = results.data.find(d => d.PIN === currentUser.PIN);
           if (userData) {
             displayUserInfo(currentUser, userData);
+            updateProfilePhoto(userData);
           } else {
             alert('Data gaji tidak ditemukan untuk pengguna ini');
             window.location.href = 'index.html';
@@ -96,28 +96,24 @@
           window.location.href = 'index.html';
         }
       });
-
-      // Cek foto profil
-      const profilePhoto = document.getElementById('profilePhoto');
-      fetch(`./users/${currentUser.PIN}.jpg`)
-        .then(response => {
-          if (response.ok) {
-            profilePhoto.src = `./users/${currentUser.PIN}.jpg`;
-          } else {
-            profilePhoto.src = 'default.png';
-          }
-        })
-        .catch(() => {
-          profilePhoto.src = 'default.png';
-        });
     });
 
-    // Format angka ke format keuangan
+    function updateProfilePhoto(userData) {
+      const profilePhoto = document.getElementById('profilePhoto');
+      const gender = userData['L/P'];
+      if (gender === '1') {
+        profilePhoto.src = 'male.png';
+      } else if (gender === '2') {
+        profilePhoto.src = 'female.png';
+      } else {
+        profilePhoto.src = 'default.png';
+      }
+    }
+
     function formatCurrency(num) {
       return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(num);
     }
 
-    // Hitung Gaji Bersih dan Total Potongan
     function calculateSalaryDetails(salaryData) {
       const grossSalary = parseFloat(salaryData['Gaji Kotor'] || 0);
       const deductions = [
@@ -129,9 +125,7 @@
       return { netSalary, totalDeductions };
     }
 
-    // Tampilkan informasi pengguna
     function displayUserInfo(user, salaryData) {
-      // Informasi pribadi
       const personalInfoEl = document.getElementById('personalInfo');
       personalInfoEl.innerHTML = `
         <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
@@ -141,66 +135,64 @@
         <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
       `;
 
-      // Hitung Gaji Bersih dan Total Potongan
       const { netSalary, totalDeductions } = calculateSalaryDetails(salaryData);
 
-      // Informasi gaji
       const salaryInfoEl = document.getElementById('salaryInfo');
       salaryInfoEl.innerHTML = `
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
+          <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-lg shadow-sm">
             <p class="label-text">Gaji Kotor</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
           </div>
-          <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
+          <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-lg shadow-sm">
             <p class="label-text">Total Potongan</p>
             <p class="number-cell">${formatCurrency(totalDeductions)}</p>
           </div>
-          <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
+          <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-lg shadow-sm">
             <p class="label-text">Gaji Bersih</p>
             <p class="number-cell">${formatCurrency(netSalary)}</p>
           </div>
         </div>
         
-        <h3 class="font-semibold mt-4">Detail Potongan:</h3>
+        <h3 class="font-bold text-lg mt-4 text-gray-900 dark:text-white">Detail Potongan:</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">BPD</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">DPLK</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">KPRI</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">PGRI</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">HPPT</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Dansos</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Bazda</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Darma Wanita</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Korpri</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
             <p class="label-text">Halbi</p>
             <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
           </div>
@@ -208,13 +200,11 @@
       `;
     }
 
-    // Fungsi logout
     function logout() {
       localStorage.removeItem('currentUser');
       window.location.href = 'index.html';
     }
 
-    // Fungsi dark mode
     function initializeDarkMode() {
       const isDarkMode = localStorage.getItem('darkMode') === 'true';
       const darkModeIcon = document.getElementById('darkModeIcon');
