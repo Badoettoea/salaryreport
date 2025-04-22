@@ -1,199 +1,250 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil Karyawan</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="bg-lavender-50 font-poppins">
-  <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6 pt-4 bg-teal-500 p-4 rounded-xl shadow-lg">
-      <h1 class="text-3xl font-bold text-white">
-        <img src="logo.png" alt="Logo" class="inline-block w-8 h-8 mr-2">Profil Karyawan
-      </h1>
-      <button onclick="logout()" class="btn-primary ripple">
-        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-      </button>
-    </div>
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="card col-span-1">
-        <h2 class="text-xl font-semibold mb-4 text-teal-600">Informasi Pribadi</h2>
-        <div id="personalInfo" class="space-y-2">
-          <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
-        </div>
-      </div>
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
 
-      <div class="card md:col-span-2">
-        <h2 class="text-xl font-semibold mb-4 text-teal-600">Detail Gaji</h2>
-        <div id="salaryInfo" class="space-y-2">
-        </div>
-      </div>
-    </div>
-  </div>
+/* Custom Colors */
+.bg-coral-50 { background-color: #FFF5F5; }
+.bg-coral-100 { background-color: #FFE4E4; }
+.bg-coral-700 { background-color: #F56565; }
+.bg-teal-50 { background-color: #E6FFFA; }
+.bg-teal-100 { background-color: #B2F5EA; }
+.bg-teal-500 { background-color: #4FD1C5; }
+.bg-teal-700 { background-color: #2C7A7B; }
+.bg-lavender-50 { background-color: #F5F3FF; }
+.bg-lavender-100 { background-color: #E9D8FD; }
+.bg-yellow-100 { background-color: #FEF9C3; }
+.bg-yellow-700 { background-color: #D97706; }
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (!currentUser) {
-        alert('Silakan login terlebih dahulu');
-        window.location.href = 'index.html';
-        return;
-      }
+.text-coral-600 { color: #F56565; }
+.text-teal-600 { color: #4FD1C5; }
 
-      Papa.parse('data.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const userData = results.data.find(d => d.PIN === currentUser.PIN);
-          if (userData) {
-            displayUserInfo(currentUser, userData);
-            updateProfilePhoto(userData);
-          } else {
-            alert('Data gaji tidak ditemukan untuk pengguna ini');
-            window.location.href = 'index.html';
-          }
-        },
-        error: function(error) {
-          console.error("Error loading salary data:", error);
-          alert('Gagal memuat data gaji. Silakan coba lagi.');
-          window.location.href = 'index.html';
-        }
-      });
+/* Card Styling */
+.card {
+  background: linear-gradient(145deg, #ffffff, #e6e6e6);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.7);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
 
-      // Ripple effect for buttons
-      document.querySelectorAll('.ripple').forEach(button => {
-        button.addEventListener('click', function(e) {
-          const ripple = document.createElement('span');
-          ripple.classList.add('ripple-effect');
-          const rect = button.getBoundingClientRect();
-          const size = Math.max(rect.width, rect.height);
-          ripple.style.width = ripple.style.height = `${size}px`;
-          ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-          ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
-          button.appendChild(ripple);
-          setTimeout(() => ripple.remove(), 600);
-        });
-      });
-    });
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.15), -12px -12px 20px rgba(255, 255, 255, 0.9);
+}
 
-    function updateProfilePhoto(userData) {
-      const profilePhoto = document.getElementById('profilePhoto');
-      const gender = userData['L/P'];
-      if (gender === '1') {
-        profilePhoto.src = 'male.png';
-      } else if (gender === '2') {
-        profilePhoto.src = 'female.png';
-      } else {
-        profilePhoto.src = 'default.png';
-      }
-    }
+/* Login Card */
+.login-card {
+  background: linear-gradient(145deg, #ffffff, #e6e6e6);
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.7);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
 
-    function formatCurrency(num) {
-      const formatter = new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-      return formatter.format(num).replace(',', '-');
-    }
+.login-card:hover {
+  transform: scale(1.02);
+  box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.15), -12px -12px 20px rgba(255, 255, 255, 0.9);
+}
 
-    function calculateSalaryDetails(salaryData) {
-      const grossSalary = parseFloat(salaryData['Gaji Kotor'] || 0);
-      const deductions = [
-        'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos',
-        'Bazda', 'Darma Wanita', 'Korpri', 'Halbi'
-      ];
-      const totalDeductions = deductions.reduce((sum, key) => sum + parseFloat(salaryData[key] || 0), 0);
-      const netSalary = grossSalary - totalDeductions;
-      return { netSalary, totalDeductions };
-    }
+/* Input Field */
+.input-field {
+  width: 100%;
+  padding: 2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  font-size: 2.25rem;
+  transition: all 0.3s;
+}
 
-    function displayUserInfo(user, salaryData) {
-      const personalInfoEl = document.getElementById('personalInfo');
-      personalInfoEl.innerHTML = `
-        <img id="profilePhoto" class="profile-img" src="default.png" alt="Foto Profil">
-        <p><strong>Nama:</strong> ${user.Nama || '-'}</p>
-        <p><strong>NIP:</strong> ${user.NIP || '-'}</p>
-        <p><strong>Unit Kerja:</strong> ${user['Unit Kerja'] || '-'}</p>
-        <p><strong>PIN:</strong> ${user.PIN || '-'}</p>
-      `;
+.input-field:focus {
+  border-color: #4FD1C5;
+  box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.2);
+  background: #ffffff;
+}
 
-      const { netSalary, totalDeductions } = calculateSalaryDetails(salaryData);
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(to right, #F56565, #4FD1C5);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
 
-      const salaryInfoEl = document.getElementById('salaryInfo');
-      salaryInfoEl.innerHTML = `
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Gaji Kotor</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Gaji Kotor'] || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Total Potongan</p>
-            <p class="number-cell">${formatCurrency(totalDeductions)}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Gaji Bersih</p>
-            <p class="number-cell">${formatCurrency(netSalary)}</p>
-          </div>
-        </div>
-        
-        <h3 class="font-bold text-lg mt-4 text-teal-600">Detail Potongan:</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">BPD</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Potongan BPD'] || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">DPLK</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.DPLK || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">KPRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.KPRI || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">PGRI</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.PGRI || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">HPPT</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.HPPT || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Dansos</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Dansos || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Bazda</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Bazda || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Darma Wanita</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData['Darma Wanita'] || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Korpri</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Korpri || 0))}</p>
-          </div>
-          <div class="bg-teal-700 p-4 rounded-lg shadow-sm">
-            <p class="label-text">Halbi</p>
-            <p class="number-cell">${formatCurrency(parseFloat(salaryData.Halbi || 0))}</p>
-          </div>
-        </div>
-      `;
-    }
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
 
-    function logout() {
-      localStorage.removeItem('currentUser');
-      window.location.href = 'index.html';
-    }
-  </script>
-</body>
-</html>
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+.btn-danger {
+  background: linear-gradient(to right, #F56565, #E53E3E);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-danger:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Ripple Effect */
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+/* Profile Image */
+.profile-img {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #4FD1C5;
+  transition: transform 0.3s;
+}
+
+.profile-img:hover {
+  transform: scale(1.1);
+}
+
+/* Logo Styling */
+.logo-img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* Number Cell */
+.number-cell {
+  text-align: right;
+  font-family: 'Roboto Mono', monospace;
+  color: #ffffff;
+}
+
+/* Label Text */
+.label-text {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Loading Animation */
+.loading::after {
+  content: '\f110';
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+}
+
+/* Animations */
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 15s ease infinite;
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .login-card {
+    padding: 1.5rem;
+  }
+  .card {
+    padding: 1rem;
+  }
+  .btn-primary, .btn-danger {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  .input-field {
+    padding: 1rem;
+    font-size: 1.125rem;
+  }
+  .logo-img {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
