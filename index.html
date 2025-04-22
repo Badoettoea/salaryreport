@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Sistem Manajemen Keuangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="papaparse.min.js"></script> <!-- Load lokal -->
+  <script src="papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Base styles for light mode */
     body.light-mode {
       background: linear-gradient(to bottom right, #ffddd2, #b3e5fc, #e1bee7);
       color: #1e4f5e;
@@ -29,7 +28,6 @@
     body.light-mode .btn-primary { background-color: #2dd4bf; }
     body.light-mode .text-gray-400 { color: #6b7280; }
 
-    /* Dark mode styles */
     body.dark-mode {
       background: linear-gradient(to bottom right, #1e293b, #334155, #4b5e6a);
       color: #e2e8f0;
@@ -48,7 +46,6 @@
     body.dark-mode .btn-primary { background-color: #0f766e; }
     body.dark-mode .text-gray-400 { color: #94a3b8; }
 
-    /* Toggle switch styles */
     .theme-toggle {
       display: flex;
       align-items: center;
@@ -94,7 +91,24 @@
       transform: translateX(20px);
     }
 
-    /* Animations */
+    .header-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .header-logo {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      z-index: 0;
+      opacity: 0.3; /* Biar logo agak samar di belakang teks */
+    }
+    .header-text {
+      position: relative;
+      z-index: 1;
+    }
+
     .animate-gradient {
       animation: gradient 15s ease infinite;
       background-size: 400% 400%;
@@ -131,7 +145,6 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-6 animate-gradient">
   <div class="login-card relative">
-    <!-- Theme toggle button -->
     <div class="absolute top-4 right-4 theme-toggle">
       <label class="switch">
         <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
@@ -141,9 +154,14 @@
     </div>
 
     <div class="text-center mb-8">
-      <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
-      <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
-      <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
+      <div class="header-container">
+        <img src="logo.png" alt="Logo" class="header-logo">
+        <div class="header-text">
+          <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
+          <h1 class="text-4xl font-bold text-gray-800">Manajemen Keuangan</h1>
+          <p class="text-gray-600 mt-3 text-lg">Masukkan PIN untuk melanjutkan</p>
+        </div>
+      </div>
     </div>
 
     <div id="announcement" class="mb-8 p-5 bg-teal-100 rounded-xl text-teal-900 border-l-4 border-teal-600 text-lg animate-slide-in">
@@ -163,10 +181,8 @@
   </div>
 
   <script>
-    // Hard-coded Admin PIN
     const ADMIN_PIN = '12345678';
 
-    // Theme toggle functionality
     function toggleTheme() {
       const body = document.body;
       const isDark = body.classList.contains('dark-mode');
@@ -176,7 +192,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Apply saved theme on page load
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.body.classList.add(savedTheme + '-mode');
       document.getElementById('themeSwitch').checked = savedTheme === 'dark';
@@ -213,14 +228,12 @@
           return;
         }
 
-        // Cek PIN admin dulu
         if (pin === ADMIN_PIN) {
           localStorage.setItem('currentUser', JSON.stringify({ PIN: pin, Role: 'Admin' }));
           window.location.href = 'admin.html';
           return;
         }
 
-        // Kalo bukan admin, cek ke data.csv
         const user = userData.find(d => d.PIN === pin);
         if (user) {
           localStorage.setItem('currentUser', JSON.stringify(user));
@@ -230,7 +243,6 @@
         }
       }
 
-      // Listen for announcement updates from admin.html
       window.addEventListener('message', (event) => {
         if (event.data.type === 'updateAnnouncement') {
           const newAnnouncement = event.data.text;
@@ -241,7 +253,6 @@
 
       document.getElementById('loginButton').addEventListener('click', login);
 
-      // Ripple effect for button
       document.querySelectorAll('.ripple').forEach(button => {
         button.addEventListener('click', function(e) {
           const ripple = document.createElement('span');
@@ -256,7 +267,6 @@
         });
       });
 
-      // Cek PapaParse
       if (typeof Papa === 'undefined') {
         console.error('PapaParse gagal load dari file lokal.');
         alert('Library parsing CSV gagal load. Pastikan file papaparse.min.js ada di repo.');
