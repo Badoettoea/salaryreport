@@ -37,7 +37,7 @@
 
     .login-card {
       position: absolute;
-      bottom: 25%; /* Posisi 25% dari bawah layar */
+      bottom: 25%;
       width: 100%;
       max-width: 400px;
       padding: 0.5rem;
@@ -190,7 +190,23 @@
         }
       }
 
-      function login() {
+      async function logToSheets(pin, role) {
+        try {
+          const response = await fetch('https://script.google.com/macros/s/AKfycbwFMQkAfHqfqvYtJZhcuSLMrw1259ySPWF5jUYts6zCxmJLQ4S22pKbJBvsllfwqvrS/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin, role })
+          });
+          if (!response.ok) {
+            throw new Error(`Gagal mengirim log: ${response.status}`);
+          }
+          console.log('Log disimpan ke Sheets:', await response.text());
+        } catch (error) {
+          console.error('Error logging:', error);
+        }
+      }
+
+      async function login() {
         const pin = document.getElementById('pinInput').value.trim();
         if (!pin) {
           alert('Silakan masukkan PIN terlebih dahulu');
@@ -199,6 +215,7 @@
 
         if (pin === ADMIN_PIN) {
           localStorage.setItem('currentUser', JSON.stringify({ PIN: pin, Role: 'Admin' }));
+          await logToSheets(pin, 'Admin'); // Log sebelum redirect
           window.location.href = 'admin.html';
           return;
         }
@@ -206,22 +223,11 @@
         const user = userData.find(d => d.PIN === pin);
         if (user) {
           localStorage.setItem('currentUser', JSON.stringify(user));
+          await logToSheets(pin, user.Role); // Log sebelum redirect
           window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
         } else {
           alert('PIN tidak valid');
         }
-          async function logToSheets(pin, role) {
-    try {
-      await fetch('https://script.google.com/macros/s/AKfycbzJmQ78syhEmRKpAQ0rGIDLCYHALhzJsonswv9Bc4v8EpNpHPuXYFH9dI4h7TD1FXG-/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin, role })
-      });
-      console.log('Log disimpan ke Sheets.');
-    } catch (error) {
-      console.error('Error logging:', error);
-    }
-  }
       }
 
       document.getElementById('loginButton').addEventListener('click', login);
