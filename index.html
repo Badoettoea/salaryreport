@@ -192,17 +192,22 @@
 
       async function logToSheets(pin, role) {
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout 5 detik
           const response = await fetch('https://script.google.com/macros/s/AKfycbwFMQkAfHqfqvYtJZhcuSLMrw1259ySPWF5jUYts6zCxmJLQ4S22pKbJBvsllfwqvrS/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pin, role })
+            body: JSON.stringify({ pin, role }),
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
           if (!response.ok) {
-            throw new Error(`Gagal mengirim log: ${response.status}`);
+            throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
           }
-          console.log('Log disimpan ke Sheets:', await response.text());
+          const result = await response.text();
+          console.log('Log disimpan ke Sheets:', result);
         } catch (error) {
-          console.error('Error logging:', error);
+          console.error('Gagal menyimpan log ke Sheets:', error.message);
         }
       }
 
@@ -215,7 +220,7 @@
 
         if (pin === ADMIN_PIN) {
           localStorage.setItem('currentUser', JSON.stringify({ PIN: pin, Role: 'Admin' }));
-          await logToSheets(pin, 'Admin'); // Log sebelum redirect
+          await logToSheets(pin, 'Admin');
           window.location.href = 'admin.html';
           return;
         }
@@ -223,7 +228,7 @@
         const user = userData.find(d => d.PIN === pin);
         if (user) {
           localStorage.setItem('currentUser', JSON.stringify(user));
-          await logToSheets(pin, user.Role); // Log sebelum redirect
+          await logToSheets(pin, user.Role);
           window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
         } else {
           alert('PIN tidak valid');
