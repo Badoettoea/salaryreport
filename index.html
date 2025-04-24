@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Login - Sistem Manajemen Keuangan</title>
+  <title>Login - Sistem Info Gaji</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,6 +20,9 @@
       background-repeat: no-repeat;
       color: #1e4f5e;
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .text-gray-800 { color: #1e4f5e; }
     .text-gray-600 { color: #4b5e6a; }
@@ -40,10 +43,11 @@
       position: relative;
       width: 100%;
       max-width: 400px;
-      padding: 1.5rem;
+      padding: 0.5rem;
       box-sizing: border-box;
       background: transparent;
-      border-radius: 1.5rem;
+      border: none;
+      box-shadow: none;
     }
 
     .announcement-container {
@@ -55,6 +59,7 @@
       overflow: hidden;
       width: 100%;
       min-height: 2rem;
+      margin-top: 2rem;
     }
     .announcement-text {
       display: inline-block;
@@ -73,17 +78,11 @@
 
     @media (max-width: 640px) {
       .login-card {
-        padding: 1rem;
+        padding: 0.5rem;
         max-width: 100%;
       }
       .announcement-text {
         font-size: 1.2rem;
-      }
-      .text-4xl {
-        font-size: 2rem;
-      }
-      .text-lg {
-        font-size: 1rem;
       }
       .text-5xl {
         font-size: 3rem;
@@ -115,7 +114,7 @@
     }
   </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
+<body>
   <div class="login-card">
     <div class="text-center mb-8">
       <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
@@ -147,7 +146,7 @@
       let userData = [];
 
       function loadUserData() {
-        Papa.parse('https://raw.githubusercontent.com/badoettoea/salaryreport/main/data.csv', {
+        Papa.parse('https://raw.githubusercontent.com/Badoettoea/salaryreport/main/data.csv', {
           download: true,
           header: true,
           complete: function(results) {
@@ -165,7 +164,7 @@
       async function loadAnnouncement() {
         const announcementEl = document.getElementById('announcementText');
         try {
-          const response = await fetch('https://raw.githubusercontent.com/badoettoea/salaryreport/main/announcement.txt', {
+          const response = await fetch('https://raw.githubusercontent.com/Badoettoea/salaryreport/main/announcement.txt', {
             cache: 'no-store'
           });
           if (response.ok) {
