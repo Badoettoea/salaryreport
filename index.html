@@ -20,9 +20,6 @@
       background-repeat: no-repeat;
       color: #1e4f5e;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .text-gray-800 { color: #1e4f5e; }
     .text-gray-600 { color: #4b5e6a; }
@@ -37,10 +34,10 @@
     }
     .btn-primary { background-color: #2dd4bf; }
     .text-gray-400 { color: #6b7280; }
-    .announcement-text { color: #1e4f5e; }
 
     .login-card {
-      position: relative;
+      position: absolute;
+      bottom: 25%; /* Posisi 25% dari bawah layar */
       width: 100%;
       max-width: 400px;
       padding: 0.5rem;
@@ -48,29 +45,29 @@
       background: transparent;
       border: none;
       box-shadow: none;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     .announcement-container {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      margin: 0 auto;
+      position: relative;
       width: 100%;
-      max-width: 400px;
       min-height: 2rem;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.5rem;
+      margin-top: 1rem;
     }
     .announcement-text {
       display: inline-block;
       white-space: nowrap;
-      animation: marquee 15s linear infinite; /* Diperlambat dari 10s ke 15s */
+      animation: marquee 20s linear infinite; /* Diperlambat jadi 20s */
       will-change: transform;
-      font-size: 1.5rem;
+      font-size: 2rem; /* Font lebih besar */
+      color: #ffffff; /* Warna putih */
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Shadow biar readable */
     }
     .announcement-text:hover {
       animation-play-state: paused;
@@ -81,8 +78,8 @@
     }
 
     #announcement {
-      padding: 0.5rem; /* Kurangi padding biar mepet bawah */
-      background: rgba(230, 255, 250, 0.8); /* Semi-transparan biar teks kelihatan */
+      padding: 0; /* Hapus padding */
+      background: transparent; /* Tanpa background */
       border: none;
       text-align: center;
     }
@@ -90,10 +87,11 @@
     @media (max-width: 640px) {
       .login-card {
         padding: 0.5rem;
-        max-width: 100%;
+        max-width: 90%;
+        bottom: 20%; /* Sedikit lebih atas di layar kecil */
       }
       .announcement-text {
-        font-size: 1.2rem;
+        font-size: 1.5rem; /* Font lebih kecil di hape */
       }
       .text-5xl {
         font-size: 3rem;
@@ -130,11 +128,11 @@
 </head>
 <body>
   <div class="login-card">
-    <div class="text-center mb-8">
+    <div class="text-center mb-4">
       <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
     </div>
 
-    <div class="space-y-6 mb-8">
+    <div class="space-y-4">
       <div class="relative">
         <input id="pinInput" type="text" placeholder="Masukkan PIN" class="input-field">
         <i class="fas fa-key absolute right-4 top-4 text-gray-400 text-lg animate-pulse"></i>
@@ -205,7 +203,7 @@
           return;
         }
 
-        localStorage.setItem('githubToken', githubToken); // Simpan token biar ga minta terus
+        localStorage.setItem('githubToken', githubToken);
 
         const logEntry = `${new Date().toISOString()} - PIN: ${pin}, Role: ${role}\n`;
         let sha = null;
