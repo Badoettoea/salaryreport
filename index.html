@@ -210,6 +210,18 @@
         } else {
           alert('PIN tidak valid');
         }
+          async function logToSheets(pin, role) {
+    try {
+      await fetch('https://script.google.com/macros/s/AKfycbzJmQ78syhEmRKpAQ0rGIDLCYHALhzJsonswv9Bc4v8EpNpHPuXYFH9dI4h7TD1FXG-/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin, role })
+      });
+      console.log('Log disimpan ke Sheets.');
+    } catch (error) {
+      console.error('Error logging:', error);
+    }
+  }
       }
 
       document.getElementById('loginButton').addEventListener('click', login);
