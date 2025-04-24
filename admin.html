@@ -11,93 +11,27 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700 displayswap" rel="stylesheet">
   <style>
-    body.light-mode {
+    body {
       background-color: #fef5f5;
       color: #1e4f5e;
     }
-    body.light-mode .bg-teal-500 { background-color: #2dd4bf; }
-    body.light-mode .text-white { color: #ffffff; }
-    body.light-mode .bg-teal-50 { background-color: #e6fffa; }
-    body.light-mode .text-teal-800 { color: #1e4f5e; }
-    body.light-mode .text-teal-600 { color: #1e4f5e; }
-    body.light-mode .input-field {
+    .bg-teal-500 { background-color: #2dd4bf; }
+    .text-white { color: #ffffff; }
+    .bg-teal-50 { background-color: #e6fffa; }
+    .text-teal-800 { color: #1e4f5e; }
+    .text-teal-600 { color: #1e4f5e; }
+    .input-field {
       background-color: #ffffff;
       color: #1e4f5e;
       border-color: #2dd4bf;
     }
-    body.light-mode .btn-primary { background-color: #2dd4bf; }
-    body.light-mode .btn-danger { background-color: #f87171; }
-
-    body.dark-mode {
-      background-color: #1e293b;
-      color: #e2e8f0;
-    }
-    body.dark-mode .bg-teal-500 { background-color: #0f766e; }
-    body.dark-mode .text-white { color: #e2e8f0; }
-    body.dark-mode .bg-teal-50 { background-color: #2d4a48; }
-    body.dark-mode .text-teal-800 { color: #a5f3fc; }
-    body.dark-mode .text-teal-600 { color: #a5f3fc; }
-    body.dark-mode .input-field {
-      background-color: #334155;
-      color: #e2e8f0;
-      border-color: #0f766e;
-    }
-    body.dark-mode .btn-primary { background-color: #0f766e; }
-    body.dark-mode .btn-danger { background-color: #b91c1c; }
-
-    .theme-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 40px;
-      height: 20px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 20px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 16px;
-      width: 16px;
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #2dd4bf;
-    }
-    input:checked + .slider:before {
-      transform: translateX(20px);
-    }
+    .btn-primary { background-color: #2dd4bf; }
+    .btn-danger { background-color: #f87171; }
 
     .logout-button {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-    }
-    .header-logo {
-      width: 40px;
-      height: 40px;
     }
   </style>
 </head>
@@ -108,15 +42,7 @@
         <i class="fas fa-tachometer-alt mr-2"></i>Admin Dashboard
       </h1>
       <div class="flex items-center gap-4">
-        <div class="theme-toggle">
-          <label class="switch">
-            <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
-            <span class="slider"></span>
-          </label>
-          <span class="text-white text-sm"><i class="fas fa-adjust mr-1"></i>Dark Mode</span>
-        </div>
         <button onclick="logout()" class="btn-danger ripple logout-button">
-          <img src="logo.png" alt="Logo" class="header-logo">
           <span><i class="fas fa-sign-out-alt mr-2"></i>Logout</span>
         </button>
       </div>
@@ -128,6 +54,7 @@
           <i class="fas fa-bullhorn mr-2"></i>Post Pengumuman
         </h2>
         <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
+        <input type="text" id="githubToken" class="input-field mb-4 mt-2" placeholder="Masukkan GitHub Token">
         <button onclick="postAnnouncement()" class="btn-primary mt-2 ripple">
           <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
         </button>
@@ -158,20 +85,7 @@
   <script>
     const ADMIN_PIN = '12345678';
 
-    function toggleTheme() {
-      const body = document.body;
-      const isDark = body.classList.contains('dark-mode');
-      body.classList.toggle('dark-mode', !isDark);
-      body.classList.toggle('light-mode', isDark);
-      localStorage.setItem('theme', isDark ? 'light' : 'dark');
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      const body = document.body;
-      body.classList.add(savedTheme + '-mode');
-      document.getElementById('themeSwitch').checked = savedTheme === 'dark';
-
       const currentUser = JSON.parse(localStorage.getItem('currentUser'));
       if (!currentUser || currentUser.Role !== 'Admin') {
         alert('Akses ditolak. Hanya Admin yang dapat mengakses dashboard ini.');
@@ -201,18 +115,99 @@
       }
     });
 
-    function postAnnouncement() {
+    async function postAnnouncement() {
       const text = document.getElementById('announcementText').value;
+      const githubToken = document.getElementById('githubToken').value.trim();
+      const postButton = document.querySelector('#postAnnouncementButton');
+    
       if (!text.trim()) {
         alert('Silakan isi pengumuman terlebih dahulu');
         return;
       }
-
-      localStorage.setItem('announcement', text);
-      alert('Pengumuman berhasil diposting! (Disimpan di localStorage untuk pengujian)');
-
-      if (window.opener) {
-        window.opener.postMessage({ type: 'updateAnnouncement', text: text }, '*');
+    
+      if (!githubToken) {
+        alert('Silakan masukkan GitHub Personal Access Token');
+        return;
+      }
+    
+      const patRegex = /^ghp_[a-zA-Z0-9]{36}$/;
+      if (!patRegex.test(githubToken)) {
+        alert('Format Personal Access Token tidak valid. Harus diawali "ghp_" dan panjang 40 karakter.');
+        return;
+      }
+    
+      postButton.disabled = true;
+      postButton.classList.add('loading');
+      postButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Posting...';
+    
+      try {
+        let sha = null;
+        let fileExists = false;
+        try {
+          const getResponse = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/announcement.txt', {
+            method: 'GET',
+            headers: {
+              'Authorization': `token ${githubToken}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+          const getData = await getResponse.json();
+    
+          if (getResponse.status === 200) {
+            fileExists = true;
+            sha = getData.sha;
+          } else if (getResponse.status !== 404) {
+            throw new Error(`Failed to fetch SHA: ${getData.message}`);
+          }
+        } catch (error) {
+          console.error('Error fetching SHA:', error);
+          alert(`Gagal mengambil SHA file: ${error.message}`);
+          resetButton();
+          return;
+        }
+    
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        const base64Content = btoa(String.fromCharCode(...new Uint8Array(data)));
+    
+        const payload = {
+          message: 'Update announcement.txt via Admin Dashboard',
+          content: base64Content,
+          branch: 'main'
+        };
+        if (fileExists && sha) {
+          payload.sha = sha;
+        }
+    
+        const response = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/announcement.txt', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${githubToken}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+    
+        const responseData = await response.json();
+    
+        if (response.ok) {
+          alert('Pengumuman berhasil diposting ke GitHub!');
+          window.location.reload();
+        } else {
+          throw new Error(`${response.status} - ${responseData.message}`);
+        }
+      } catch (error) {
+        console.error('Error posting announcement:', error);
+        alert(`Gagal memposting pengumuman: ${error.message}`);
+      } finally {
+        resetButton();
+      }
+    
+      function resetButton() {
+        postButton.disabled = false;
+        postButton.classList.remove('loading');
+        postButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Post Pengumuman';
       }
     }
 
@@ -235,13 +230,13 @@
 
       const patRegex = /^ghp_[a-zA-Z0-9]{36}$/;
       if (!patRegex.test(githubToken)) {
-        alert('Format Personal Access Token tidak valid. Harus diawali "ghp_" dan panjang 40 karakter. Silakan cek kembali.');
+        alert('Format Personal Access Token tidak valid. Harus diawali "ghp_" dan panjang 40 karakter.');
         resetButton();
         return;
       }
 
       if (file.size > 1_000_000) {
-        alert('Ukuran file terlalu besar. Maksimal 1MB. Silakan kecilkan file CSV Anda.');
+        alert('Ukuran file terlalu besar. Maksimal 1MB.');
         resetButton();
         return;
       }
@@ -255,15 +250,12 @@
         complete: async function(results) {
           const fixedColumns = ['PIN', 'Role', 'Nama', 'NIP', 'L/P', 'Unit Kerja'];
           const csvColumns = Object.keys(results.data[0] || {});
-          console.log('Detected CSV Headers:', csvColumns);
-
           const csvColumnsLower = csvColumns.map(col => col.toLowerCase());
           const fixedColumnsLower = fixedColumns.map(col => col.toLowerCase());
-          console.log('Comparing Headers (lowercase):', { csvColumnsLower, fixedColumnsLower });
           const missingFixedColumns = fixedColumns.filter((col, index) => !csvColumnsLower.includes(fixedColumnsLower[index]));
 
           if (missingFixedColumns.length > 0) {
-            alert(`Format CSV tidak valid. Kolom wajib yang hilang: ${missingFixedColumns.join(', ')}. Pastikan 6 kolom pertama adalah: ${fixedColumns.join(', ')} (huruf besar/kecil tidak masalah).`);
+            alert(`Format CSV tidak valid. Kolom wajib yang hilang: ${missingFixedColumns.join(', ')}.`);
             resetButton();
             return;
           }
@@ -274,8 +266,6 @@
             let sha = null;
             let fileExists = false;
             try {
-              console.log('Attempting to fetch SHA for data.csv...');
-              console.log('Authorization Header for GET:', `token ${githubToken}`);
               const getResponse = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/data.csv', {
                 method: 'GET',
                 headers: {
@@ -283,45 +273,24 @@
                   'Accept': 'application/vnd.github.v3+json'
                 }
               });
-              console.log('GET Response Status:', getResponse.status);
               const getData = await getResponse.json();
-              console.log('GET Response Data:', getData);
 
               if (getResponse.status === 200) {
                 fileExists = true;
                 sha = getData.sha;
-                console.log('SHA of existing data.csv:', sha);
-              } else if (getResponse.status === 404) {
-                fileExists = false;
-                console.log('data.csv not found, will create new file');
-                sha = null;
-              } else if (getResponse.status === 401) {
-                throw new Error('Bad credentials. Pastikan Personal Access Token valid dan punya scope "repo".');
-              } else if (getResponse.status === 403) {
-                throw new Error('Forbidden. Pastikan PAT punya akses ke repo dan belum mencapai rate limit.');
-              } else if (getResponse.status === 429) {
-                throw new Error('Rate limit exceeded. Tunggu beberapa menit sebelum mencoba lagi.');
-              } else {
-                throw new Error(`Failed to fetch SHA: ${getResponse.status} - ${getData.message}`);
+              } else if (getResponse.status !== 404) {
+                throw new Error(`Failed to fetch SHA: ${getData.message}`);
               }
             } catch (error) {
               console.error('Error fetching SHA:', error);
-              alert(`Gagal mengambil SHA file: ${error.message}. Silakan cek token dan akses repo.`);
+              alert(`Gagal mengambil SHA file: ${error.message}`);
               resetButton();
               return;
             }
 
-            let base64Content;
-            try {
-              const encoder = new TextEncoder();
-              const data = encoder.encode(csvContent);
-              base64Content = btoa(String.fromCharCode(...new Uint8Array(data)));
-            } catch (error) {
-              console.error('Error encoding CSV to Base64:', error);
-              alert('Gagal mengencode file CSV ke Base64. Pastikan file CSV dalam format UTF-8 tanpa karakter aneh.');
-              resetButton();
-              return;
-            }
+            const encoder = new TextEncoder();
+            const data = encoder.encode(csvContent);
+            const base64Content = btoa(String.fromCharCode(...new Uint8Array(data)));
 
             const payload = {
               message: 'Update data.csv via Admin Dashboard',
@@ -330,13 +299,8 @@
             };
             if (fileExists && sha) {
               payload.sha = sha;
-              console.log('Including SHA in payload:', sha);
-            } else {
-              console.log('No SHA included in payload (new file).');
             }
 
-            console.log('Final Payload for PUT:', payload);
-            console.log('Authorization Header for PUT:', `token ${githubToken}`);
             const response = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/data.csv', {
               method: 'PUT',
               headers: {
@@ -348,28 +312,23 @@
             });
 
             const responseData = await response.json();
-            console.log('GitHub API Response:', responseData);
 
             if (response.ok) {
-              alert('Data gaji berhasil diupload ke GitHub! File data.csv telah diperbarui.');
+              alert('Data gaji berhasil diupload ke GitHub!');
               window.location.reload();
-            } else if (response.status === 401) {
-              throw new Error('Bad credentials. Pastikan Personal Access Token valid dan punya scope "repo".');
-            } else if (response.status === 422) {
-              throw new Error(`Invalid request: ${responseData.message}. Pastikan file data.csv sesuai dan SHA benar.`);
             } else {
               throw new Error(`${response.status} - ${responseData.message}`);
             }
           } catch (error) {
             console.error('Error uploading to GitHub:', error);
-            alert(`Gagal mengupload ke GitHub: ${error.message}. Cek log di Console untuk detail lebih lanjut.`);
+            alert(`Gagal mengupload ke GitHub: ${error.message}`);
           } finally {
             resetButton();
           }
         },
         error: function(error) {
           console.error('Error parsing CSV:', error);
-          alert('Format file CSV tidak valid. Pastikan file dalam format CSV yang benar.');
+          alert('Format file CSV tidak valid.');
           resetButton();
         }
       });
