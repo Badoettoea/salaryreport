@@ -58,40 +58,6 @@
         <button onclick="postAnnouncement()" class="btn-primary mt-2 ripple">
           <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
         </button>
-        <!-- Tambahin di <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> di admin.html -->
-<div class="card">
-  <h2 class="text-xl font-semibold mb-3 text-teal-600">
-    <i class="fas fa-history mr-2"></i>Log Aktivitas User
-  </h2>
-  <div class="bg-teal-50 p-4 rounded-lg mb-4">
-    <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Lihat aktivitas login user</p>
-    <textarea id="logViewer" class="input-field" rows="6" readonly></textarea>
-  </div>
-  <button onclick="loadLogs()" class="btn-primary ripple">
-    <i class="fas fa-sync-alt mr-2"></i>Refresh Logs
-  </button>
-</div>
-
-<!-- Tambahin di <script> sebelum </body> -->
-<script>
-  async function loadLogs() {
-    const logViewer = document.getElementById('logViewer');
-    try {
-      const response = await fetch('https://raw.githubusercontent.com/Badoettoea/salaryreport/main/logs.txt', {
-        cache: 'no-store'
-      });
-      if (response.ok) {
-        const logs = await response.text();
-        logViewer.value = logs || 'Belum ada log aktivitas.';
-      } else {
-        throw new Error('Failed to fetch logs');
-      }
-    } catch (error) {
-      console.error('Error loading logs:', error);
-      logViewer.value = 'Gagal memuat log. Cek koneksi internet.';
-    }
-  }
-</script>
       </div>
 
       <div class="card">
@@ -101,7 +67,7 @@
         <div class="bg-teal-50 p-4 rounded-lg mb-4">
           <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
           <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Kolom wajib: PIN, Role, Nama, NIP, L/P, Unit Kerja. Kolom potongan setelahnya boleh dinamis.</p>
-          <input type="text" id="githubToken" class="input-field mb-4" placeholder="Masukkan GitHub Token">
+          <input type="text" id="githubTokenCsv" class="input-field mb-4" placeholder="Masukkan GitHub Token">
           <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
             file:mr-4 file:py-2 file:px-4
             file:rounded-lg file:border-0
@@ -111,6 +77,19 @@
         </div>
         <button id="uploadButton" onclick="uploadDatabase()" class="btn-primary ripple">
           <i class="fas fa-upload mr-2"></i>Upload Data Gaji
+        </button>
+      </div>
+
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-3 text-teal-600">
+          <i class="fas fa-history mr-2"></i>Log Aktivitas User
+        </h2>
+        <div class="bg-teal-50 p-4 rounded-lg mb-4">
+          <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Lihat aktivitas login user</p>
+          <textarea id="logViewer" class="input-field" rows="6" readonly></textarea>
+        </div>
+        <button onclick="loadLogs()" class="btn-primary ripple">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh Logs
         </button>
       </div>
     </div>
@@ -153,27 +132,27 @@
       const text = document.getElementById('announcementText').value;
       const githubToken = document.getElementById('githubToken').value.trim();
       const postButton = document.querySelector('#postAnnouncementButton');
-    
+
       if (!text.trim()) {
         alert('Silakan isi pengumuman terlebih dahulu');
         return;
       }
-    
+
       if (!githubToken) {
         alert('Silakan masukkan GitHub Personal Access Token');
         return;
       }
-    
+
       const patRegex = /^ghp_[a-zA-Z0-9]{36}$/;
       if (!patRegex.test(githubToken)) {
         alert('Format Personal Access Token tidak valid. Harus diawali "ghp_" dan panjang 40 karakter.');
         return;
       }
-    
+
       postButton.disabled = true;
       postButton.classList.add('loading');
       postButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Posting...';
-    
+
       try {
         let sha = null;
         let fileExists = false;
@@ -186,7 +165,7 @@
             }
           });
           const getData = await getResponse.json();
-    
+
           if (getResponse.status === 200) {
             fileExists = true;
             sha = getData.sha;
@@ -199,11 +178,11 @@
           resetButton();
           return;
         }
-    
+
         const encoder = new TextEncoder();
         const data = encoder.encode(text);
         const base64Content = btoa(String.fromCharCode(...new Uint8Array(data)));
-    
+
         const payload = {
           message: 'Update announcement.txt via Admin Dashboard',
           content: base64Content,
@@ -212,7 +191,7 @@
         if (fileExists && sha) {
           payload.sha = sha;
         }
-    
+
         const response = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/announcement.txt', {
           method: 'PUT',
           headers: {
@@ -222,9 +201,9 @@
           },
           body: JSON.stringify(payload)
         });
-    
+
         const responseData = await response.json();
-    
+
         if (response.ok) {
           alert('Pengumuman berhasil diposting ke GitHub!');
           window.location.reload();
@@ -237,7 +216,7 @@
       } finally {
         resetButton();
       }
-    
+
       function resetButton() {
         postButton.disabled = false;
         postButton.classList.remove('loading');
@@ -248,7 +227,7 @@
     async function uploadDatabase() {
       const file = document.getElementById('csvUpload').files[0];
       const uploadButton = document.getElementById('uploadButton');
-      const githubToken = document.getElementById('githubToken').value.trim();
+      const githubToken = document.getElementById('githubTokenCsv').value.trim();
 
       if (!file) {
         alert('Silakan pilih file CSV terlebih dahulu');
@@ -371,6 +350,24 @@
         uploadButton.disabled = false;
         uploadButton.classList.remove('loading');
         uploadButton.innerHTML = '<i class="fas fa-upload mr-2"></i>Upload Data Gaji';
+      }
+    }
+
+    async function loadLogs() {
+      const logViewer = document.getElementById('logViewer');
+      try {
+        const response = await fetch('https://raw.githubusercontent.com/Badoettoea/salaryreport/main/logs.txt', {
+          cache: 'no-store'
+        });
+        if (response.ok) {
+          const logs = await response.text();
+          logViewer.value = logs || 'Belum ada log aktivitas.';
+        } else {
+          throw new Error('Failed to fetch logs');
+        }
+      } catch (error) {
+        console.error('Error loading logs:', error);
+        logViewer.value = 'Gagal memuat log. Cek koneksi internet.';
       }
     }
 
