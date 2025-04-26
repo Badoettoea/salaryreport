@@ -5,119 +5,372 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700 displayswap" rel="stylesheet">
   <style>
+    body {
+      background-color: #fef5f5;
+      color: #1e4f5e;
+    }
+    .bg-teal-500 { background-color: #2dd4bf; }
+    .text-white { color: #ffffff; }
+    .bg-teal-50 { background-color: #e6fffa; }
+    .text-teal-800 { color: #1e4f5e; }
+    .text-teal-600 { color: #1e4f5e; }
     .input-field {
-      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+      background-color: #ffffff;
+      color: #1e4f5e;
+      border-color: #2dd4bf;
     }
-    .btn-primary {
-      @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 active:bg-blue-700;
-    }
-    .btn-danger {
-      @apply bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 active:bg-red-700;
-    }
-    .number-cell {
-      @apply text-right font-mono;
+    .btn-primary { background-color: #2dd4bf; }
+    .btn-danger { background-color: #f87171; }
+
+    .logout-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">
-        <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Admin Dashboard
+<body class="min-h-screen p-4 font-poppins transition-colors duration-300">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-6 bg-teal-500 p-4 rounded-xl shadow-lg">
+      <h1 class="text-2xl font-bold text-white">
+        <i class="fas fa-tachometer-alt mr-2"></i>Admin Dashboard
       </h1>
-      <button onclick="logout()" class="btn-danger">
-        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-      </button>
-    </div>
-
-    <div class="mb-8">
-      <h2 class="text-xl font-semibold mb-3 text-gray-700">
-        <i class="fas fa-bullhorn mr-2 text-blue-500"></i>Post Pengumuman
-      </h2>
-      <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
-      <button onclick="postAnnouncement()" class="btn-primary mt-2">
-        <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
-      </button>
-    </div>
-
-    <div class="mb-8">
-      <h2 class="text-xl font-semibold mb-3 text-gray-700">
-        <i class="fas fa-database mr-2 text-blue-500"></i>Kelola Data Gaji
-      </h2>
-      <div class="bg-blue-50 p-4 rounded-lg mb-4">
-        <p class="text-blue-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
-        <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
-          file:mr-4 file:py-2 file:px-4
-          file:rounded-lg file:border-0
-          file:text-sm file:font-semibold
-          file:bg-blue-50 file:text-blue-700
-          hover:file:bg-blue-100">
+      <div class="flex items-center gap-4">
+        <button onclick="logout()" class="btn-danger ripple logout-button">
+          <span><i class="fas fa-sign-out-alt mr-2"></i>Logout</span>
+        </button>
       </div>
-      <button onclick="uploadDatabase()" class="btn-primary">
-        <i class="fas fa-upload mr-2"></i>Upload Data Gaji
-      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-3 text-teal-600">
+          <i class="fas fa-bullhorn mr-2"></i>Post Pengumuman
+        </h2>
+        <textarea id="announcementText" class="input-field" rows="4" placeholder="Tulis pengumuman..."></textarea>
+        <input type="text" id="githubToken" class="input-field mb-4 mt-2" placeholder="Masukkan GitHub Token">
+        <button onclick="postAnnouncement()" class="btn-primary mt-2 ripple">
+          <i class="fas fa-paper-plane mr-2"></i>Post Pengumuman
+        </button>
+      </div>
+
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-3 text-teal-600">
+          <i class="fas fa-database mr-2"></i>Kelola Data Gaji
+        </h2>
+        <div class="bg-teal-50 p-4 rounded-lg mb-4">
+          <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Upload file CSV dengan format data gaji terbaru</p>
+          <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Kolom wajib: PIN, Role, Nama, NIP, L/P, Unit Kerja. Kolom potongan setelahnya boleh dinamis.</p>
+          <input type="text" id="githubTokenCsv" class="input-field mb-4" placeholder="Masukkan GitHub Token">
+          <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-500
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-lg file:border-0
+            file:text-sm file:font-semibold
+            file:bg-teal-100 file:text-teal-700
+            hover:file:bg-teal-200">
+        </div>
+        <button id="uploadButton" onclick="uploadDatabase()" class="btn-primary ripple">
+          <i class="fas fa-upload mr-2"></i>Upload Data Gaji
+        </button>
+      </div>
+
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-3 text-teal-600">
+          <i class="fas fa-history mr-2"></i>Log Aktivitas User
+        </h2>
+        <div class="bg-teal-50 p-4 rounded-lg mb-4">
+          <p class="text-teal-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Lihat aktivitas login user</p>
+          <textarea id="logViewer" class="input-field" rows="6" readonly></textarea>
+        </div>
+        <button onclick="loadLogs()" class="btn-primary ripple">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh Logs
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
-    // Fungsi untuk post pengumuman
-    function postAnnouncement() {
+    const ADMIN_PIN = '12345678';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (!currentUser || currentUser.Role !== 'Admin') {
+        alert('Akses ditolak. Hanya Admin yang dapat mengakses dashboard ini.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      document.querySelectorAll('.ripple').forEach(button => {
+        button.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple-effect');
+          const rect = button.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = `${size}px`;
+          ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+          ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+          button.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 600);
+        });
+      });
+
+      if (typeof Papa === 'undefined') {
+        console.error('PapaParse gagal load dari file lokal.');
+        alert('Library parsing CSV gagal load. Pastikan file papaparse.min.js ada di repo.');
+      } else {
+        console.log('PapaParse berhasil load dari file lokal!');
+      }
+    });
+
+    async function postAnnouncement() {
       const text = document.getElementById('announcementText').value;
+      const githubToken = document.getElementById('githubToken').value.trim();
+      const postButton = document.querySelector('#postAnnouncementButton');
+
       if (!text.trim()) {
         alert('Silakan isi pengumuman terlebih dahulu');
         return;
       }
 
-      fetch('announcement.txt', {
-        method: 'PUT',
-        body: text
-      })
-      .then(() => {
-        alert('Pengumuman berhasil diposting!');
-        if (window.opener) {
-          window.opener.location.reload();
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Gagal memposting pengumuman');
-      });
-    }
-
-    // Fungsi untuk upload data gaji
-    function uploadDatabase() {
-      const file = document.getElementById('csvUpload').files[0];
-      if (!file) {
-        alert('Silakan pilih file CSV terlebih dahulu');
+      if (!githubToken) {
+        alert('Silakan masukkan GitHub Personal Access Token');
         return;
       }
 
+      const patRegex = /^ghp_[a-zA-Z0-9]{36}$/;
+      if (!patRegex.test(githubToken)) {
+        alert('Format Personal Access Token tidak valid. Harus diawali "ghp_" dan panjang 40 karakter.');
+        return;
+      }
+
+      postButton.disabled = true;
+      postButton.classList.add('loading');
+      postButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Posting...';
+
+      try {
+        let sha = null;
+        let fileExists = false;
+        try {
+          const getResponse = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/announcement.txt', {
+            method: 'GET',
+            headers: {
+              'Authorization': `token ${githubToken}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+          const getData = await getResponse.json();
+
+          if (getResponse.status === 200) {
+            fileExists = true;
+            sha = getData.sha;
+          } else if (getResponse.status !== 404) {
+            throw new Error(`Failed to fetch SHA: ${getData.message}`);
+          }
+        } catch (error) {
+          console.error('Error fetching SHA:', error);
+          alert(`Gagal mengambil SHA file: ${error.message}`);
+          resetButton();
+          return;
+        }
+
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        const base64Content = btoa(String.fromCharCode(...new Uint8Array(data)));
+
+        const payload = {
+          message: 'Update announcement.txt via Admin Dashboard',
+          content: base64Content,
+          branch: 'main'
+        };
+        if (fileExists && sha) {
+          payload.sha = sha;
+        }
+
+        const response = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/announcement.txt', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${githubToken}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          alert('Pengumuman berhasil diposting ke GitHub!');
+          window.location.reload();
+        } else {
+          throw new Error(`${response.status} - ${responseData.message}`);
+        }
+      } catch (error) {
+        console.error('Error posting announcement:', error);
+        alert(`Gagal memposting pengumuman: ${error.message}`);
+      } finally {
+        resetButton();
+      }
+
+      function resetButton() {
+        postButton.disabled = false;
+        postButton.classList.remove('loading');
+        postButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Post Pengumuman';
+      }
+    }
+
+    async function uploadDatabase() {
+      const file = document.getElementById('csvUpload').files[0];
+      const uploadButton = document.getElementById('uploadButton');
+      const githubToken = document.getElementById('githubTokenCsv').value.trim();
+
+      if (!file) {
+        alert('Silakan pilih file CSV terlebih dahulu');
+        resetButton();
+        return;
+      }
+
+      if (!githubToken) {
+        alert('Silakan masukkan GitHub Personal Access Token');
+        resetButton();
+        return;
+      }
+
+      const patRegex = /^ghp_[a-zA-Z0-9]{36}$/;
+      if (!patRegex.test(githubToken)) {
+        alert('Format Personal Access Token tidak valid. Harus diawali "ghp_" dan panjang 40 karakter.');
+        resetButton();
+        return;
+      }
+
+      if (file.size > 1_000_000) {
+        alert('Ukuran file terlalu besar. Maksimal 1MB.');
+        resetButton();
+        return;
+      }
+
+      uploadButton.disabled = true;
+      uploadButton.classList.add('loading');
+      uploadButton.innerHTML = '<i class="fas fa-upload mr-2"></i>Uploading...';
+
       Papa.parse(file, {
         header: true,
-        complete: function(results) {
-          const csv = Papa.unparse(results.data);
-          fetch('data.csv', {
-            method: 'PUT',
-            body: csv
-          })
-          .then(() => alert('Data gaji berhasil diupdate!'))
-          .catch(error => {
-            console.error('Error:', error);
-            alert('Gagal mengupdate data gaji');
-          });
+        complete: async function(results) {
+          const fixedColumns = ['PIN', 'Role', 'Nama', 'NIP', 'L/P', 'Unit Kerja'];
+          const csvColumns = Object.keys(results.data[0] || {});
+          const csvColumnsLower = csvColumns.map(col => col.toLowerCase());
+          const fixedColumnsLower = fixedColumns.map(col => col.toLowerCase());
+          const missingFixedColumns = fixedColumns.filter((col, index) => !csvColumnsLower.includes(fixedColumnsLower[index]));
+
+          if (missingFixedColumns.length > 0) {
+            alert(`Format CSV tidak valid. Kolom wajib yang hilang: ${missingFixedColumns.join(', ')}.`);
+            resetButton();
+            return;
+          }
+
+          try {
+            const csvContent = Papa.unparse(results.data);
+
+            let sha = null;
+            let fileExists = false;
+            try {
+              const getResponse = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/data.csv', {
+                method: 'GET',
+                headers: {
+                  'Authorization': `token ${githubToken}`,
+                  'Accept': 'application/vnd.github.v3+json'
+                }
+              });
+              const getData = await getResponse.json();
+
+              if (getResponse.status === 200) {
+                fileExists = true;
+                sha = getData.sha;
+              } else if (getResponse.status !== 404) {
+                throw new Error(`Failed to fetch SHA: ${getData.message}`);
+              }
+            } catch (error) {
+              console.error('Error fetching SHA:', error);
+              alert(`Gagal mengambil SHA file: ${error.message}`);
+              resetButton();
+              return;
+            }
+
+            const encoder = new TextEncoder();
+            const data = encoder.encode(csvContent);
+            const base64Content = btoa(String.fromCharCode(...new Uint8Array(data)));
+
+            const payload = {
+              message: 'Update data.csv via Admin Dashboard',
+              content: base64Content,
+              branch: 'main'
+            };
+            if (fileExists && sha) {
+              payload.sha = sha;
+            }
+
+            const response = await fetch('https://api.github.com/repos/badoettoea/salaryreport/contents/data.csv', {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${githubToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const responseData = await response.json();
+
+            if (response.ok) {
+              alert('Data gaji berhasil diupload ke GitHub!');
+              window.location.reload();
+            } else {
+              throw new Error(`${response.status} - ${responseData.message}`);
+            }
+          } catch (error) {
+            console.error('Error uploading to GitHub:', error);
+            alert(`Gagal mengupload ke GitHub: ${error.message}`);
+          } finally {
+            resetButton();
+          }
         },
         error: function(error) {
           console.error('Error parsing CSV:', error);
-          alert('Format file CSV tidak valid');
+          alert('Format file CSV tidak valid.');
+          resetButton();
         }
       });
+
+      function resetButton() {
+        uploadButton.disabled = false;
+        uploadButton.classList.remove('loading');
+        uploadButton.innerHTML = '<i class="fas fa-upload mr-2"></i>Upload Data Gaji';
+      }
     }
 
-    // Fungsi logout
+    async function loadLogs() {
+      const logViewer = document.getElementById('logViewer');
+      try {
+        const response = await fetch('https://raw.githubusercontent.com/Badoettoea/salaryreport/main/logs.txt', {
+          cache: 'no-store'
+        });
+        if (response.ok) {
+          const logs = await response.text();
+          logViewer.value = logs || 'Belum ada log aktivitas.';
+        } else {
+          throw new Error('Failed to fetch logs');
+        }
+      } catch (error) {
+        console.error('Error loading logs:', error);
+        logViewer.value = 'Gagal memuat log. Cek koneksi internet.';
+      }
+    }
+
     function logout() {
       localStorage.removeItem('currentUser');
       window.location.href = 'index.html';

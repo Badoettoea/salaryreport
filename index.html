@@ -3,168 +3,265 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Sistem Manajemen Keuangan</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Info Potongan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="papaparse.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    * { 
-      transition: all 0.2s ease-in-out;
+    body {
+      background-image: url('https://raw.githubusercontent.com/Badoettoea/salaryreport/e47a4fa227479ecd58bc42b6a2b3571bb6ca877c/Designer.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #1e4f5e;
+      min-height: 100vh;
     }
+    .text-gray-800 { color: #1e4f5e; }
+    .text-gray-600 { color: #4b5e6a; }
+    .text-teal-500 { color: #2dd4bf; }
+    .text-teal-900 { color: #1e4f5e; }
+    .bg-teal-100 { background-color: #e6fffa; }
+    .border-teal-600 { border-color: #2dd4bf; }
     .input-field {
-      @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+      background-color: #ffffff;
+      color: #1e4f5e;
+      border-color: #2dd4bf;
     }
-    .btn-primary {
-      @apply w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 active:bg-blue-700;
+    .btn-primary { background-color: #2dd4bf; }
+    .text-gray-400 { color: #6b7280; }
+
+    .login-card {
+      position: absolute;
+      bottom: 25%;
+      width: 100%;
+      max-width: 400px;
+      padding: 0.5rem;
+      box-sizing: border-box;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      left: 50%;
+      transform: translateX(-50%);
     }
-    .btn-secondary {
-      @apply w-full bg-gray-200 text-gray-800 p-3 rounded-lg hover:bg-gray-300 active:bg-gray-400;
+
+    .announcement-container {
+      position: relative;
+      width: 100%;
+      min-height: 2rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .announcement-text {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 20s linear infinite;
+      will-change: transform;
+      font-size: 2rem;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    .announcement-text:hover {
+      animation-play-state: paused;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    #announcement {
+      padding: 0;
+      background: transparent;
+      border: none;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .login-card {
+        padding: 0.5rem;
+        max-width: 90%;
+        bottom: 20%;
+      }
+      .announcement-text {
+        font-size: 1.5rem;
+      }
+      .text-5xl {
+        font-size: 3rem;
+      }
+      .announcement-container {
+        max-width: 100%;
+      }
+    }
+
+    .animate-bounce {
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+    .animate-slide-in {
+      animation: slide-in 0.5s ease-out;
+    }
+    @keyframes slide-in {
+      0% { transform: translateX(-100%); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+    .animate-pulse {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center min-h-screen p-4">
-  <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md hover:shadow-3xl transition-shadow duration-300">
-    <div class="text-center mb-6">
-      <i class="fas fa-wallet text-4xl text-blue-500 mb-2"></i>
-      <h1 class="text-3xl font-bold text-gray-800">Manajemen Keuangan</h1>
-      <p class="text-gray-600 mt-2">Masukkan PIN untuk melanjutkan</p>
+<body>
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <i class="fas fa-wallet text-5xl text-teal-500 mb-3 animate-bounce"></i>
     </div>
-    
-    <div id="announcement" class="mb-6 p-4 bg-blue-50 rounded-lg text-blue-800 border-l-4 border-blue-500"></div>
-    
+
     <div class="space-y-4">
-<<<<<<< HEAD
       <div class="relative">
-        <input id="pinInput" type="password" placeholder="Masukkan PIN" 
-               class="input-field pr-10">
-        <i class="fas fa-key absolute right-3 top-3.5 text-gray-400"></i>
+        <input id="pinInput" type="text" placeholder="Masukkan PIN" class="input-field">
+        <i class="fas fa-key absolute right-4 top-4 text-gray-400 text-lg animate-pulse"></i>
       </div>
-      
-      <button id="loginUser" class="btn-primary">
-        <i class="fas fa-user mr-2"></i> Login Karyawan
+
+      <button id="loginButton" class="btn-primary ripple">
+        <i class="fas fa-sign-in-alt mr-2"></i> Login
       </button>
-      
-      <button id="loginAdmin" class="btn-secondary">
-        <i class="fas fa-lock mr-2"></i> Login Admin
-      </button>
-=======
-      <input id=" dorp-2xl pinInput" type="text" placeholder="Masukkan PIN" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50">
-      <button onclick="login('user')" class="w-full bg-blue-400 text-white p-2 rounded hover:bg-blue-500">Login User</button>
-      <button onclick="login('admin')" class="w-full bg-green-400 text-white p-2 rounded hover:bg-green-500">Login Admin</button>
->>>>>>> parent of 98c2588 (Update index.html)
+    </div>
+
+    <div id="announcement" class="animate-slide-in">
+      <div class="announcement-container">
+        <span id="announcementText" class="announcement-text">Memuat pengumuman...</span>
+      </div>
     </div>
   </div>
 
   <script>
-<<<<<<< HEAD
-    document.addEventListener('DOMContentLoaded', () => {
-      let loginData = [];
-      let announcementData = '';
+    const ADMIN_PIN = '12345678';
 
-      // Load data login
-      function loadLoginData() {
-        Papa.parse('login.csv', {
+    document.addEventListener('DOMContentLoaded', () => {
+      let userData = [];
+
+      function loadUserData() {
+        Papa.parse('https://raw.githubusercontent.com/Badoettoea/salaryreport/main/data.csv', {
           download: true,
           header: true,
           complete: function(results) {
-            loginData = results.data;
+            userData = results.data;
             loadAnnouncement();
           },
           error: function(error) {
-            console.error("Error loading login data:", error);
+            console.error("Error loading user data:", error);
+            const announcementEl = document.getElementById('announcementText');
+            announcementEl.textContent = 'Gagal memuat data pengguna. Cek koneksi internet.';
           }
-=======
-    let database = [];
-    const headers = ['PIN', 'Role', 'Nama', 'NIP', 'Unit Kerja', 'Gaji Kotor', 'Potongan BPD', 'DPLK', 'KPRI', 'PGRI', 'HPPT', 'Dansos', 'Bazda', 'Darma Wanita', 'Korpri', 'Halbi', 'Gaji Bersih'];
-
-    // Load CSV
-    function loadDatabase() {
-      Papa.parse('database.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-          database = results.data;
-          loadAnnouncement();
-        }
-      });
-    }
-
-    // Load announcement
-    function loadAnnouncement() {
-      fetch('announcement.txt')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('announcement').innerText = data || 'Tidak ada pengumuman.';
->>>>>>> parent of 98c2588 (Update index.html)
         });
-    }
-
-<<<<<<< HEAD
-      // Load pengumuman
-      function loadAnnouncement() {
-        fetch('announcement.txt')
-          .then(response => response.text())
-          .then(data => {
-            announcementData = data;
-            const announcementEl = document.getElementById('announcement');
-            announcementEl.innerHTML = data 
-              ? `<strong><i class="fas fa-bullhorn mr-2"></i>Pengumuman:</strong> ${data}`
-              : '<i class="fas fa-info-circle mr-2"></i>Tidak ada pengumuman';
-          })
-          .catch(error => {
-            console.error("Error loading announcement:", error);
-          });
       }
 
-      // Fungsi login
-      function login(role) {
+      async function loadAnnouncement() {
+        const announcementEl = document.getElementById('announcementText');
+        try {
+          const response = await fetch('https://raw.githubusercontent.com/Badoettoea/salaryreport/main/announcement.txt', {
+            cache: 'no-store'
+          });
+          if (response.ok) {
+            const announcement = await response.text();
+            announcementEl.textContent = announcement ? ` ${announcement}` : '🥸';
+          } else {
+            throw new Error('Failed to fetch announcement');
+          }
+        } catch (error) {
+          console.error('Error loading announcement:', error);
+          announcementEl.textContent = 'Gagal memuat pengumuman. Cek koneksi internet.';
+        }
+      }
+
+      async function logToSheets(pin, role) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout 5 detik
+          const response = await fetch('https://script.google.com/macros/s/AKfycbz2D7GumxUia7Zq-nmfue8_EWZ44bEmeYjAvu1wSlAZbgFo-9jlDl85fQizYvcg6Tnk/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin, role }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+          }
+          const result = await response.text();
+          console.log('Log disimpan ke Sheets:', result);
+        } catch (error) {
+          console.error('Gagal menyimpan log ke Sheets:', error.message);
+        }
+      }
+
+      async function login() {
         const pin = document.getElementById('pinInput').value.trim();
         if (!pin) {
           alert('Silakan masukkan PIN terlebih dahulu');
           return;
         }
 
-        const user = loginData.find(d => d.PIN === pin && d.Role === (role === 'user' ? 'User' : 'Admin'));
-        
-        if (user) {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = role === 'user' ? 'user.html' : 'admin.html';
-        } else {
-          alert(`PIN tidak valid atau Anda tidak memiliki akses sebagai ${role === 'user' ? 'User' : 'Admin'}`);
-=======
-    // Login function
-    function login(role) {
-      const pin = document.getElementById('pinInput').value;
-      if (role === 'user') {
-        const user = database.find(d => d.PIN === pin && d.Role === 'User');
-        if (user) {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          window.location.href = 'user.html';
-        } else {
-          alert('PIN tidak valid atau bukan user.');
-        }
-      } else if (role === 'admin') {
-        const admin = database.find(d => d.PIN === pin && d.Role === 'Admin');
-        if (admin) {
+        if (pin === ADMIN_PIN) {
+          localStorage.setItem('currentUser', JSON.stringify({ PIN: pin, Role: 'Admin' }));
+          await logToSheets(pin, 'Admin');
           window.location.href = 'admin.html';
+          return;
+        }
+
+        const user = userData.find(d => d.PIN === pin);
+        if (user) {
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          await logToSheets(pin, user.Role);
+          window.location.href = user.Role === 'Admin' ? 'admin.html' : 'user.html';
         } else {
-          alert('PIN tidak valid atau bukan admin.');
->>>>>>> parent of 98c2588 (Update index.html)
+          alert('PIN tidak valid');
         }
       }
-    }
 
-<<<<<<< HEAD
-      // Event listeners
-      document.getElementById('loginUser').addEventListener('click', () => login('user'));
-      document.getElementById('loginAdmin').addEventListener('click', () => login('admin'));
+      document.getElementById('loginButton').addEventListener('click', login);
 
-      // Load data saat pertama kali
-      loadLoginData();
+      document.querySelectorAll('.ripple').forEach(button => {
+        button.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple-effect');
+          const rect = button.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = `${size}px`;
+          ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+          ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+          button.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 600);
+        });
+      });
+
+      if (typeof Papa === 'undefined') {
+        console.error('PapaParse gagal load dari file lokal.');
+        const announcementEl = document.getElementById('announcementText');
+        announcementEl.textContent = 'Library parsing CSV gagal load.';
+      } else {
+        console.log('PapaParse berhasil load dari file lokal!');
+        loadUserData();
+      }
+
+      setInterval(loadAnnouncement, 10000);
     });
-=======
-    loadDatabase();
->>>>>>> parent of 98c2588 (Update index.html)
   </script>
 </body>
 </html>
